@@ -1,0 +1,149 @@
+<section class="vh-100">
+  <div class="container-fluid h-custom" style="position: relative;top: 5rem;">
+    <div class="row d-flex justify-content-center align-items-center ">
+      <div class="col-md-8 col-lg-10 col-xl-4 offset-xl-1">
+        <!-- <div class="form-outline mb-4 d-flex justify-content-center align-items-center">
+          <img src="assets/images/supreme-logo.jpg" class="img-thumbnail" alt="Supreme Tech LED USA"
+            style="width: 50%; background-color: transparent; padding-left: 1vh;">
+        </div> -->
+        <h2 class="text-center ml-4">EZPZ POS</h2>
+          <div class="form-outline  d-flex justify-content-center align-items-center">
+          <img src="{{logoName}}" class="img-thumbnail" alt="EZPZ Back Office">
+
+          <!-- <div class="form-outline  d-flex justify-content-center align-items-center"> -->
+
+        </div>
+        <div class="col-1-1" style="position: relative;top: 3rem;text-align: center;"><label class="errorLabel">{{errorMsg}}</label></div>
+        <br/><br/>
+        <form  [formGroup]="registerForm" >
+          <div *ngIf="registerFlag" class="col" >
+            <label style="font-weight:bolder ;padding-top: 1vh; color: rgba(22, 20, 20, 0.603); font-size: large;">Register User </label>
+        </div>
+        <br>
+          <!-- Email input -->
+          <div class="form-outline mb-4">
+            <input type="text" formControlName="loginId" class="form-control form-control-lg" style="background-color: #e6f3fd;" placeholder="Enter User Id" />
+          </div>
+
+          <!-- Password input -->
+          <div class="form-outline mb-3">
+            <input type="password" id="password" [(ngModel)]="password" [type]="showPassword ? 'text' : 'password'"
+             formControlName="loginPassword" class="form-control form-control-lg" style="background-color: #e6f3fd;" placeholder="Enter password" style="width: 100%;">
+             <!-- <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16" (click)="togglePasswordVisibility()" style="cursor:pointer;width: 10%;position: absolute;right:440px;bottom:137px;">
+              <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
+              <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/>
+            </svg> -->
+          </div>
+
+          <div *ngIf="registerFlag">
+            <div class="form-outline mb-3">
+                <input class="form-control form-control-lg" style="background-color: #e6f3fd;" type="text" formControlName="firstName" placeholder="Enter First Name"
+
+                [ngClass]="{ 'is-invalid': submitted && f['firstName'].errors }"
+                required>
+                <div  *ngIf="submitted && f['firstName'].errors" style="color: red; font-weight: bold;">
+                    <div *ngIf="f['firstName'].errors['required']">First Name is required</div>
+                </div>
+              </div>
+              <div class="form-outline mb-3">
+                <input class="form-control form-control-lg" type="text" formControlName="lastName" style="background-color: #e6f3fd;" placeholder="Enter Last Name"
+
+                [ngClass]="{ 'is-invalid': submitted && f['lastName'].errors }"
+                required>
+                <div  *ngIf="submitted && f['lastName'].errors" style="color: red; font-weight: bold;">
+                    <div *ngIf="f['lastName'].errors['required']">Last Name is required</div>
+                </div>
+              </div>
+              <div class="form-outline mb-3">
+                <input class="form-control form-control-lg" type="email" formControlName="email" style="background-color: #e6f3fd;" placeholder="Enter Email"
+
+                [ngClass]="{ 'is-invalid': submitted && f['email'].errors }"
+                required email>
+                <div  *ngIf="submitted && f['email'].errors" style="color: red; font-weight: bold;">
+                    <div *ngIf="f['email'].errors['required']">Email is required</div>
+                    <div *ngIf="f['email'].errors['email']">Email is Invalid</div>
+                </div>
+            </div>
+          </div>
+
+          <a *ngIf="!registerFlag" href="#!" style="color: #6dbe78; font-weight: bolder;">Forgot password?</a>
+          <div *ngIf="!registerFlag" class="d-grid gap-2" style="padding-top:1vh ;">
+            <button type="submit" class="btn btn-primary btn-lg" style="background-color:#eb5334;width: 100%; " (click)="signInClick()">
+              <fa-icon [icon]="faSignIn" style="padding-right:1vh ;"></fa-icon>
+              Sign In
+            </button>
+          </div>
+
+          <!-- Submit button -->
+
+<!--
+
+          <div *ngIf="!registerFlag" class="divider d-flex align-items-center my-4">
+            <p class="text-center fw-bold mx-3 mb-0 text-muted">OR</p>
+          </div>
+          <div *ngIf="!registerFlag">
+            <div class="d-grid gap-2" style="padding-bottom:1vh ;">
+              <a class="btn btn-primary btn-lg btn-block" style="background-color: #6dbe78" href="#!" role="button">
+                <fa-icon [icon]="faGoogle"></fa-icon>
+                Continue with Google
+              </a>
+            </div>
+
+            <div class="d-grid gap-2" style="padding-bottom:1vh ;">
+              <a class="btn btn-primary btn-lg btn-block" style="background-color: #3b5998" href="#!" role="button">
+                <fa-icon [icon]="faFacebook"></fa-icon>
+                Continue with Facebook
+              </a>
+            </div>
+
+            <div class="d-grid gap-2">
+              <a class="btn btn-primary btn-lg btn-block" style="background-color: #55acee" href="#!" role="button">
+                <fa-icon [icon]="faTwitter"></fa-icon>
+                Continue with Twitter
+              </a>
+            </div>
+
+            <p class="small fw-bold mt-2 pt-1 mb-0">Don't have an account? <a (click)="register()" class="link-danger" style="cursor: pointer;">Register</a>
+            </p>
+
+          </div>
+          -->
+        </form>
+
+        <div *ngIf="registerFlag" class="row" style="padding-bottom: 1vh; padding-top: 2vh;">
+          <div class="col">
+            <button type="button" (click)="onRegisterSave()" class="btn btn-primary" >
+              <fa-icon [icon]="faSave" style="padding-right:1vh ;"></fa-icon>
+              <label class="button-label" >Save</label>
+            </button>
+
+          </div>
+          <div class="col">
+            <button type="button" (click)="onClear()" class="btn btn-danger"  >
+              <fa-icon [icon]="faSave" style="padding-right:1vh ;"></fa-icon>
+              <label class="button-label">Clear</label>
+            </button>
+          </div>
+          <div class="col">
+            <button type="button" (click)="registerFlag=false" class="btn btn-success"  >
+              <fa-icon [icon]="faHome" style="padding-right:1vh ;"></fa-icon>
+              <label class="button-label">Close</label>
+            </button>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+        <div class="row d-flex justify-content-center align-items-center mt-4">
+      <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
+        <div class="form-outline  d-flex justify-content-center align-items-center">
+      Version: {{versionNumber}}
+      Environment: {{appEnv}}
+    </div>
+  </div>
+</div>
+
+  </div>
+
+</section>

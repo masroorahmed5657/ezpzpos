@@ -25,7 +25,7 @@ module.exports = function (config) {
       suppressAll: true // removes the duplicated traces
     },
     coverageReporter: {
-      dir: require('path').join(__dirname, './coverage/ezpz-pos'),
+      dir: require('path').join(__dirname, './coverage/ezpzfashion-backoffice'),
       subdir: '.',
       reporters: [
         { type: 'html' },
