@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 //import {  ProductWrapper, product } from '../data-type';
 import { environment } from 'src/environments/environment';
 import { Observable, catchError } from 'rxjs';
-import { AlertMessage, CartHold, Category, Customer, ProductView, ProductWrapper, Product } from '../model/model-classes.model';
+import { AlertMessage, CartHold, Category, Customer, ProductView, ProductWrapper, Product, ApiResponse } from '../model/model-classes.model';
 import { Errors } from '../errors/errors';
 
 
@@ -13,7 +13,8 @@ import { Errors } from '../errors/errors';
 })
 export class ProductService {
 
-  private myUrl = environment.apiUrl  ; //http://localhost:9080/PAG_WS/
+  private myUrl = environment.apiUrl  ; 
+  private cloudApiUrl = environment.cloudAPIUrl;
 
   //cartData= new EventEmitter<Product[] | []>();
 
@@ -30,9 +31,6 @@ export class ProductService {
   }
   getProduct(id: any) {
     let myUrl = `${this.myUrl}` + `products/${id}`  ;
-
-    // return this.http.get<product>(`http://localhost:3000/products/${id}`);
-    //return this.http.get<product>(`http://110.93.237.10:8080/FOODY_API/products/${id}`);
 
     return this.http.get<Product>(myUrl);
 
@@ -200,8 +198,7 @@ let myUrl = `${this.myUrl}` + `alert/sms` ;
 
 }
 
-
-
+/* ************************************************************* */
 
 getProductsByUPC(upc: string): Observable<ProductView>{
 
@@ -213,7 +210,7 @@ getProductsByUPC(upc: string): Observable<ProductView>{
   );
 
 }
-
+/* ************************************************************* */
 
 getProductsBySKU(sku: string): Observable<ProductView>{
 
@@ -225,5 +222,39 @@ getProductsBySKU(sku: string): Observable<ProductView>{
   );
 
 }
+
+/* ************************************************************* */
+getMaxProductId(): Observable<number>{
+
+  let myUrl = `${this.myUrl}` + `products/getMaxProductId`  ;
+
+  return this.http.get<number>(myUrl).pipe(
+      //tap( error ==> this.log('Fetched Product') ),
+    catchError(this.errors.handleError<number>('getMaxProductId'))
+  );
+
+}
+
+/* ************************************************************* */
+getProductMissingLocal(productId:number): Observable<ProductWrapper>{
+  let remoteUrl = `${this.cloudApiUrl}` + `products/getProductMissingLocal/` + productId ;
+  //let remoteUrl = `${this.myUrl}` + `products/getProductMissingLocal/` + productId ;
+
+  return this.http.get<ProductWrapper>(remoteUrl).pipe(
+    catchError(this.errors.handleError<ProductWrapper>('getProductMissingLocal'))
+  );
+}
+
+/* ************************************************************* */
+saveProductListToLocalDB(productList: ProductView): Observable<ApiResponse>{
+  let myUrl = `${this.myUrl}` + `products/saveMissingProducts`  ;
+
+  return this.http.post<ApiResponse>(myUrl, productList).pipe(
+    catchError(this.errors.handleError<ApiResponse>('getProducts'))
+  );
+
+
+}
+
 
 }

@@ -3,12 +3,13 @@ import { RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './login/login.component';
 import { PosComponent } from './pos/pos.component';
 import { AuthGaurdService } from './shared/auth-gaurd.service';
+import { PosZubaidaComponent } from './pos-zubaida/pos-zubaida.component';
 
 
 const routes: Routes = [
   {
     path: 'pos',
-     component:PosComponent,canActivate:[AuthGaurdService]
+     component:PosZubaidaComponent,canActivate:[AuthGaurdService]
   },
   {
     path: '',

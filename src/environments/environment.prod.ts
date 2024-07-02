@@ -4,9 +4,16 @@ export const environment = {
   enableLog: true,
   scannerFlag: true,
   versionNumber: '03.27.2024',
-  currency:'USD',
+  currency:'PKR',
   
-   
+
+  appName: 'ZUBAIDA',
+  logoName: 'assets/images/logos/zubaida-logo.png',
+  apiUrl: 'https://cp.fsglobaltech.com:8443/ZUBAIDA_API/',
+  //apiUrl: 'http://localhost:8080/ZUBAIDA_API/',
+  localHostApi: 'http://localhost:8080/ZUBAIDA_API/',
+  cloudAPIUrl:'https://cp.fsglobaltech.com:8443/ZUBAIDA_API/',
+
 
     // appName: 'EZPZSPORTS',
     // logoName: 'assets/images/logos/sports_logo.webp',
@@ -17,9 +24,9 @@ export const environment = {
     // logoName: 'assets/images/logos/supreme_logo.webp',
     // apiUrl: 'https://cp.fsglobaltech.com:8443/SUPREME_API/',
 
-  appName: 'GREENBIRD',
-  logoName: 'assets/images/logos/greenbird_logo.webp',
-  apiUrl: 'https://cp.fsglobaltech.com:8443/ELECTRIC01_API/',
+  // appName: 'GREENBIRD',
+  // logoName: 'assets/images/logos/greenbird_logo.webp',
+  // apiUrl: 'https://cp.fsglobaltech.com:8443/ELECTRIC01_API/',
 
   // appName: 'EZPZFASHION',
   // logoName: 'assets/images/logos/fashion_logo.webp',

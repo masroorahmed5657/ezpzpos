@@ -14,6 +14,7 @@ import { AppComponent } from './app.component';
 import { LoginComponent } from './login/login.component';
 import { NgxPaginationModule} from 'ngx-pagination';
 import { PosComponent } from './pos/pos.component';
+import { PosZubaidaComponent } from './pos-zubaida/pos-zubaida.component';
 
 
 
@@ -22,6 +23,7 @@ import { PosComponent } from './pos/pos.component';
     AppComponent,
     LoginComponent,
     PosComponent,
+    PosZubaidaComponent,
 
   ],
   imports: [

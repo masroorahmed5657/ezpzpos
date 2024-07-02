@@ -5,7 +5,7 @@ import { catchError, map, tap } from 'rxjs/operators';
 import { AppLoggerService } from './app-logger.service';
 import { environment } from 'src/environments/environment';
 import { Errors } from '../errors/errors'
-import { OrderResponse, Orders, OrderSaveResponse, OrderSearch } from '../model/model-classes.model';
+import { ApiResponse, OrderResponse, Orders, OrderSaveResponse, OrderSearch } from '../model/model-classes.model';
 import Swal from 'sweetalert2';
 
 
@@ -14,7 +14,8 @@ import Swal from 'sweetalert2';
 })
 export class OrdersService {
 
-  private myUrl = environment.apiUrl  ; //http://localhost:9080/PAG_WS/
+  private myUrl = environment.apiUrl  ; 
+  private cloudAPIUrl = environment.cloudAPIUrl;
   private errors: Errors = new Errors();
 
   constructor(private http: HttpClient ) { }
@@ -76,6 +77,35 @@ export class OrdersService {
     });
   }
 
+/* ************************************************************* */
+  getTodaysOrders(): Observable<OrderResponse>{
 
+    let myUrl = `${this.myUrl}` + `orders/findTodaysOrdersWithItems` ;
+
+    return this.http.get<OrderResponse>(myUrl ).pipe(
+      //tap( error ==> this.log('Save saveOrders') ),
+      catchError(this.errors.handleError<OrderResponse>('saveOrders'))
+    );
+
+  }
+
+  uploadSales(orders: OrderResponse): Observable<ApiResponse>{
+
+    //check if POS and Admin both are on same server in cloud, then just ignore it.
+    if (this.cloudAPIUrl === this.myUrl){
+      let apiResp = new Observable<ApiResponse>();
+      return apiResp;
+    }
+    else{
+      let cloudAPI = `${this.cloudAPIUrl}` + `orders/uploadTodaySales`;
+      return this.http.post<ApiResponse>(cloudAPI, orders ).pipe(
+        //tap( error ==> this.log('Save uploadSales') ),
+        catchError(this.errors.handleError<ApiResponse>('uploadSales'))
+      );
+  
+    }
+
+
+  }
 
 }

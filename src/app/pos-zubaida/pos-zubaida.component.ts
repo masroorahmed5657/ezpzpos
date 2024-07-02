@@ -38,16 +38,18 @@ import { CustomerService } from '../services/customer.service';
 import { StoreServiceService } from '../services/store-service.service';
 import { OrdersService } from '../services/orders.service';
 
+
 @Component({
-  selector: 'app-pos',
-  templateUrl: './pos.component.html',
-  styleUrls: ['./pos.component.scss'],
+  selector: 'app-pos-zubaida',
+  templateUrl: './pos-zubaida.component.html',
+  styleUrls: ['./pos-zubaida.component.scss']
 })
-export class PosComponent {
+export class PosZubaidaComponent {
   private myUrl = environment.apiUrl  ; 
   private cloudAPIUrl = environment.cloudAPIUrl;
 
-  
+
+  invoiceNumber: any = 'BL00012';
   agent:any='01'; 
   mobileshow: any = false;
   nameSearchModal: any = false;
@@ -72,7 +74,7 @@ export class PosComponent {
   categoryList: Category[] = [];
   cartDataList: CartHold = new CartHold();
   // cartDataList1: CartHold[] = [];
-  todaydatashow = new Date();
+  todaydatashow:any='';
 
   signInUser: any = '';
 
@@ -1067,8 +1069,9 @@ export class PosComponent {
               let items = data.orderItems;
               let currentUser: any = sessionStorage.getItem('currentUser');
               let myCustomer: Customer = JSON.parse(currentUser);
+              this.invoiceNumber = 'BL' + orderId;
 
-
+              this.todaydatashow = data.orders.createDate;
               localStorage.setItem('localCart', '');
               Swal.fire('Submit', 'Order#' + orderNum + ' has been created.', 'success')
                 .then((result) => {
@@ -1278,38 +1281,24 @@ export class PosComponent {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Ezpz Foody Receipt</title>
+    <title>Niks Receipt</title>
     </head>    `;
 
       let myHtml = ` <html> ` + myHead;
-      //let myBodyOrder = `<body >
+      
       let myBodyOrder =
         `<body onload="window.print();window.close();">
     <div class="ticket">
-    <p class="centered" style="margin-left:40px !important;"><b>EZPZ FOODY</b><br>
-    NTN # 0234343433
-    <p class="centered" style="font-size:10px;">Bahria Town Karachi,Pakistan. 1054 Robinson</p>
-    <p class="centered"><span>0321-9532952</span>
-    <p class="centered" style="margin-top:-20px;"><span>0321-9532952</span>
-    
-
-    <h1 class="centered" style="font-size:13px;" style="margin-left:30px !important;"><b>Sale Receipt &nbsp;&nbsp;` +
+    <img src="assets/images/logos/zubaida-logo.png" id="imagea" width="15%" height="15%" style="margin-left:-5px!important;">
+    <p style="margin-left:30px !important;"><b>Z GENERATIONS</b><br>
+    NTN # 8057991-3</p>
+ 
+    <h1 class="centered" style="font-size:13px;" style="margin-left:30px !important;"><b>Sale Receipt </b></h1>
+    <h1 class="centered" style="font-size:13px;" style="margin-left:30px !important;"><b> ` +
         this.customer.firstName +
-        `</b></h1>
-
-   <span class="b"><b>Date/Time</b></span>:&nbsp;&nbsp;&nbsp;&nbsp;` +
-        this.todaydatashow.getDate() +
-        '-' +
-        this.todaydatashow.getMonth() +
-        1 +
-        '-' +
-        this.todaydatashow.getFullYear() +
-        '  ' +
-        this.todaydatashow.getHours() +
-        ':' +
-        this.todaydatashow.getMinutes() +
-        `
-        <table style="list-style:none;font-size:10px;text-align:left">
+        `</b></h1><br>` +  this.todaydatashow +
+        
+        `<table style="list-style:none;font-size:10px;text-align:left">
             <thead>
                 <tr>
                     <td ><b>Product Description</b></td>
@@ -1320,6 +1309,7 @@ export class PosComponent {
                 <td ><b>Total</>
             </tr>
             </thead>
+            
             <tbody>`;
 
       let myItems = ``;
@@ -1339,7 +1329,7 @@ export class PosComponent {
         myItems +=
           `<tr>
             <td><b>` +
-          this.cartDataList.product[i].productName +
+          this.cartDataList.product[i].productName + `( ` + this.cartDataList.product[i].upc + ` )` +
           `</b></td>
         </tr>
         <tr>
@@ -1347,26 +1337,27 @@ export class PosComponent {
           this.cartDataList.product[i].quantity +
           `</b></td>
             <td><b>` +
-          price +
+          price.toFixed(2) +
           `</b></td>
             <td><b>` +
-          price * this.cartDataList.product[i].quantity +
+          (price * this.cartDataList.product[i].quantity).toFixed(2) +
           `</b></td>
         </tr>`;
       }
 
 
-      let mySubTotal = Math.round(Number(subtotal));
-      let myDiscount = Math.round(Number(this.totalDiscount));
-      let myTax = Math.round(Number(tax));
-      let fbrPos = Math.round(Number(this.FbrCharges));
-      let myTotal = Math.round(Number(total));
+      let mySubTotal = Math.round(Number(subtotal)).toFixed(2);
+      let myDiscount = Math.round(Number(this.totalDiscount)).toFixed(2);
+      let myTax = Math.round(Number(tax)).toFixed(2);
+      let fbrPos = Math.round(Number(this.FbrCharges)).toFixed(2);
+      let myTotal = Math.round(Number(total)).toFixed(2);
 
       let myBottonHtml =
         `
 
         </tbody>
         </table>
+        <hr>
         <tr><br>
         <td >Sub Total:</td>
         <td style="text-align: center;">Rs ` +
@@ -1404,42 +1395,43 @@ export class PosComponent {
         </tr><br>
         <td ><b>Customer Balance: </b></td>
         <td style="text-align: center;"><b>Rs ` +
-        (this.customerBalance) +
+        (this.customerBalance).toFixed(2) +
         `</b> </td>
         </tr>
-        <p class="centered" style="margin-left:10px !important;">EZPZFOODY Invoice #
-        <br>
-        <img src="assets/images/ezpzfoody.png" id="imagea" width="100%" height="20%" style="margin-left:-10px!important;">
+        <p class="centered" style="margin-left:10px !important;">Invoice #` + this.invoiceNumber +
+        `<br>
         
-        <p class="centered" style="margin-left:10px !important;"><b>Terms And Conditions</b><p>
+        
+        <p class="centered" style="margin-left:10px !important;"><b> ** Terms And Conditions ** </b><p>
 
-             <p style="font-size:10px;">Exchange With in 07 Days with original packing and receipt </p>
-             <p style="font-size:10px;margin-top:-5px !important;">Exchange or Return due to quality efficacy</p>
-             <p style="font-size:10px;margin-top:-5px !important;">No Cash Refund within 07 days as credit voucher </p>
-
-       <p class="centered" style="margin-left:10px !important;"><b>Free Gift Pomotion</b><br>
+             <p style="font-size:7px;">
+             Items once sold are Exchangeable/Replaceable Within 03 Days with original </p>
+             <p style="font-size:7px;">packing(unused, unworn, tags attached, seals) and receipt </p>
+             <p style="font-size:7px;"> along with all accessories, manuals, and warranty card that come with it. 
+             </p>
+             <p style="font-size:7px;margin-top:-5px !important;">
+             Exchange or Return due to quality efficacy
+             </p>
+             <p style="font-size:7px;margin-top:-5px !important;">
+             Items SOLD ON SALE are NOT exchangeable or replaceable. 
+             </p>
+             <p style="font-size:7px;margin-top:-5px !important;">
+             GST is included in pricing. NO extra charges. 
+             </p>
+       
        <img src="assets/images/barcode.jpg" id="imagea" width="100%" height="10%" style="margin-left:-20px !important;>
 
-       <p class="centered" style="margin-left:10px !important;"><b>Terms And Conditions</b>
-       <p style="font-size:10px !important;">This voucher is valid for 3 Sparkletts Dringkin Water 1.5 L.tr</p>
 
 
 
-       <p id="abc" style="font-size:10px;">Software Developed By <b id="abcc">Techmaci</b> &nbsp;&nbsp;&nbsp;&nbsp;
-       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Ph 021-12345678-9 |
-       <p id="abc2" style="font-size:10px;">www.techmaci.com
-       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Cell 033312345678 |
-
-     
-       <h3 class="centered" style="font-size:10px !important;" style="margin-left:30px !important;">  Did You Get Your <br>
-       <span class="centered" style="font-size:10px !important;" style="margin-left:30px !important;"> Free Gift ?</span>
-
-       <p class="centered" style="font-size:10px !important;" style="margin-left:30px !important;">For Delivery / Whatsapp <br>
-       <Span style="font-size:10px !important;" > 0310-1010-725 (PAK) </span>
+       <p id="abc" style="font-size:7px;">
+       Copyright© 2024 Z GENERATIONS. </p>
+       <p id="abc" style="font-size:7px;">
+       All rights Reserved to Software Developed By <b id="abcc">TechMaci</b>
+       <br> 
+       Ph +92 300-3932177 | Cell +92 21 37293088 
+       </p>
        
-       <p class="centered" style="font-size:10px !important;" style="margin-left:30px !important;">Thanks for your purchase!
        
    </div>
         <p style="margin-left:30px !important;">
@@ -1449,7 +1441,7 @@ export class PosComponent {
   </body>
   </html>`;
       let myFinalHtml = myHtml + myBodyOrder + myItems + myBottonHtml;
-
+//alert(myFinalHtml);
       popupWin.document.write(myFinalHtml);
 
       popupWin.document.close();
@@ -1756,7 +1748,6 @@ img {
 
   }
 
-/* ******************************************************************* */
-
+/* ************************** THE END ***************************************** */
 
 }
