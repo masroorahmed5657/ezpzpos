@@ -9,64 +9,19 @@
             <!-- <h2 class="logo-text">POS</h2> -->
           </div> <!-- brand-wrap.// -->
         </div>
-        <!-- <div class="col-lg-8 col-md-8 col-sm-12" style="position: relative;top: -30px;left: 15px;"> -->
-          <!-- <div class="row"> -->
-            <!-- <div class="col-3">
-              <div class="search-wrap input-group">
-                <input type="search" class="form-control" placeholder="Search By Name" id="name-search" name="name-search"
-                  (keyup)="nameSearch($event)">
-                <div class="input-group-append">
-                </div>
-              </div>
-            </div>
-            <div class="col-3">
-              <form action="#" class="search-wrap">
-                <div class="input-group">
-                  <input type="search" autofocus id="upc-search" name="upc-search" class="form-control"
-                    placeholder="Search By UPC" (keyup)="upcSearch($event)">
-                  <div class="input-group-append">
-                  </div>
-                </div>
-              </form>
-            </div>
-            <div class="col-3">
-              <form action="#" class="search-wrap">
-                <div class="input-group">
-                  <input type="search" autofocus id="sku-search" name="sku-search" class="form-control"
-                    placeholder="Search By SKU" (keyup)="skuSearch($event)">
-                  <div class="input-group-append">
-                  </div>
-                </div>
-              </form>
-            </div>
-            <div class="col-3">
-              <form action="#" class="search-wrap">
-                <div class="input-group">
-                  <input type="number" class="form-control" placeholder="Item Quantity" [(ngModel)]="productQuantity"
-                    (keypress)="chkNumber()" [ngModelOptions]="{standalone: true}" type="number" pattern="[0-9]{2}"
-                    step="1" min="1" max="99" maxlength="3" name="quantity" value="{{productQuantity}}" title="Qty"
-                    size="4" ngModel>
-                  <div class="input-group-append">
-                  </div>
-                </div>
-              </form>
-            </div> -->
-          <!-- </div> -->
-          <!-- search-wrap .end// -->
-        <!-- </div> col.// -->
-        <div class="col-lg-8 col-md-8 col-sm-12" style="position: relative;top: -8px;">
+        <div class="col-lg-11 col-md-11 col-sm-12" style="position: relative;top: -8px;">
   
           <div class="widgets-wrap d-flex justify-content-end">
             <div class="widget-header">
-              <button type="button" class="btn btn-success" style="font-size: large;" (click)="downloadProducts()">
+              <button type="button" class="btn btn-default" style="font-size: small;" (click)="downloadProducts()">
                 Download Items&nbsp;<fa-icon [icon]="faCloudDownload">Download Items</fa-icon>
               </button>&nbsp;
-              <button type="button" class="btn btn-warning" style="font-size: large;" (click)="uploadSale()">
+              <button type="button" class="btn btn-default" style="font-size: small;" (click)="uploadSale()">
                 Upload Sales&nbsp;<fa-icon [icon]="faCloudUpload">Upload Sales</fa-icon>
               </button>
               &nbsp;
               <a href="#" class="icontext">
-                <a href="#" (click)="signOut()" class="btn btn-primary m-btn m-btn--icon m-btn--icon-only">
+                <a href="#" (click)="signOut()" class="btn btn-info m-btn m-btn--icon m-btn--icon-only">
                   Signout&nbsp;<fa-icon [icon]="faSignOut"></fa-icon>
                 </a>
               </a>
@@ -92,49 +47,49 @@
   <div class="container-fluid">
     <!-- Row for Customer Info -->
     <div class="row" style="margin: 0px;">
-        <div class="col-md-2 col-lg-2 col-sm-12">
-            <!-- <div class="search-wrap input-group"> -->
-              <input type="search" class="form-control" placeholder="Search By Name" id="name-search" name="name-search"
+
+        <!-- Input for customer phone -->
+        <div class="col-md-3 col-lg-3 col-sm-12">
+            <input type="tel" [(ngModel)]="customer.phone1" placeholder="Phone"
+                style="background-color:white;color: black;width: 100%;border: 1px solid gray;">
+        </div>
+          
+        <!-- Input with Font Awesome icon -->
+      
+            <div class="col-md-1 col-lg-1 col-sm-12 d-flex align-items-center">
+              <fa-icon class="ng-fa-icon" [icon]="faPerson"></fa-icon>
+              <input type="tel" placeholder="Agent" [(ngModel)]="agent" class="ml-2 form-control">
+            </div>
+       
+        
+        <!-- Label -->
+        <div class="col-md-1 col-lg-1 col-sm-12 d-flex align-items-center">
+            <label style="font-size: medium;">Amjad</label>
+        </div>
+        
+        
+        <!-- Search inputs -->
+        <div class="col-md-3 col-lg-3 col-sm-12">
+            <input type="search" autofocus id="upc-search" name="upc-search" class="form-control"
+                placeholder="Search By Barcode" (keyup)="upcSearch($event)">
+        </div>
+        
+        <div class="col-md-3 col-lg-3 col-sm-12">
+            <input type="search" class="form-control" placeholder="Search By Name" id="name-search" name="name-search"
                 (keyup)="nameSearch($event)">
-              <!-- <div class="input-group-append"> -->
-              <!-- </div> -->
-            <!-- </div> -->
-          </div>
-          <div class="col-md-2 col-lg-2 col-sm-12">
-            <!-- <form action="#" class="search-wrap"> -->
-              <!-- <div class="input-group"> -->
-                <input type="search" autofocus id="upc-search" name="upc-search" class="form-control"
-                  placeholder="Search By Barcode" (keyup)="upcSearch($event)">
-                <!-- <div class="input-group-append"> -->
-                <!-- </div> -->
-              <!-- </div> -->
-            <!-- </form> -->
-          </div>
+        </div>
+    </div> <!-- Row -->
     
+  
+    <style>
+        .brand-wrap .logo, .navbar-brand .logo {
+            margin-left: -115px !important;
+        }
 
-
-      <div class="col-md-2 col-lg-2 col-sm-12 ">
-        <input type="text" [(ngModel)]="customer.firstName" placeholder="Customer Name"
-          style="background-color:white;color: black;width: 100%;border: 1px solid gray;">
-      </div>
-      <div class="col-md-2 col-lg-2 col-sm-12 ">
-        <input type="email" [(ngModel)]="customer.email" placeholder="Emai"
-          style="background-color:white;color: black;width: 100%;border: 1px solid gray;">
-      </div>
-      <div class="col-md-2 col-lg-2 col-sm-12 ">
-        <input type="tel" [(ngModel)]="customer.phone1" placeholder="Phone"
-          style="background-color:white;color: black;width: 100%;border: 1px solid gray;">
-      </div>
-      <div class="col-md-1 col-lg-1 col-sm-12 "><fa-icon [icon]="faPerson"></fa-icon><b>Agent:</b></div>
-      <div class="col-md-1 col-lg-1 col-sm-12 ">
-        <input type="tel" [(ngModel)]="agent" placeholder="Agent"
-          style="background-color:white;color: black;width: 100%;border: 1px solid gray;">
-      </div>
-  
-  
-    </div> <!--Row-->
-  
-  
+        .card {
+            border: 0px !important;
+        }
+    </style>
     <!-- MAIN CART -->
     <div class="row" style="margin: 0px;">
   
@@ -143,9 +98,12 @@
         <span id="items" style="margin-top: 20px;">
           <div class="row">
             <div class="col-12">
-              <table *ngIf="!mobileshow" style="border: 1px solid black;width: 100%;">
-                <thead>
-                  <tr style="background-color:#17A2B8;border: 1px solid black;">
+                <!-- class="table table-condensed table-bordered table-striped table-responsive items_table" -->
+              <table *ngIf="!mobileshow"  >
+                <thead class="bg-primary">
+                    <!-- style="border: 1px solid black;width: 100%;" -->
+                    <!--  -->
+                    <tr style="background-color:#17A2B8;border: 1px solid black;">
                     
                     <th scope="col">Item</th>
                     <th scope="col">UPC</th>

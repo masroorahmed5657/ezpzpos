@@ -675,11 +675,11 @@ export class PosZubaidaComponent {
   
   /* ************************************************************** */
   openModal2() {
-    if (!this.customer.firstName) {
-      // Show alert for required fields
-      Swal.fire('WARNING', 'Please fill The Customer Name', 'warning');
-      return; // Don't proceed with saving
-    }
+    // if (!this.customer.firstName) {
+    //   // Show alert for required fields
+    //   Swal.fire('WARNING', 'Please fill The Customer Name', 'warning');
+    //   return; // Don't proceed with saving
+    // }
 
     let localCart = localStorage.getItem('localCart')
     if (localCart === undefined || localCart === '' || localCart === null || localCart.length === 105 || localCart.length === 0) {
@@ -717,11 +717,11 @@ export class PosZubaidaComponent {
     this.cartDataList.customer.phone1 = this.customer.phone1;
 
 
-    if (!this.customer.firstName) {
-      // Show alert for required fields
-      Swal.fire('WARNING', 'Please fill The Customer Name', 'warning');
-      return; // Don't proceed with saving
-    }
+    // if (!this.customer.firstName) {
+    //   // Show alert for required fields
+    //   Swal.fire('WARNING', 'Please fill The Customer Name', 'warning');
+    //   return; // Don't proceed with saving
+    // }
     let holdCartList: CartHold[] = [];
     let localCart = localStorage.getItem('localCart');
     //localCart = always one object of cartHold type
@@ -1184,8 +1184,8 @@ export class PosZubaidaComponent {
     let customer = new Customer();
     customer = this.convertCustFormToVar(customer);
 
-    customer.firstName = this.customer.firstName;
-    customer.email = this.customer.email;
+    customer.firstName = 'POSCustomer';//this.customer.firstName;
+    customer.email = 'info@techmaci.com';//this.customer.email;
     customer.phone1 = this.customer.phone1;
     customer.custType = 'C';
     customer.priority = 1;
@@ -1297,7 +1297,7 @@ export class PosZubaidaComponent {
     <h1 class="centered" style="font-size:13px;" style="margin-left:30px !important;"><b> ` +
         this.customer.firstName +
         `</b></h1><br>` +  this.todaydatashow +
-        
+        `<hr>` +
         `<table style="list-style:none;font-size:10px;text-align:left">
             <thead>
                 <tr>
@@ -1308,9 +1308,9 @@ export class PosZubaidaComponent {
                 <td ><b>Price</b></td>
                 <td ><b>Total</>
             </tr>
-            </thead>
-            
-            <tbody>`;
+            </thead>` +
+            `<hr>` +
+            `<tbody>`;
 
       let myItems = ``;
       let subtotal = 0;
