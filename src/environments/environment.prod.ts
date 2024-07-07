@@ -3,14 +3,14 @@ export const environment = {
   sessionTimeout: 60,
   enableLog: true,
   scannerFlag: true,
-  versionNumber: '03.27.2024',
+  versionNumber: '07.07.2024',
   currency:'PKR',
   
 
   appName: 'ZUBAIDA',
   logoName: 'assets/images/logos/zubaida-logo.png',
-  apiUrl: 'https://cp.fsglobaltech.com:8443/ZUBAIDA_API/',
-  //apiUrl: 'http://localhost:8080/ZUBAIDA_API/',
+  //apiUrl: 'https://cp.fsglobaltech.com:8443/ZUBAIDA_API/',
+  apiUrl: 'http://localhost:8080/ZUBAIDA_API/',
   localHostApi: 'http://localhost:8080/ZUBAIDA_API/',
   cloudAPIUrl:'https://cp.fsglobaltech.com:8443/ZUBAIDA_API/',
 

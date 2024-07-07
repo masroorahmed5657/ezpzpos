@@ -1,4 +1,11 @@
+
 /* CSS styles for the provided HTML */
+.blink {
+  animation: blink-animation 1s steps(5, start) infinite;
+  background: green !important;
+  color:black;
+}
+
 
 .container-fluid.full-height {
     height: 100vh;
@@ -73,3 +80,11 @@
   
   
   
+        .brand-wrap .logo, .navbar-brand .logo {
+            margin-left: -115px !important;
+        }
+
+        .card {
+            border: 0px !important;
+        }
+      

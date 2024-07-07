@@ -75,6 +75,7 @@ export class Product{
   total: any;
   subCategory: string | undefined;
   id: any;
+  tax:any;
 
 }
 
@@ -117,6 +118,7 @@ export class ProductView{
   imageFilename:any; // Fill with default value or retrieve from somewhere
    imageCharset:any; // Fill with default value or retrieve from somewhere
    madeinFlag: any;
+   tax:any;
 }
 
 export class ProductDocuments{
@@ -304,6 +306,7 @@ export class OrdersItems {
   notes:any;
   attributes: any;
   pickupType:any;
+  agentId:any
 }
 
 /*

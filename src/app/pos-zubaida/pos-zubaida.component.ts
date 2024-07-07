@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import {
+  AdminUser,
   ApiResponse,
   CartHold,
   Category,
@@ -37,6 +38,7 @@ import {
 import { CustomerService } from '../services/customer.service';
 import { StoreServiceService } from '../services/store-service.service';
 import { OrdersService } from '../services/orders.service';
+import { UserService } from '../services/user.service';
 
 
 @Component({
@@ -48,9 +50,9 @@ export class PosZubaidaComponent {
   private myUrl = environment.apiUrl  ; 
   private cloudAPIUrl = environment.cloudAPIUrl;
 
-
+  attemptCount=0;
   invoiceNumber: any = 'BL00012';
-  agent:any='01'; 
+  selectedAgent:any='01'; 
   mobileshow: any = false;
   nameSearchModal: any = false;
   logoName = environment.logoName;
@@ -58,7 +60,7 @@ export class PosZubaidaComponent {
   public isLoggedIn = false;
   faSignOut = faSignOut;
   faPerson=faPerson;
-  result: any = '';
+  result: any ='' ;
   totalDiscount: any = '';
   FbrCharges = 1;
   search: any;
@@ -68,7 +70,7 @@ export class PosZubaidaComponent {
   productcheckList: ProductView[] = [];
   searchProducts: ProductView[] = [];
   errormessage = '';
-  productQuantity: number = 1;
+  productQuantity: any = 1;
   productWeight: number = 1;
   categoryMasterList: Category[] = [];
   categoryList: Category[] = [];
@@ -157,6 +159,8 @@ export class PosZubaidaComponent {
   orderViewList:OrdersCustomerWrapper[]=[];
   orderItemWrapperList:OrderItemProductWrapper[]=[];
 
+  appName=environment.appName;
+  salesAgentList:AdminUser[]=[];
 
   constructor(
     private route: ActivatedRoute,
@@ -166,14 +170,30 @@ export class PosZubaidaComponent {
     private departmentsService: DepartmentsService,
     private orderService: OrdersService,
     private customerService: CustomerService,
+    private userService: UserService
 
   ) { }
 
   ngOnInit(): void {
     let holdData = localStorage.getItem('localCart');
     this.signInUser = sessionStorage.getItem("username");
+    if (this.appName==='ZUBAIDA'){
+      this.customer.firstName = 'POSCustomer';//this.customer.firstName;
+      this.customer.email = 'info@techmaci.com';//this.customer.email;
+    }
 
+    this.salesAgentList = this.cache.getList("salesAgent");
 
+    if (this.salesAgentList===undefined || this.salesAgentList===null)
+    {
+      this.userService.getUserList().subscribe((data:AdminUser[])=> {
+        this.salesAgentList = data;
+        //sessionStorage.setItem("salesAgent", JSON.stringify(data));
+        this.cache.setList("salesAgent", data);
+        
+      });
+        
+    }
 
     if (holdData) {
       this.cartDataList = JSON.parse(holdData);
@@ -182,74 +202,75 @@ export class PosZubaidaComponent {
       this.customer.phone1 = this.cartDataList.customer.phone1;
     } //end if
 
+    let test = this.cartDataList.product.length;
 
-
-    window.scrollTo(0, 0);
+    //window.scrollTo(0, 0);
     this.errorMsg = '';
     this.searchFlag = false;
     let search = '';
-    let catId: number = Number(this.route.snapshot.paramMap.get('catId'));
-    let reload = this.cache.get('reload');
-    if (reload === null || reload === undefined) {
-      this.cache.set('reload', 'T');
-      window.location.reload();
-    } else if (reload === 'F') {
-      this.cache.set('reload', 'T');
-      window.location.reload();
-    } else if (reload === 'T') {
-      let t1 = 1;
+    //let catId: number = Number(this.route.snapshot.paramMap.get('catId'));
+    // let reload = this.cache.get('reload');
+    // if (reload === null || reload === undefined) {
+    //   this.cache.set('reload', 'T');
+    //   window.location.reload();
+    // } else if (reload === 'F') {
+    //   this.cache.set('reload', 'T');
+    //   window.location.reload();
+    // } else if (reload === 'T') {
+    //   let t1 = 1;
       //reload happned from same screen by calling window.location.reload()
-    }
-    this.spinnerDataLoad = true;
+    //}
+    //this.spinnerDataLoad = true;
     /* ********* Department and Category List ****************** */
-    this.productService.getCategoryList().subscribe((data: Category[]) => {
-      this.categoryList = data;
-      this.calculateTotalPrice();
-      this.shopCategory = this.getCategoryName(catId);
-    });
-    this.departmentsService
-      .getDepartmentList()
-      .subscribe((data: Departments[]) => {
-        this.departmentMasterList = data;
-        if (data != null || data != undefined) {
-          for (let i = 0; i < this.departmentMasterList.length; i++) {
-            if (this.departmentMasterList[i].activeFlag) {
-              this.departmentList.push(this.departmentMasterList[i]);
-            }
-          }
-        }
-      });
-    if (catId !== null || catId !== undefined) {
-      this.selectedCategory = catId;
-      if (catId < 0) {
-        //It is from global search in header
-        this.productViewList = JSON.parse(this.cache.getList('searchProducts'));
-        this.spinnerDataLoad = false;
-        this.searchFlag = true;
-        this.searchParam = this.cache.get('searchParam');
-      } else {
-        //Get all Products
-        this.productService
-          .getProducts(catId)
-          .subscribe((data: ProductWrapper) => {
-            let myData = data;
-            if (myData != undefined) {
-              if (myData.productList.length > 0) {
-                this.productViewList = this.productDecorator(
-                  myData.productList
-                );
-                this.cache.setList(
-                  'productMasterViewList',
-                  JSON.stringify(this.productViewList)
-                );
-              } else {
-                this.errorMsg = 'Items are out of Stock';
-              }
-              this.spinnerDataLoad = false;
-            }
-          });
-      }
-    }
+    // this.productService.getCategoryList().subscribe((data: Category[]) => {
+    //   this.categoryList = data;
+    //   this.calculateTotalPrice();
+    //   this.shopCategory = this.getCategoryName(catId);
+    // });
+    // this.departmentsService
+    //   .getDepartmentList()
+    //   .subscribe((data: Departments[]) => {
+    //     this.departmentMasterList = data;
+    //     if (data != null || data != undefined) {
+    //       for (let i = 0; i < this.departmentMasterList.length; i++) {
+    //         if (this.departmentMasterList[i].activeFlag) {
+    //           this.departmentList.push(this.departmentMasterList[i]);
+    //         }
+    //       }
+    //     }
+    //   });
+
+    // if (catId !== null || catId !== undefined) {
+    //   this.selectedCategory = catId;
+    //   if (catId < 0) {
+    //     //It is from global search in header
+    //     this.productViewList = JSON.parse(this.cache.getList('searchProducts'));
+    //     this.spinnerDataLoad = false;
+    //     this.searchFlag = true;
+    //     this.searchParam = this.cache.get('searchParam');
+    //   } else {
+    //     //Get all Products
+    //     this.productService
+    //       .getProducts(catId)
+    //       .subscribe((data: ProductWrapper) => {
+    //         let myData = data;
+    //         if (myData != undefined) {
+    //           if (myData.productList.length > 0) {
+    //             this.productViewList = this.productDecorator(
+    //               myData.productList
+    //             );
+    //             this.cache.setList(
+    //               'productMasterViewList',
+    //               JSON.stringify(this.productViewList)
+    //             );
+    //           } else {
+    //             this.errorMsg = 'Items are out of Stock';
+    //           }
+    //           this.spinnerDataLoad = false;
+    //         }
+    //       });
+    //   }
+    // }
   } //ngOnInit
   /* *************************************************** */
   // program to sort array by property name
@@ -475,7 +496,10 @@ export class PosZubaidaComponent {
             if (localCartData) {
               //Now get the existing cart with products/customer and other data
               rcvdProduct = JSON.parse(localCartData);
-            } else {
+
+            }
+
+            else {
               //create brand new cart of type cartHold
               rcvdProduct.customer = new Customer();
 
@@ -487,10 +511,55 @@ export class PosZubaidaComponent {
               rcvdProduct.total = this.priceSummary.grandTotal;
             }
             data.quantity = this.productQuantity;
+            let found = false;
+            for (let i = 0; i < rcvdProduct.product.length; i++) {
+              if (rcvdProduct.product[i].productName === data.productName) {
+                rcvdProduct.product[i].quantity = parseInt(rcvdProduct.product[i].quantity, 10) + parseInt(this.productQuantity, 10);
+                   
+                const row = document.getElementById(`product-row_${i}`); 
+                if (row) {
+                row.classList.add('blink');
+                setTimeout(() => {
+                 row.classList.remove('blink');
+                }, 3000); 
+                }
+                localStorage.setItem('localCart', JSON.stringify(rcvdProduct))
+                found = true;
+                break;
+              }
+          
 
-            rcvdProduct.product.push(data);
+            }
 
-            this.productService.localAddToCart(rcvdProduct);
+            if (!found) {
+              rcvdProduct.product.push(data);
+              this.productService.localAddToCart(rcvdProduct);
+            }
+         
+          if (rcvdProduct.product.length === 0) {
+              rcvdProduct.product.push(data);
+
+              this.productService.localAddToCart(rcvdProduct);
+
+            }
+
+            if (rcvdProduct.product.length === undefined) {
+              rcvdProduct.product.push(data);
+
+              this.productService.localAddToCart(rcvdProduct);
+
+            }
+
+            if (rcvdProduct.product.length === null) {
+              rcvdProduct.product.push(data);
+
+              this.productService.localAddToCart(rcvdProduct);
+
+            }
+
+            // Save updated cart and refresh page
+            localStorage.setItem('localCart', JSON.stringify(rcvdProduct));
+
             //this.cartDataList1.push(rcvdProduct);
             window.location.reload();
           }
@@ -549,10 +618,6 @@ export class PosZubaidaComponent {
       myScan = event.target.value;
     }
   }
-
-
-
-
 
   /****************************** */
 
@@ -654,8 +719,6 @@ export class PosZubaidaComponent {
 
     }
 
-
-
     this.modalOpen1 = true;
 
   }
@@ -694,6 +757,8 @@ export class PosZubaidaComponent {
   /* ************************************************************** */
   closeModal2() {
     this.modalOpen2 = false;
+    this.result='';
+    this.customerBalance=0;
   }
   /* ************************************************************** */
   /* ************************************************************** */
@@ -775,9 +840,6 @@ export class PosZubaidaComponent {
         //Brand New first time holding a customer cart
         this.cache.setList('holdCartList', currentHoldData);
       }
-
-
-
 
       else {
         //holdCartList is an array of cartHolds or it is an ONE object of CartHold
@@ -953,6 +1015,7 @@ export class PosZubaidaComponent {
 
       let p1 = Number(priceTotal).toFixed(2);
       this.priceSummary.total = Number(p1);
+      //this.priceSummary.tax = this.priceSummary.total  
 
     }
     else {
@@ -1135,17 +1198,38 @@ export class PosZubaidaComponent {
   //   return Number(myNumber);
   // }
 
-  toFixDecimalNumbera(product: ProductView): number {
+  itemTotal(product: ProductView): any {
     let totalPrice;
-
+    let tax=0;
+    this.attemptCount++;
     if (product.salePrice !== null && product.salePrice !== undefined) {
-      totalPrice = Number(product.quantity * product.salePrice).toFixed(2);
+      tax = Number((product.quantity * product.salePrice)*product.tax/100);
+      totalPrice = (Number(product.quantity * product.salePrice) + tax ).toFixed(2);
     } else {
-      totalPrice = Number(product.quantity * product.unitPrice).toFixed(2);
+      tax=Number((product.quantity * product.unitPrice)*product.tax/100);
+      totalPrice = (Number(product.quantity * product.unitPrice) + tax).toFixed(2);
     }
-    return Number(totalPrice);
+
+    //this.priceSummary.total = this.priceSummary.total + Number(totalPrice);
+    return totalPrice;
   }
 
+ 
+
+  tax(product: ProductView): number {
+    let totalTax;
+    
+
+    if (product.salePrice !== null && product.salePrice !== undefined) {
+      totalTax = Number((product.quantity * product.salePrice)*product.tax/100).toFixed(2);
+    } else {
+      totalTax = Number((product.quantity * product.unitPrice)*product.tax/100).toFixed(2);
+    }
+
+    //this.priceSummary.tax +=  Number(totalTax);
+
+    return Number(totalTax);
+  }
 
 
 
@@ -1265,6 +1349,8 @@ export class PosZubaidaComponent {
     if (popupWin != null || popupWin != undefined) {
       // popupWin.document.open();
 
+      this.customer.firstName ='POSCustomer';
+
       let orderAddress =
         this.customer?.address +
         ',' +
@@ -1289,55 +1375,76 @@ export class PosZubaidaComponent {
       let myBodyOrder =
         `<body onload="window.print();window.close();">
     <div class="ticket">
-    <img src="assets/images/logos/zubaida-logo.png" id="imagea" width="15%" height="15%" style="margin-left:-5px!important;">
+    <img src="assets/images/logos/zubaida-slip-logo.png" id="imagea" width: 20mm; text-align: center; ">
     <p style="margin-left:30px !important;"><b>Z GENERATIONS</b><br>
     NTN # 8057991-3</p>
  
-    <h1 class="centered" style="font-size:13px;" style="margin-left:30px !important;"><b>Sale Receipt </b></h1>
-    <h1 class="centered" style="font-size:13px;" style="margin-left:30px !important;"><b> ` +
-        this.customer.firstName +
-        `</b></h1><br>` +  this.todaydatashow +
-        `<hr>` +
-        `<table style="list-style:none;font-size:10px;text-align:left">
+    <h1 class="centered"  style="font-size:13px;margin-left:30px !important;"><b>Sale Receipt </b></h1>
+    <h1 class="centered"  style="font-size:13px;margin-left:30px !important;"><b> ` +
+        this.customer.firstName + `  (` + this.customer.phone1 + ` )` +
+        `</b></h1>` +  
+        `<h1 class="centered"  style="font-size:13px;margin-left:30px !important;"><b> ` +
+        this.todaydatashow + `</b></h1>` +
+        
+        `<table style="list-style:none;font-size:12px;text-align:left; ">
             <thead>
-                <tr>
-                    <td ><b>Product Description</b></td>
+                <tr >
+                    <td colspan="6" style="text-align: left;border-top: 1px solid #000;"><b>Product Description</b></td>
                 </tr>
-                <tr>
-                <td  ><b>Quantity</b></td>
-                <td ><b>Price</b></td>
-                <td ><b>Total</>
+                <tr >
+                <td style="text-align: left;border-top: 1px solid #000;"><b>Price</b></td>
+                <td style="text-align: left;border-top: 1px solid #000;" ><b>Qty</b></td>
+                <td style="text-align: left;border-top: 1px solid #000;" ><b>Discount</b></td>
+                <td style="text-align: left;border-top: 1px solid #000;"><b>Tax</b></td>
+                <td style="text-align: left;border-top: 1px solid #000;"><b>GST%</b></td>
+                <td style="text-align: left;border-top: 1px solid #000;"><b>Total</b></td>
             </tr>
             </thead>` +
-            `<hr>` +
-            `<tbody>`;
+            `<tbody >`;
 
       let myItems = ``;
       let subtotal = 0;
-      let tax = 0;
-      let FbrCharges = 1;
+      let taxItem = 0;
+      let totalTax=0;
+      let FbrCharges = 0;
       let total = 0;
+      let itemDiscount=0;
+
       for (let i = 0; i < this.cartDataList.product.length; i++) {
-        const price = Math.round(this.cartDataList.product[i].salePrice
+        const price = (this.cartDataList.product[i].salePrice
           ? this.cartDataList.product[i].salePrice
           : this.cartDataList.product[i].unitPrice)
 
-        subtotal += price * this.cartDataList.product[i].quantity;
+        taxItem = ((price * this.cartDataList.product[i].quantity) * this.cartDataList.product[i].tax )/100;  
+        subtotal = subtotal + price * this.cartDataList.product[i].quantity ;
         // tax = this.cartDataList[i].tax || 0 ;
-        total = subtotal - this.totalDiscount + this.FbrCharges;
+        total = subtotal - this.totalDiscount + taxItem;
+        totalTax = totalTax + taxItem;
+        itemDiscount = (this.cartDataList.product[i].unitPrice - this.cartDataList.product[i].salePrice)
 
         myItems +=
           `<tr>
-            <td><b>` +
+            <td colspan="6" style="text-align: left;border-top: 1px solid #000;"><b>` +
           this.cartDataList.product[i].productName + `( ` + this.cartDataList.product[i].upc + ` )` +
           `</b></td>
         </tr>
         <tr>
             <td><b>` +
-          this.cartDataList.product[i].quantity +
+            price.toFixed(2) +
+          
           `</b></td>
             <td><b>` +
-          price.toFixed(2) +
+            this.cartDataList.product[i].quantity +
+          `</b></td>
+           <td><b>` +
+            itemDiscount +
+          `</b></td>
+
+            <td><b>` +
+          taxItem +
+          `</b></td>
+            <td><b>` +
+            this.cartDataList.product[i].tax +
           `</b></td>
             <td><b>` +
           (price * this.cartDataList.product[i].quantity).toFixed(2) +
@@ -1346,58 +1453,58 @@ export class PosZubaidaComponent {
       }
 
 
-      let mySubTotal = Math.round(Number(subtotal)).toFixed(2);
-      let myDiscount = Math.round(Number(this.totalDiscount)).toFixed(2);
-      let myTax = Math.round(Number(tax)).toFixed(2);
-      let fbrPos = Math.round(Number(this.FbrCharges)).toFixed(2);
-      let myTotal = Math.round(Number(total)).toFixed(2);
+      let mySubTotal = Number(subtotal).toFixed(2);
+      let myDiscount = (Number(this.totalDiscount)).toFixed(2);
+      let myTax = (Number(totalTax)).toFixed(2);
+      let fbrPos = (Number(this.FbrCharges)).toFixed(2);
+      let myTotal = (Number(this.priceSummary.grandTotal)).toFixed(2);
 
       let myBottonHtml =
         `
 
         </tbody>
-        </table>
-        <hr>
-        <tr><br>
-        <td >Sub Total:</td>
-        <td style="text-align: center;">Rs ` +
+       
+        
+        <tfoot>
+        <tr>
+        <td style="text-align: left;border-top: 1px solid #000;">Sub Total:</td>
+        <td style="text-align: left;border-top: 1px solid #000;">Rs ` +
         mySubTotal +
         ` </td>
-        </tr><br>
+        <td  colspan="4" style="text-align: left;border-top: 1px solid #000;">&nbsp;</td>
+        </tr>
         <tr>
         <td >Discount:</td>
         <td style="text-align: center;">Rs ` +
         myDiscount +
         ` </td>
-        </tr><br>
+        </tr>
         <tr>
         <td >Tax:</td>
         <td style="text-align: center;">Rs ` +
         myTax +
         ` </td>
-        </tr><br>
-        <tr>
-        <td >POS Charges</td>
-        <td style="text-align: center;">Rs ` +
-        fbrPos +
-        ` </td>
-        </tr><br>
+        </tr>
+        
         <td ><b>Total: </b></td>
         <td style="text-align: center;"><b>Rs ` +
         myTotal +
         `</b> </td>
-        </tr><br><br>
+        </tr>
         <tr>
         <td >Cash Paid:</td>
         <td style="text-align: center;">Rs ` +
         this.result +
         ` </td>
-        </tr><br>
-        <td ><b>Customer Balance: </b></td>
-        <td style="text-align: center;"><b>Rs ` +
+        </tr>
+        <td style="text-align: left;border-bottom: 1px solid #000;" ><b>Customer Balance: </b></td>
+        <td style="text-align: left;border-bottom: 1px solid #000;"><b>Rs ` +
         (this.customerBalance).toFixed(2) +
         `</b> </td>
+        <td colspan="4" style="text-align: left;border-bottom: 1px solid #000;">&nbsp;</td>
         </tr>
+        </tfoot>
+        </table>
         <p class="centered" style="margin-left:10px !important;">Invoice #` + this.invoiceNumber +
         `<br>
         
@@ -1419,12 +1526,12 @@ export class PosZubaidaComponent {
              GST is included in pricing. NO extra charges. 
              </p>
        
-       <img src="assets/images/barcode.jpg" id="imagea" width="100%" height="10%" style="margin-left:-20px !important;>
+       <img src="assets/images/barcode.jpg" id="imagea" style="width:140px;height:30px">
 
 
 
 
-       <p id="abc" style="font-size:7px;">
+       <p id="abc" class="centered" style="font-size:small;margin-left:10px !important;">
        Copyright© 2024 Z GENERATIONS. </p>
        <p id="abc" style="font-size:7px;">
        All rights Reserved to Software Developed By <b id="abcc">TechMaci</b>
@@ -1437,7 +1544,7 @@ export class PosZubaidaComponent {
         <p style="margin-left:30px !important;">
         <b>Thanks for your purchase!</b>
         </p>
-    </div>
+    
   </body>
   </html>`;
       let myFinalHtml = myHtml + myBodyOrder + myItems + myBottonHtml;
@@ -1554,16 +1661,32 @@ img {
     return myCss;
   }
 
+  calculateFooterBalance(): void {
+
+    let cashPaid = parseFloat(this.result) || 0;
+    let cashDiscount = parseFloat(this.totalDiscount) || 0;
+    this.priceSummary.discount = cashDiscount;
+    let invoiceTotal = Number(this.priceSummary.total) || 0;
+
+    //this.priceSummary.grandTotal = invoiceTotal - (this.priceSummary.tax + cashDiscount);
+    // Calculate the balance
+    this.customerBalance = (this.priceSummary.total - cashDiscount + this.priceSummary.tax);//this.priceSummary.total );
+    this.priceSummary.grandTotal = this.customerBalance;
+
+  }
+
 
   calculateBalance(): void {
 
     let cashPaid = parseFloat(this.result) || 0;
-    let cashDiscount = parseFloat(this.totalDiscount) || 0;
-    let invoiceTotal = Number(this.priceSummary.total) || 0;
+    //let cashDiscount = parseFloat(this.totalDiscount) || 0;
+    //this.priceSummary.discount = cashDiscount;
+    //let invoiceTotal = Number(this.priceSummary.total) || 0;
 
-    this.priceSummary.grandTotal = invoiceTotal - (this.priceSummary.tax + cashDiscount);
+    //this.priceSummary.grandTotal = invoiceTotal - (this.priceSummary.tax + cashDiscount);
     // Calculate the balance
-    this.customerBalance = Math.round(cashPaid - this.priceSummary.grandTotal - this.FbrCharges);
+    this.customerBalance = cashPaid - (this.priceSummary.grandTotal);
+
   }
 
   getTodayDate(): Date {
@@ -1645,13 +1768,23 @@ img {
   }
 
 
-  calculateCartTotal(): number {
+  calculateCartTotal(): any {
     this.priceSummary.total = 0;
+    this.priceSummary.tax=0;
+    let totalTax=0;
+
     for (let item of this.cartDataList.product) {
       const price = item.salePrice ? item.salePrice : item.unitPrice;
       this.priceSummary.total += item.quantity * price;
+
+      totalTax = Number((item.quantity * price)* item.tax/100);
+      this.priceSummary.tax+=totalTax;
+
+
     }
-    return Math.round(this.priceSummary.total - this.totalDiscount);
+    this.priceSummary.grandTotal = this.priceSummary.total - this.totalDiscount + this.priceSummary.tax;
+    return (this.priceSummary.total - this.totalDiscount + this.priceSummary.tax).toFixed(2);
+
   }
 
   show() {
@@ -1747,6 +1880,33 @@ img {
 
 
   }
+
+//   @HostListener('document:keydown', ['$event'])
+// handleKeyboardEvent(event: KeyboardEvent) {
+//   switch (event.key) {
+//     case 'F4':
+//       alert('hold sale for F4');
+//       this.holdSale();
+//       break;
+//     case 'F2':
+//       alert('hold sale for F2');
+//       this.holdSale();
+//       break;
+//     case 'F8':
+//       alert('daily sale for F8');
+//       this.dailySale();
+//       break;
+    
+//   }
+// }
+  dailySale() {
+    throw new Error('Method not implemented.');
+  }
+
+  agentChange(){
+
+  }
+
 
 /* ************************** THE END ***************************************** */
 

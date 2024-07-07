@@ -139,7 +139,7 @@ export class ProductService {
 /* ************************************************************* */
 getProducts(categoryId: any): Observable<ProductWrapper>{
 
-  let myUrl = `${this.myUrl}` + `products/findProductsByCategory/` + categoryId ;
+  let myUrl = `${this.myUrl}` + `products/pos/findProductsByCategory/` + categoryId ;
 
   return this.http.get<ProductWrapper>(myUrl).pipe(
       //tap( error ==> this.log('Fetched Product') ),
@@ -149,7 +149,7 @@ getProducts(categoryId: any): Observable<ProductWrapper>{
 /* ************************************************************* */
 popularProducts(): Observable<ProductWrapper>{
 
-  let myUrl = `${this.myUrl}` + `products/findPopularProducts`  ;
+  let myUrl = `${this.myUrl}` + `products/pos/findPopularProducts`  ;
 
   return this.http.get<ProductWrapper>(myUrl).pipe(
       //tap( error ==> this.log('Fetched Product') ),
@@ -159,7 +159,7 @@ popularProducts(): Observable<ProductWrapper>{
 /* ************************************************************* */
 popularMeatProducts(): Observable<ProductWrapper>{
 
-  let myUrl = `${this.myUrl}` + `products/findPopularMeatProducts`  ;
+  let myUrl = `${this.myUrl}` + `products/pos/findPopularMeatProducts`  ;
 
   return this.http.get<ProductWrapper>(myUrl).pipe(
       //tap( error ==> this.log('Fetched Product') ),
@@ -169,7 +169,7 @@ popularMeatProducts(): Observable<ProductWrapper>{
 /* ************************************************************* */
 foodProducts(categoryId: number): Observable<ProductWrapper>{
 
-  let myUrl = `${this.myUrl}` + `products/findFoodProducts/` + categoryId  ;
+  let myUrl = `${this.myUrl}` + `products/pos/findFoodProducts/` + categoryId  ;
 
   return this.http.get<ProductWrapper>(myUrl).pipe(
       //tap( error ==> this.log('Fetched Product') ),
@@ -179,7 +179,7 @@ foodProducts(categoryId: number): Observable<ProductWrapper>{
 /* ************************************************************* */
 getSearchProducts(search: any): Observable<ProductWrapper>{
 
-  let myUrl = `${this.myUrl}` + `products/searchProducts/` + search ;
+  let myUrl = `${this.myUrl}` + `products/pos/searchProducts/` + search ;
 
   return this.http.get<ProductWrapper>(myUrl).pipe(
       //tap( error ==> this.log('Fetched Product') ),
@@ -202,7 +202,7 @@ let myUrl = `${this.myUrl}` + `alert/sms` ;
 
 getProductsByUPC(upc: string): Observable<ProductView>{
 
-  let myUrl = `${this.myUrl}` + `products/findProductsByUpc/` + upc ;
+  let myUrl = `${this.myUrl}` + `products/pos/findProductsByUpc/` + upc ;
 
   return this.http.get<ProductView>(myUrl).pipe(
       //tap( error ==> this.log('Fetched Product') ),
@@ -214,7 +214,7 @@ getProductsByUPC(upc: string): Observable<ProductView>{
 
 getProductsBySKU(sku: string): Observable<ProductView>{
 
-  let myUrl = `${this.myUrl}` + `products/findProductsBySku/` + sku ;
+  let myUrl = `${this.myUrl}` + `products/pos/findProductsBySku/` + sku ;
 
   return this.http.get<ProductView>(myUrl).pipe(
       //tap( error ==> this.log('Fetched Product') ),
@@ -237,7 +237,7 @@ getMaxProductId(): Observable<number>{
 
 /* ************************************************************* */
 getProductMissingLocal(productId:number): Observable<ProductWrapper>{
-  let remoteUrl = `${this.cloudApiUrl}` + `products/getProductMissingLocal/` + productId ;
+  let remoteUrl = `${this.cloudApiUrl}` + `products/pos/getProductMissingLocal/` + productId ;
   //let remoteUrl = `${this.myUrl}` + `products/getProductMissingLocal/` + productId ;
 
   return this.http.get<ProductWrapper>(remoteUrl).pipe(
@@ -247,7 +247,7 @@ getProductMissingLocal(productId:number): Observable<ProductWrapper>{
 
 /* ************************************************************* */
 saveProductListToLocalDB(productList: ProductView): Observable<ApiResponse>{
-  let myUrl = `${this.myUrl}` + `products/saveMissingProducts`  ;
+  let myUrl = `${this.myUrl}` + `products/pos/saveMissingProducts`  ;
 
   return this.http.post<ApiResponse>(myUrl, productList).pipe(
     catchError(this.errors.handleError<ApiResponse>('getProducts'))
