@@ -14,6 +14,7 @@ import {
   Orders,
   OrdersCustomerWrapper,
   OrdersItems,
+  Payment,
   PriceSummary,
   Product,
   ProductAttributes,
@@ -23,6 +24,7 @@ import {
 import { CacheService } from '../services/cache.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProductService } from '../services/product.service';
+import { PaymentService } from '../services/payment.service';
 import { environment } from 'src/environments/environment';
 import { faSignOut } from '@fortawesome/free-solid-svg-icons';
 import { DepartmentsService } from '../services/departments.service';
@@ -52,7 +54,7 @@ export class PosZubaidaComponent {
 
   attemptCount=0;
   invoiceNumber: any = 'BL00012';
-  selectedAgent:any='01'; 
+  selectedAgent:AdminUser | undefined; 
   mobileshow: any = false;
   nameSearchModal: any = false;
   logoName = environment.logoName;
@@ -95,9 +97,11 @@ export class PosZubaidaComponent {
   shopCategory: Category = new Category();
   searchFlag = false;
   searchParam = '';
-  modalOpen: boolean = false;
-  modalOpen1: boolean = false;
-  modalOpen2: boolean = false;
+  priceCheckPopup: boolean = false;
+  retrieveSalePopup: boolean = false;
+  productSearchPopup: boolean = false;
+  cashModal: boolean = false;
+  cardModal: boolean = false;
   customerBalance: number = 0;
   items: any[] = []; // Assuming this array contains your items
 
@@ -161,6 +165,7 @@ export class PosZubaidaComponent {
 
   appName=environment.appName;
   salesAgentList:AdminUser[]=[];
+  payment: Payment = new Payment();
 
   constructor(
     private route: ActivatedRoute,
@@ -170,7 +175,8 @@ export class PosZubaidaComponent {
     private departmentsService: DepartmentsService,
     private orderService: OrdersService,
     private customerService: CustomerService,
-    private userService: UserService
+    private userService: UserService,
+    private paymentService: PaymentService
 
   ) { }
 
@@ -183,16 +189,46 @@ export class PosZubaidaComponent {
     }
 
     this.salesAgentList = this.cache.getList("salesAgent");
+    this.selectedAgent = JSON.parse(this.cache.get("selectedAgent"));
+    
 
     if (this.salesAgentList===undefined || this.salesAgentList===null)
     {
       this.userService.getUserList().subscribe((data:AdminUser[])=> {
-        this.salesAgentList = data;
-        //sessionStorage.setItem("salesAgent", JSON.stringify(data));
-        this.cache.setList("salesAgent", data);
+        //this.salesAgentList = data;
+        if (data !==undefined){
+          if (data.length>0){
+            this.salesAgentList = [];
+            for (let i=0; i<data.length; i++){
+              let userRole = data[i].userRole;
+              if (userRole==='AGENT'){
+                this.salesAgentList.push(data[i]);
+              }
+            }
+          }
+        }
+
+
+        this.cache.setList("salesAgent", this.salesAgentList);
+
+        if (this.salesAgentList.length>0 && this.selectedAgent===undefined){
+          this.selectedAgent = this.salesAgentList[0];
+        }
+        else if (this.salesAgentList.length>0 && this.selectedAgent===null){
+          this.selectedAgent = this.salesAgentList[0];
+        }
+
         
       });
         
+    }
+    else{
+      if (this.salesAgentList.length>0 && this.selectedAgent===undefined){
+        this.selectedAgent = this.salesAgentList[0];
+      }
+      else if (this.salesAgentList.length>0 && this.selectedAgent===null){
+        this.selectedAgent = this.salesAgentList[0];
+      }
     }
 
     if (holdData) {
@@ -393,6 +429,9 @@ export class PosZubaidaComponent {
 
       }
       productView.quantity = this.productQuantity;
+      productView.agentId = this.selectedAgent?.userId;
+      productView.loginId = this.selectedAgent?.loginId;
+      productView.firstName = this.selectedAgent?.firstName;
 
       rcvdProduct.product.push(productView);
 
@@ -466,7 +505,28 @@ export class PosZubaidaComponent {
   nameSearch(event: KeyboardEvent) {
     let s1 = event;
     if (event.key === 'Enter') {
-      this.onSearch();
+      //this.onSearch();
+      let nameSearch = <HTMLInputElement>document.getElementById('name-search');
+      this.search = nameSearch.value;
+  
+      if (this.search === null || this.search === undefined || this.search === '' ) 
+      {
+          //Don't do anything
+      }
+      else{
+        this.productService.getSearchProducts(this.search).subscribe((data) => {
+          //let productId = data.productId;
+          this.productcheckList =data.productList;
+          if (this.productcheckList === null) {
+            Swal.fire('Not Found', 'Product Does not exist', 'error');
+          } 
+          
+        });
+
+      }
+
+
+
     }
   }
   /* ************************************************************** */
@@ -515,7 +575,10 @@ export class PosZubaidaComponent {
             for (let i = 0; i < rcvdProduct.product.length; i++) {
               if (rcvdProduct.product[i].productName === data.productName) {
                 rcvdProduct.product[i].quantity = parseInt(rcvdProduct.product[i].quantity, 10) + parseInt(this.productQuantity, 10);
-                   
+                rcvdProduct.product[i].agentId = this.selectedAgent?.userId;   
+                rcvdProduct.product[i].loginId = this.selectedAgent?.loginId;   
+                rcvdProduct.product[i].firstName = this.selectedAgent?.firstName;
+
                 const row = document.getElementById(`product-row_${i}`); 
                 if (row) {
                 row.classList.add('blink');
@@ -532,6 +595,10 @@ export class PosZubaidaComponent {
             }
 
             if (!found) {
+              data.agentId = this.selectedAgent?.userId;
+              data.loginId = this.selectedAgent?.loginId;
+              data.firstName = this.selectedAgent?.firstName;
+
               rcvdProduct.product.push(data);
               this.productService.localAddToCart(rcvdProduct);
             }
@@ -603,6 +670,9 @@ export class PosZubaidaComponent {
               rcvdProduct.total = 0;
             }
             data.quantity = this.productQuantity;
+            data.agentId = this.selectedAgent?.userId; 
+            data.loginId = this.selectedAgent?.loginId; 
+            data.firstName = this.selectedAgent?.firstName;
 
             rcvdProduct.product.push(data);
 
@@ -619,10 +689,42 @@ export class PosZubaidaComponent {
     }
   }
 
+  /* ************************************************************** */
+  priceSearch(event: any) {
+    let myScan = '';
+    if (event.code === 'Enter') {
+      let qtyInput = <HTMLInputElement>document.getElementById('price-search');
+      if (qtyInput === undefined) {
+        return;
+      }
+
+      let price = qtyInput.value;
+      if (price !== undefined || price !== '') {
+        //serach product by UPC
+        this.productService.getProductsByPrice(price).subscribe((data) => {
+          //let productId = data.productId;
+          this.productcheckList =data.productList;
+          if (this.productcheckList === null) {
+            Swal.fire('Not Found', 'Product Does not exist', 'error');
+          } 
+          
+        });
+      }
+    } else {
+      myScan = event.target.value;
+    }
+  }
+
+
+
   /****************************** */
 
   priceCheckByUpc(event: any) {
     let myScan = '';
+    //always reset the list
+    //this.productcheckList.length=0;
+    this.productcheckList = [];
+
     if (event.code === 'Enter') {
       let qtyInput = <HTMLInputElement>document.getElementById('priceCheck');
       if (qtyInput === undefined) {
@@ -659,6 +761,9 @@ export class PosZubaidaComponent {
             rcvdProduct.discount = data.discount;
             rcvdProduct.unitPrice = data.unitPrice;
             rcvdProduct.salePrice = data.salePrice;
+            rcvdProduct.agentId = this.selectedAgent?.userId; 
+            rcvdProduct.loginId = this.selectedAgent?.loginId;
+            rcvdProduct.firstName = this.selectedAgent?.firstName;
 
             this.productcheckList.push(rcvdProduct);
             //this.cartDataList.push(rcvdProduct);
@@ -680,15 +785,35 @@ export class PosZubaidaComponent {
 
   /* ************************************************************** */
   removeCart() {
-    this.productService.clearCart();
-    window.location.reload();
+       
+
+    Swal.fire({
+      title: 'Cancel Sale',
+      text: 'Are you sure to Cancel Sale?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'No, keep it'
+    }).then((response: any) => {
+
+      if (response.value) {
+
+        this.productService.clearCart();
+        window.location.reload();
+      }
+
+    });
+
+
+
+    
   }
   /* ************************************************************** */
-  openModal() {
-    this.modalOpen = true;
+  openPriceCheckPopup() {
+    this.priceCheckPopup = true;
   }
   /* ************************************************************** */
-  openModal1() {
+  openRetrieveSalePopup() {
     let localCart = localStorage.getItem('localCart');
     //localcart data check
     if (localCart) {
@@ -719,12 +844,12 @@ export class PosZubaidaComponent {
 
     }
 
-    this.modalOpen1 = true;
+    this.retrieveSalePopup = true;
 
   }
   /* ************************************************************** */
-  closeModal1() {
-    this.modalOpen1 = false;
+  closeRetrieveSalePopup() {
+    this.retrieveSalePopup = false;
   }
   /* *************************************************************** */
   closeNameSearchModal() {
@@ -732,12 +857,12 @@ export class PosZubaidaComponent {
   }
   /* ************************************************************** */
   closeModal() {
-    this.modalOpen = false;
+    this.priceCheckPopup = false;
     this.clearFields();
   }
   
   /* ************************************************************** */
-  openModal2() {
+  openCashModal() {
     // if (!this.customer.firstName) {
     //   // Show alert for required fields
     //   Swal.fire('WARNING', 'Please fill The Customer Name', 'warning');
@@ -751,16 +876,44 @@ export class PosZubaidaComponent {
     }
 
 
-    this.modalOpen2 = true;
+    this.payment.paymentMethod='CASH';
+
+    this.cashModal = true;
 
   }
   /* ************************************************************** */
-  closeModal2() {
-    this.modalOpen2 = false;
+  closeCashModal() {
+    this.cashModal = false;
     this.result='';
     this.customerBalance=0;
   }
   /* ************************************************************** */
+  /* ************************************************************** */
+  openCardModal() {
+
+    let localCart = localStorage.getItem('localCart')
+    if (localCart === undefined || localCart === '' || localCart === null || localCart.length === 105 || localCart.length === 0) {
+      Swal.fire('WARNING', 'Cart is Empty', 'warning');
+      return;
+    }
+
+    this.payment.paymentMethod='CARD';
+    //this.cardModal = true;
+    //No need to show the popup screen
+    //this.calculateBalance()
+    this.calculateCartTotal();
+    this.result = this.priceSummary.total;
+
+    this.onCustomerSave('CARD')
+
+  }
+  /* ************************************************************** */
+  closeCardModal() {
+    this.cardModal = false;
+    this.result='';
+    this.customerBalance=0;
+  }
+
   /* ************************************************************** */
   clearFields() {
     // Clear the priceCheck property in the component
@@ -774,9 +927,40 @@ export class PosZubaidaComponent {
     this.productcheckList = [];
   }
   /* ************************************************************** */
+  checkHoldSale(){
+
+    let localCart = localStorage.getItem('localCart');
+    //localCart = always one object of cartHold type
+    //holdCarts =  could be array list of localCarts of type cartHold[]
+    if (localCart) {
+      Swal.fire({
+        title: 'Hold Sale',
+        text: 'Are you sure to Hold this Sale?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, hold it!',
+        cancelButtonText: 'No, keep it'
+      }).then((response: any) => {
+  
+        if (response.value) {
+  
+          this.holdSale();
+        }
+  
+      });
+  
+    }
+    else{
+      Swal.fire('Please select Sale to Hold');
+    }
+
+  }
+
   // Method to hold the current sale
   holdSale() {
     // Check if any of the input fields are empty
+    
+    
     this.cartDataList.customer.firstName = this.customer.firstName;
     this.cartDataList.customer.email = this.customer.email;
     this.cartDataList.customer.phone1 = this.customer.phone1;
@@ -995,7 +1179,8 @@ export class PosZubaidaComponent {
           );
           if (myCategory.category !== 'MEAT') {
             let price = salePrice * this.cartDataList.product[i].quantity;
-            priceTotal = priceTotal + price;
+            let discountPrice = (price * this.cartDataList.product[i].discount)/100; 
+            priceTotal = priceTotal + price - discountPrice;
           }
         }
         else if (unitPrice != undefined) {
@@ -1004,8 +1189,11 @@ export class PosZubaidaComponent {
             this.cartDataList.product[i].categoryId
           );
           if (myCategory.category !== 'MEAT') {
+           
             let price = unitPrice * this.cartDataList.product[i].quantity;
-            priceTotal = priceTotal + price;
+            let discountPrice = (price * this.cartDataList.product[i].discount)/100; 
+            priceTotal = priceTotal + price - discountPrice;
+
           }
         }
 
@@ -1114,6 +1302,7 @@ export class PosZubaidaComponent {
         orderItem.unitPrice = items.unitPrice;//items.unitPrice;
         orderItem.updatedBy = this.signInUser;
         orderItem.itemStatus = 'NEW';
+        orderItem.agentId = items.agentId;
 
         orderSaveResponse.orderItems?.push(orderItem);
 
@@ -1130,6 +1319,14 @@ export class PosZubaidaComponent {
             if (data.orders != null || data.orders != undefined) {
               let myOrder: Orders = data.orders;
               let items = data.orderItems;
+              //Payment save
+              this.payment.orderId = orderId;
+              this.paymentService.savePayment(this.payment).subscribe(data => {
+                if (data != undefined) {
+                  let resp = data.statusCode;
+                }
+              });
+
               let currentUser: any = sessionStorage.getItem('currentUser');
               let myCustomer: Customer = JSON.parse(currentUser);
               this.invoiceNumber = 'BL' + orderId;
@@ -1202,12 +1399,30 @@ export class PosZubaidaComponent {
     let totalPrice;
     let tax=0;
     this.attemptCount++;
-    if (product.salePrice !== null && product.salePrice !== undefined) {
-      tax = Number((product.quantity * product.salePrice)*product.tax/100);
-      totalPrice = (Number(product.quantity * product.salePrice) + tax ).toFixed(2);
-    } else {
-      tax=Number((product.quantity * product.unitPrice)*product.tax/100);
-      totalPrice = (Number(product.quantity * product.unitPrice) + tax).toFixed(2);
+    if (product.salePrice !== null && product.salePrice !== undefined) 
+      {
+
+        let price = product.salePrice * product.quantity; //660
+        let discountPrice = (price * product.discount)/100; //10% 66
+        let priceAfterDiscount = price - discountPrice; //660-66=594
+
+        tax = (priceAfterDiscount * product.tax)/100; //106.92
+        totalPrice = Number(priceAfterDiscount + tax).toFixed(2);
+
+      //tax = Number((product.quantity * product.salePrice)*product.tax/100);
+      //totalPrice = (Number(product.quantity * product.salePrice) + tax ).toFixed(2);
+    } 
+    else 
+    {
+      let price = product.unitPrice * product.quantity; //660
+      let discountPrice = (price * product.discount)/100; //10% 66
+      let priceAfterDiscount = price - discountPrice; //660-66=594
+
+      tax = (priceAfterDiscount * product.tax)/100; //106.92
+      totalPrice = Number(priceAfterDiscount + tax).toFixed(2);
+
+//      tax=Number((product.quantity * product.unitPrice)*product.tax/100);
+//      totalPrice = (Number(product.quantity * product.unitPrice) + tax).toFixed(2);
     }
 
     //this.priceSummary.total = this.priceSummary.total + Number(totalPrice);
@@ -1216,19 +1431,31 @@ export class PosZubaidaComponent {
 
  
 
-  tax(product: ProductView): number {
+  tax(product: ProductView): any {
     let totalTax;
     
 
     if (product.salePrice !== null && product.salePrice !== undefined) {
-      totalTax = Number((product.quantity * product.salePrice)*product.tax/100).toFixed(2);
-    } else {
-      totalTax = Number((product.quantity * product.unitPrice)*product.tax/100).toFixed(2);
+      let price = product.salePrice * product.quantity; //660
+      let discountPrice = (price * product.discount)/100; //10% 66
+      let priceAfterDiscount = price - discountPrice; //660-66=594
+
+      totalTax = (priceAfterDiscount * product.tax)/100; //106.92
+      //totalTax = Number((product.quantity * product.salePrice)*product.tax/100).toFixed(2);
+    } 
+    else {
+      let price = product.unitPrice * product.quantity; //660
+      let discountPrice = (price * product.discount)/100; //10% 66
+      let priceAfterDiscount = price - discountPrice; //660-66=594
+
+      totalTax = (priceAfterDiscount * product.tax)/100; //106.92
+    
+    //  totalTax = Number((product.quantity * product.unitPrice)*product.tax/100).toFixed(2);
     }
 
     //this.priceSummary.tax +=  Number(totalTax);
 
-    return Number(totalTax);
+    return Number(totalTax).toFixed(2);
   }
 
 
@@ -1263,6 +1490,13 @@ export class PosZubaidaComponent {
 
 
     }
+
+    this.payment.paymentMethod = source;
+    this.payment.discount = this.priceSummary.discount;
+    this.payment.taxesAmount = this.priceSummary.tax;
+    this.payment.totalAmount = this.priceSummary.grandTotal;
+    this.payment.currency = environment.currency;
+    
 
     //This methods gets called from Guest Customer Data Entry form, when user click Checkout after entering his/her data.
     let customer = new Customer();
@@ -1415,12 +1649,24 @@ export class PosZubaidaComponent {
           ? this.cartDataList.product[i].salePrice
           : this.cartDataList.product[i].unitPrice)
 
-        taxItem = ((price * this.cartDataList.product[i].quantity) * this.cartDataList.product[i].tax )/100;  
+        taxItem = this.tax(this.cartDataList.product[i]); //((price * this.cartDataList.product[i].quantity) * this.cartDataList.product[i].tax )/100;  
         subtotal = subtotal + price * this.cartDataList.product[i].quantity ;
         // tax = this.cartDataList[i].tax || 0 ;
         total = subtotal - this.totalDiscount + taxItem;
         totalTax = totalTax + taxItem;
-        itemDiscount = (this.cartDataList.product[i].unitPrice - this.cartDataList.product[i].salePrice)
+        itemDiscount = this.cartDataList.product[i].discount;  //(this.cartDataList.product[i].unitPrice - this.cartDataList.product[i].salePrice)
+
+//        let price = product.unitPrice * product.quantity; //660
+      let discountPrice = (price * itemDiscount)/100; //10% 66
+      let priceAfterDiscount = price - discountPrice; //660-66 = 594
+
+      let itemTax = (priceAfterDiscount * this.cartDataList.product[i].tax)/100; //106.92
+      let totalPrice = Number(priceAfterDiscount + itemTax).toFixed(2);
+
+      //TOTALS
+      totalTax = totalTax + itemTax;
+      subtotal = subtotal + priceAfterDiscount;
+
 
         myItems +=
           `<tr>
@@ -1441,13 +1687,13 @@ export class PosZubaidaComponent {
           `</b></td>
 
             <td><b>` +
-          taxItem +
+            itemTax +
           `</b></td>
             <td><b>` +
             this.cartDataList.product[i].tax +
           `</b></td>
             <td><b>` +
-          (price * this.cartDataList.product[i].quantity).toFixed(2) +
+            totalPrice +
           `</b></td>
         </tr>`;
       }
@@ -1767,26 +2013,32 @@ img {
     window.location.reload();
   }
 
-
+/* ***************************************************** */
   calculateCartTotal(): any {
     this.priceSummary.total = 0;
     this.priceSummary.tax=0;
     let totalTax=0;
 
+    if (this.cartDataList.product.length===0) return 0;
+
     for (let item of this.cartDataList.product) {
-      const price = item.salePrice ? item.salePrice : item.unitPrice;
-      this.priceSummary.total += item.quantity * price;
+      //const price = item.salePrice ? item.salePrice : item.unitPrice;
+      let price = this.itemTotal(item);
+      totalTax = this.tax(item); //Number((item.quantity * price)* item.tax/100);
 
-      totalTax = Number((item.quantity * price)* item.tax/100);
-      this.priceSummary.tax+=totalTax;
+      this.priceSummary.total += Number(price) - Number(totalTax);     //item.quantity * price;
 
+      
+      this.priceSummary.tax+= Number(totalTax);
 
-    }
+    }//for loop
     this.priceSummary.grandTotal = this.priceSummary.total - this.totalDiscount + this.priceSummary.tax;
-    return (this.priceSummary.total - this.totalDiscount + this.priceSummary.tax).toFixed(2);
+    let finalPrice = Number(this.priceSummary.total - this.totalDiscount + this.priceSummary.tax);
+
+    return finalPrice.toFixed(2);   //(this.priceSummary.total - this.totalDiscount + this.priceSummary.tax).toFixed(2);
 
   }
-
+/* ***************************************************** */
   show() {
     this.mobileshow = false;
   }
@@ -1881,29 +2133,195 @@ img {
 
   }
 
-//   @HostListener('document:keydown', ['$event'])
-// handleKeyboardEvent(event: KeyboardEvent) {
-//   switch (event.key) {
-//     case 'F4':
-//       alert('hold sale for F4');
-//       this.holdSale();
-//       break;
-//     case 'F2':
-//       alert('hold sale for F2');
-//       this.holdSale();
-//       break;
-//     case 'F8':
-//       alert('daily sale for F8');
-//       this.dailySale();
-//       break;
+  @HostListener('document:keydown', ['$event'])
+handleKeyboardEvent(event: KeyboardEvent) {
+  let t1=0;
+  switch (event.key) {
+    case 'F2':
+      this.openProductSearchPopup();
+      break;
+    case 'F4':
+      //alert('hold sale for F4');
+      this.checkHoldSale();
+      break;
+    case 'F3':
+      //alert('cash sale for F3');
+      this.openCashModal();
+      break;
+    case 'F5':
+      //alert('card sale for F5');
+      this.openCardModal();
+      break;  
+    case 'F8':
+      //alert('daily sale for F8');
+      this.dailySale();
+      break;
     
-//   }
-// }
+  }
+}
   dailySale() {
     throw new Error('Method not implemented.');
   }
 
   agentChange(){
+    this.selectedAgent;
+    this.cache.set("selectedAgent", JSON.stringify(this.selectedAgent));
+    
+
+  }
+
+
+  agentKey(event: any) {
+    if (event.code === 'Enter') {
+      let agentInput = <HTMLInputElement>document.getElementById('selectAgentInput');
+      if (agentInput === undefined) {
+        return;
+      }
+      let agent = agentInput.value;
+      if (agent !== undefined || agent !== '') {
+          for (let i=0; i<this.salesAgentList.length; i++){
+            if (this.salesAgentList[i].loginId === agent){
+              this.selectedAgent = this.salesAgentList[i];
+
+              this.cache.set("selectedAgent", JSON.stringify(this.selectedAgent));
+
+            }
+          }
+      }
+  }
+}
+
+  /* ************************************************************* */
+  discountChange(row: number) {
+
+    let discountInput = <HTMLInputElement>document.getElementById('discount_' + row);
+
+    let val = discountInput.value;
+
+    if (discountInput != null || discountInput != undefined) {
+      let len = discountInput.value.length;
+
+      let qty = Number(val);
+      if (qty<1){
+          //0 or below not allowed
+          Swal.fire('WARNING','0 or negative Qty is not allowed', 'warning');
+          return;
+
+      }
+      if (len > 2) {
+        discountInput.value = discountInput.value.toString().slice(0, 2);
+      }
+    }
+
+    let localCartData = localStorage.getItem('localCart');
+    if (localCartData) {
+      let discountData = JSON.parse(localCartData);
+      discountData.product[row].discount = discountInput.value;
+      localStorage.setItem('localCart', JSON.stringify(discountData))
+
+
+    }
+    //alert('qtyChange'+ qty.value);
+
+    this.cartDataList.product[row].discount = discountInput.value;
+
+    this.calculateTotalPrice();
+  }
+
+  /* ************************************************************** */
+  chkDiscountNumber1(row: number) {
+    let discountInput = <HTMLInputElement>document.getElementById('discount_' + row);
+    let val = discountInput.value;
+
+    if (discountInput != null || discountInput != undefined) {
+      let len = discountInput.value.length;
+
+      let qty = Number(val);
+      if (qty<1){
+          //0 or below not allowed
+          Swal.fire('WARNING','0 or negative discount is not allowed', 'warning');
+          return;
+
+      }
+      if (len > 2) {
+        discountInput.value = discountInput.value.toString().slice(0, 2);
+      }
+    }
+  } //chkNumber
+
+/* ************************************************************* */
+openProductSearchPopup(){
+  this.productSearchPopup=true;
+}
+
+closeProductSearchPopup(){
+  this.productSearchPopup=false;
+  this.productcheckList = [];
+}
+
+  /* ************************************************************** */
+clearProductSearchFields() {
+    // Clear the priceCheck property in the component
+    let nameInput = document.getElementById(
+      'name_search'
+    ) as HTMLInputElement; // Get the input element
+
+    if (nameInput) {
+      nameInput.value = ''; // Reset the input field value
+    }
+
+    let skuInput = document.getElementById(
+      'sku_search'
+    ) as HTMLInputElement; // Get the input element
+
+    if (skuInput) {
+      skuInput.value = ''; // Reset the input field value
+    }
+
+    let priceInput = document.getElementById(
+      'price_search'
+    ) as HTMLInputElement; // Get the input element
+
+    if (priceInput) {
+      priceInput.value = ''; // Reset the input field value
+    }
+
+    //Empty the List
+    this.productcheckList = [];
+  }
+
+
+  selectSearchProduct(product: ProductView){
+
+    let localCartData = localStorage.getItem('localCart');
+    if (localCartData) {
+      let cartData = JSON.parse(localCartData);
+      product.quantity=1;
+      product.loginId = this.selectedAgent?.loginId;
+      product.firstName = this.selectedAgent?.firstName;
+      product.agentId = this.selectedAgent?.userId;
+      if (product.tax === null){
+        product.tax=18;
+      }
+
+      cartData.product.push(product);
+      localStorage.setItem('localCart', JSON.stringify(cartData));
+    }
+    else{
+      product.quantity=1;
+      product.loginId = this.selectedAgent?.loginId;
+      product.firstName = this.selectedAgent?.firstName;
+      product.agentId = this.selectedAgent?.userId;
+      if (product.tax === null){
+        product.tax=18;
+      }
+
+      this.cartDataList.product.push(product);
+      localStorage.setItem('localCart', JSON.stringify(this.cartDataList));
+    }
+
+    this.closeProductSearchPopup();
+    window.location.reload();
 
   }
 

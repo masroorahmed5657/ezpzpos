@@ -222,6 +222,18 @@ getProductsBySKU(sku: string): Observable<ProductView>{
   );
 
 }
+/* ************************************************************* */
+
+getProductsByPrice(price: any): Observable<ProductWrapper>{
+
+  let myUrl = `${this.myUrl}` + `products/pos/searchProductsByPrice/` + price ;
+
+  return this.http.get<ProductWrapper>(myUrl).pipe(
+      //tap( error ==> this.log('Fetched Product') ),
+    catchError(this.errors.handleError<ProductWrapper>('getProducts'))
+  );
+
+}
 
 /* ************************************************************* */
 getMaxProductId(): Observable<number>{

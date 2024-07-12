@@ -93,7 +93,7 @@ export class ProductView{
   cuttingAttributes: any;
   extraAttributes: any;
   optionsAttributes:any;
-  discount?: number;
+  discount?: any;
   popularFlag?: number;
   productStatus?: string;
   updatedBy?: any;
@@ -119,6 +119,10 @@ export class ProductView{
    imageCharset:any; // Fill with default value or retrieve from somewhere
    madeinFlag: any;
    tax:any;
+   agentId:any;
+   loginId:any;
+   firstName:any;
+   
 }
 
 export class ProductDocuments{
@@ -571,6 +575,7 @@ export class Payment{
  discountType:any;
  updatedBy:any;
  updatedDate:any;
+ currency:any
 
 }
 
