@@ -1319,8 +1319,16 @@ export class PosZubaidaComponent {
       order.updatedBy = this.signInUser;
       order.price = this.priceSummary.price
       order.orderAmount = this.priceSummary.total;//order.price; //price/cut price of each item
-      order.grandTotal = this.priceSummary.total + this.priceSummary.tax;;
-      order.tax = this.priceSummary.tax.toFixed(2);
+      if (this.showTaxFlag){
+        order.grandTotal = this.priceSummary.total + this.priceSummary.tax;
+        order.tax = this.priceSummary.tax.toFixed(2);
+      }
+      else{
+        order.grandTotal = this.priceSummary.total ;
+        order.tax = 0; 
+      }
+      
+      
       order.shippingHandling = this.priceSummary.delivery.toFixed(2);
 
 
@@ -1377,6 +1385,8 @@ export class PosZubaidaComponent {
 
               this.todaydatashow = data.orders.createDate;
               localStorage.setItem('localCart', '');
+              
+
               Swal.fire('Submit', 'Order#' + orderNum + ' has been created.', 'success')
                 .then((result) => {
                   if (result.isConfirmed) {
@@ -1387,6 +1397,7 @@ export class PosZubaidaComponent {
 
               this.cache.set('reload', 'F');
               this.printThermal();
+              
 
             }
             else {
@@ -1451,7 +1462,13 @@ export class PosZubaidaComponent {
         let priceAfterDiscount = price - discountPrice; //660-66=594
 
         tax = (priceAfterDiscount * product.tax)/100; //106.92
-        totalPrice = Number(priceAfterDiscount + tax).toFixed(2);
+        if (this.showTaxFlag){
+          totalPrice = Number(priceAfterDiscount + tax).toFixed(2);
+        }
+        else{
+          totalPrice = Number(priceAfterDiscount ).toFixed(2);
+        }
+        
 
       //tax = Number((product.quantity * product.salePrice)*product.tax/100);
       //totalPrice = (Number(product.quantity * product.salePrice) + tax ).toFixed(2);
@@ -1463,10 +1480,16 @@ export class PosZubaidaComponent {
       let priceAfterDiscount = price - discountPrice; //660-66=594
 
       tax = (priceAfterDiscount * product.tax)/100; //106.92
-      totalPrice = Number(priceAfterDiscount + tax).toFixed(2);
 
-//      tax=Number((product.quantity * product.unitPrice)*product.tax/100);
-//      totalPrice = (Number(product.quantity * product.unitPrice) + tax).toFixed(2);
+      if (this.showTaxFlag){
+        totalPrice = Number(priceAfterDiscount + tax).toFixed(2);
+      }
+      else{
+        totalPrice = Number(priceAfterDiscount ).toFixed(2);
+      }
+
+      
+
     }
 
     //this.priceSummary.total = this.priceSummary.total + Number(totalPrice);
@@ -1537,7 +1560,13 @@ export class PosZubaidaComponent {
 
     this.payment.paymentMethod = source;
     this.payment.discount = this.priceSummary.discount;
-    this.payment.taxesAmount = this.priceSummary.tax;
+    if (this.showTaxFlag){
+      this.payment.taxesAmount = this.priceSummary.tax;
+    }
+    else{
+      this.payment.taxesAmount = 0;
+    }
+    
     this.payment.totalAmount = this.priceSummary.grandTotal;
     this.payment.currency = environment.currency;
     
@@ -1662,6 +1691,41 @@ export class PosZubaidaComponent {
       myBodyOrder = myBodyOrder + `<img src="assets/images/logos/niks-logo-small.png" id="imagea" width: 20mm; text-align: center; ">` ;
     }
      
+
+    let tHead='';
+    if (this.showTaxFlag){
+      tHead = 
+      `<thead>
+        <tr >
+            <td colspan="6" style="text-align: left;border-top: 1px solid #000;"><b>Product Description</b></td>
+        </tr>
+        <tr >
+        <td style="text-align: left;border-top: 1px solid #000;"><b>Price</b></td>
+        <td style="text-align: left;border-top: 1px solid #000;" ><b>Qty</b></td>
+        <td style="text-align: left;border-top: 1px solid #000;" ><b>Discount</b></td>
+        <td style="text-align: left;border-top: 1px solid #000;"><b>Tax</b></td>
+        <td style="text-align: left;border-top: 1px solid #000;"><b>GST%</b></td>
+        <td style="text-align: left;border-top: 1px solid #000;"><b>Total</b></td>
+        </tr>
+      </thead>`
+    }
+    else{
+      tHead = 
+      `<thead>
+        <tr >
+            <td colspan="6" style="text-align: left;border-top: 1px solid #000;"><b>Product Description</b></td>
+        </tr>
+        <tr >
+        <td style="text-align: left;border-top: 1px solid #000;"><b>Price</b></td>
+        <td style="text-align: left;border-top: 1px solid #000;" ><b>Qty</b></td>
+        <td style="text-align: left;border-top: 1px solid #000;" ><b>Discount</b></td>
+        <td style="text-align: left;border-top: 1px solid #000;"><b>Total</b></td>
+        </tr>
+      </thead>`
+    }
+
+
+
     
     myBodyOrder = myBodyOrder +
     `<p style="margin-left:30px !important;"><b>Z GENERATIONS</b><br>
@@ -1674,21 +1738,12 @@ export class PosZubaidaComponent {
         `<h1 class="centered"  style="font-size:13px;margin-left:30px !important;"><b> ` +
         this.todaydatashow + `</b></h1>` +
         
-        `<table style="list-style:none;font-size:12px;text-align:left; ">
-            <thead>
-                <tr >
-                    <td colspan="6" style="text-align: left;border-top: 1px solid #000;"><b>Product Description</b></td>
-                </tr>
-                <tr >
-                <td style="text-align: left;border-top: 1px solid #000;"><b>Price</b></td>
-                <td style="text-align: left;border-top: 1px solid #000;" ><b>Qty</b></td>
-                <td style="text-align: left;border-top: 1px solid #000;" ><b>Discount</b></td>
-                <td style="text-align: left;border-top: 1px solid #000;"><b>Tax</b></td>
-                <td style="text-align: left;border-top: 1px solid #000;"><b>GST%</b></td>
-                <td style="text-align: left;border-top: 1px solid #000;"><b>Total</b></td>
-            </tr>
-            </thead>` +
-            `<tbody >`;
+        `<table style="list-style:none;font-size:12px;text-align:left; ">` + 
+        tHead + 
+        `<tbody >`;
+
+     
+
 
       let myItems = ``;
       let subtotal = 0;
@@ -1704,18 +1759,37 @@ export class PosZubaidaComponent {
           : this.cartDataList.product[i].unitPrice)
 
         taxItem = this.tax(this.cartDataList.product[i]); //((price * this.cartDataList.product[i].quantity) * this.cartDataList.product[i].tax )/100;  
-        subtotal = subtotal + price * this.cartDataList.product[i].quantity ;
+        //subtotal = subtotal + price * this.cartDataList.product[i].quantity ;
         // tax = this.cartDataList[i].tax || 0 ;
-        total = subtotal - this.totalDiscount + taxItem;
-        totalTax = totalTax + taxItem;
+        if (this.showTaxFlag){
+          total = subtotal - this.totalDiscount + taxItem;
+        }
+        else{
+          total = subtotal - this.totalDiscount ;
+        }
+        
+        //totalTax = totalTax + taxItem;
         itemDiscount = this.cartDataList.product[i].discount;  //(this.cartDataList.product[i].unitPrice - this.cartDataList.product[i].salePrice)
+        if (itemDiscount===null){
+          itemDiscount=0;
+        }
 
 //        let price = product.unitPrice * product.quantity; //660
       let discountPrice = (price * itemDiscount)/100; //10% 66
       let priceAfterDiscount = price - discountPrice; //660-66 = 594
 
       let itemTax = (priceAfterDiscount * this.cartDataList.product[i].tax)/100; //106.92
-      let totalPrice = Number(priceAfterDiscount + itemTax).toFixed(2);
+      let totalPrice='';
+
+      if (this.showTaxFlag){
+        totalPrice = Number(priceAfterDiscount + itemTax).toFixed(2);
+      }
+      else{
+        totalPrice = Number(priceAfterDiscount ).toFixed(2);
+      }
+      
+
+      let taxTdBlock='';
 
       //TOTALS
       totalTax = totalTax + itemTax;
@@ -1738,15 +1812,25 @@ export class PosZubaidaComponent {
           `</b></td>
            <td><b>` +
             itemDiscount +
-          `</b></td>
+          `</b></td>`;
 
-            <td><b>` +
+
+          if (this.showTaxFlag){
+            taxTdBlock = `<td><b>` +
             itemTax +
           `</b></td>
             <td><b>` +
             this.cartDataList.product[i].tax +
-          `</b></td>
-            <td><b>` +
+          `</b></td>`;
+
+          }
+          else{
+            taxTdBlock = ``;
+          }
+        
+          myItems += taxTdBlock +
+
+          `<td><b>` +
             totalPrice +
           `</b></td>
         </tr>`;
@@ -1759,12 +1843,9 @@ export class PosZubaidaComponent {
       let fbrPos = (Number(this.FbrCharges)).toFixed(2);
       let myTotal = (Number(this.priceSummary.grandTotal)).toFixed(2);
 
+      let finalTaxBlock=``;
       let myBottonHtml =
-        `
-
-        </tbody>
-       
-        
+       `</tbody>
         <tfoot>
         <tr>
         <td style="text-align: left;border-top: 1px solid #000;">Sub Total:</td>
@@ -1778,26 +1859,52 @@ export class PosZubaidaComponent {
         <td style="text-align: center;">Rs ` +
         myDiscount +
         ` </td>
-        </tr>
-        <tr>
-        <td >Tax:</td>
-        <td style="text-align: center;">Rs ` +
-        myTax +
-        ` </td>
-        </tr>
+        </tr>` ;
+
+        if (this.showTaxFlag){
+          finalTaxBlock = ` 
+            <tr>
+              <td >Tax:</td>
+              <td style="text-align: center;">Rs ` +
+                myTax +
+            ` </td>
+            </tr>`;
+        }
+
+        myBottonHtml = myBottonHtml + finalTaxBlock +
         
-        <td ><b>Total: </b></td>
-        <td style="text-align: center;"><b>Rs ` +
-        myTotal +
-        `</b> </td>
-        </tr>
-        <tr>
-        <td >Cash Paid:</td>
-        <td style="text-align: center;">Rs ` +
-        this.result +
-        ` </td>
-        </tr>
-        <td style="text-align: left;border-bottom: 1px solid #000;" ><b>Customer Balance: </b></td>
+        `<tr> 
+          <td ><b>Total: </b></td>
+          <td style="text-align: center;"><b>Rs ` +
+          myTotal +
+          `</b> </td>
+          </tr>`;
+
+        let cardCash=``;
+
+        if (this.payment.paymentMethod==='CASH'){
+          cardCash = `<tr>
+          <td >Cash Paid:</td>
+          <td style="text-align: center;">Rs ` +
+          this.result +
+          ` </td>
+          </tr>`;
+  
+        }
+        else if (this.payment.paymentMethod==='CARD')
+        {
+          cardCash = `<tr>
+          <td >Paid by Card</td>
+          <td style="text-align: center;"> &nbsp;` +
+          
+          ` </td>
+          </tr>`;
+  
+        }
+
+        myBottonHtml = myBottonHtml + cardCash +
+
+        `<tr><td style="text-align: left;border-bottom: 1px solid #000;" ><b>Customer Balance: </b></td>
         <td style="text-align: left;border-bottom: 1px solid #000;"><b>Rs ` +
         (this.customerBalance).toFixed(2) +
         `</b> </td>
@@ -1849,6 +1956,10 @@ export class PosZubaidaComponent {
   </html>`;
       let myFinalHtml = myHtml + myBodyOrder + myItems + myBottonHtml;
 //alert(myFinalHtml);
+
+      //Initializae payment object after save
+      this.payment = new Payment();
+
       popupWin.document.write(myFinalHtml);
 
       popupWin.document.close();
@@ -1970,7 +2081,16 @@ img {
 
     //this.priceSummary.grandTotal = invoiceTotal - (this.priceSummary.tax + cashDiscount);
     // Calculate the balance
-    this.customerBalance = (this.priceSummary.total - cashDiscount + this.priceSummary.tax);//this.priceSummary.total );
+    
+    if (this.showTaxFlag){
+      this.customerBalance = (this.priceSummary.total - cashDiscount + this.priceSummary.tax);
+    }
+    else{
+      this.customerBalance = (this.priceSummary.total - cashDiscount) ;
+    }
+    
+
+
     this.priceSummary.grandTotal = this.customerBalance;
 
   }
@@ -2075,21 +2195,44 @@ img {
 
     if (this.cartDataList.product.length===0) return 0;
 
-    for (let item of this.cartDataList.product) {
-      //const price = item.salePrice ? item.salePrice : item.unitPrice;
-      let price = this.itemTotal(item);
-      totalTax = this.tax(item); //Number((item.quantity * price)* item.tax/100);
+    let finalPrice=0;
 
-      this.priceSummary.total += Number(price) - Number(totalTax);     //item.quantity * price;
+    if (this.showTaxFlag){
+      for (let item of this.cartDataList.product) {
+        //const price = item.salePrice ? item.salePrice : item.unitPrice;
+        let price = this.itemTotal(item);
+        totalTax = this.tax(item); //Number((item.quantity * price)* item.tax/100);
+  
+        this.priceSummary.total += Number(price) - Number(totalTax);     //item.quantity * price;
+  
+        
+        this.priceSummary.tax+= Number(totalTax);
+  
+      }//for loop
+      this.priceSummary.grandTotal = this.priceSummary.total - this.totalDiscount + this.priceSummary.tax;
+      finalPrice = Number(this.priceSummary.total - this.totalDiscount + this.priceSummary.tax);
+  
+    }
+    else{
+      for (let item of this.cartDataList.product) {
+        //const price = item.salePrice ? item.salePrice : item.unitPrice;
+        let price = this.itemTotal(item);
+        //totalTax = this.tax(item); //Number((item.quantity * price)* item.tax/100);
+  
+        this.priceSummary.total += Number(price) ;
+  
+        
+        this.priceSummary.tax= 0;
+  
+      }//for loop
+      this.priceSummary.grandTotal = this.priceSummary.total - this.totalDiscount ;
+      finalPrice = Number(this.priceSummary.total - this.totalDiscount );
+  
+    }
 
-      
-      this.priceSummary.tax+= Number(totalTax);
 
-    }//for loop
-    this.priceSummary.grandTotal = this.priceSummary.total - this.totalDiscount + this.priceSummary.tax;
-    let finalPrice = Number(this.priceSummary.total - this.totalDiscount + this.priceSummary.tax);
 
-    return finalPrice.toFixed(2);   //(this.priceSummary.total - this.totalDiscount + this.priceSummary.tax).toFixed(2);
+    return finalPrice.toFixed(2);   
 
   }
 /* ***************************************************** */

@@ -14,6 +14,10 @@
         <div class="widgets-wrap d-flex justify-content-end">
           <div class="widget-header">
 
+            <a [routerLink]="'/reports'" class="btn ">
+              <button class="glow-on-hover report-btn" type="button">Sales Report</button>
+            </a>&nbsp;&nbsp;
+
               <button class="btn btn-default" style="font-size: small;" (click)="openRetrieveSalePopup()"
                 data-bs-toggle="modal" data-bs-target="#myModal"><b>Hold List</b>
               </button>
@@ -612,7 +616,7 @@ tabindex="-1" role="dialog" [ngClass]="{'show': cardModal, 'd-block': cardModal 
         <h4 style="text-align: left;">Sub Total:<span style="color: black;">Rs.
             {{(priceSummary.total).toFixed(2) }}</span></h4>
       </div>
-      <div class="col-md-2 col-lg-2 col-sm-12 ">
+      <div class="col-md-2 col-lg-2 col-sm-12 " *ngIf="showTaxFlag">
         <h4 style="text-align: left;">Tax:<span style="color: black;">Rs.
             {{(priceSummary.tax).toFixed(2)}}</span></h4>
   

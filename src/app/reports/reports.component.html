@@ -6,7 +6,7 @@
 
 <div class="container mb-3 mt-3">
   <div class="row">
-    <div class="col-8"><button type="button" (click)="changeReports('daily')" class="adddept btn"
+    <div class="col-6"><button type="button" (click)="changeReports('daily')" class="adddept btn"
         style="background-color:#198754;color: white">Daily</button>&nbsp;
       <button type="button" (click)="changeReports('weekly')" class="btn btn-primary"
         style="color: white">Weekly</button>&nbsp;
@@ -14,10 +14,18 @@
         style="color: white">Monthly</button>&nbsp;
       <button type="button" (click)="changeReports('yearly')" class="btn btn-info"
       style="color: white">Yearly</button>
+&nbsp;&nbsp;&nbsp;
+<a [routerLink]="'/pos'" class="btn "><button class="glow-on-hover order-btn" type="button">POS </button></a>&nbsp;&nbsp;&nbsp;
     </div>
     <div class="col-2"><button (click)="exportexcel()" class="btn btn-info">Export Excel</button></div>
     <div class="col-2"><button (click)="openPDF()" class="btn btn-info">Export PDF</button></div>
-
+    <div class="col-2">
+      <a href="#" class="icontext">
+        <a href="#" (click)="signOut()" class="btn btn-info m-btn m-btn--icon m-btn--icon-only">
+          Signout&nbsp;<fa-icon [icon]="faSignOut"></fa-icon>
+        </a>
+      </a>
+    </div>
 
   </div>
 </div>

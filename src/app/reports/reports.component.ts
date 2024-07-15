@@ -4,6 +4,7 @@ import { ReportsService } from '../services/reports.service';
 import { OrderSaleReport, OrderSaleReportResponse  } from '../model/model-classes.model';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { faSignOut } from '@fortawesome/free-solid-svg-icons';
 
 //import { ChartOptions } from './qurbani/qurbani.component';
 import {
@@ -21,6 +22,7 @@ import {
   ApexFill,
   ApexTooltip
 } from "ng-apexcharts";
+import { Router } from '@angular/router';
 
 export type ChartOptions = {
   responsive: ApexResponsive[];
@@ -46,6 +48,7 @@ export type ChartOptions = {
 })
 export class ReportsComponent implements OnInit {
 
+  faSignOut = faSignOut;
   selectedMonth: any;
   filteredMonthlyItems: any;
 
@@ -75,6 +78,8 @@ export class ReportsComponent implements OnInit {
 
   title = 'angular-app';
   fileName = 'ExcelSheet.xlsx';
+
+
 
 
   openPDF(): void {
@@ -111,7 +116,8 @@ export class ReportsComponent implements OnInit {
 
 
   constructor(
-    private reportsService: ReportsService) { }
+    private reportsService: ReportsService,
+    private router: Router) { }
 
   ngOnInit(): void {
 
@@ -399,7 +405,24 @@ export class ReportsComponent implements OnInit {
     //   .sort((a, b) => a.date.getTime() - b.date.getTime());
   }
 
+/* ************************************************************** */
+signOut() {
+  //this.cache.set('currentUser', null);
+  sessionStorage.removeItem('currentUser');
+  sessionStorage.removeItem('token');
+  sessionStorage.removeItem('username');
 
+  sessionStorage.clear();
+
+  //this.cache.resetAllData();
+
+  //this.isLoggedIn = false;
+  // if (this.isLoggedIn) {
+  //   //this.loginService.logOutUser();
+  //   //this.serverLogout();
+  // }
+  this.router.navigate(['login']);
+}
 
 
 

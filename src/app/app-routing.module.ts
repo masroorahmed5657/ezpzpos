@@ -5,6 +5,7 @@ import { PosComponent } from './pos/pos.component';
 import { AuthGaurdService } from './shared/auth-gaurd.service';
 import { PosZubaidaComponent } from './pos-zubaida/pos-zubaida.component';
 import { ReportsComponent } from './reports/reports.component';
+import { DailysalereportComponent } from './dailysalereport/dailysalereport.component';
 
 
 const routes: Routes = [
@@ -20,10 +21,10 @@ const routes: Routes = [
     path: 'login',
      component:LoginComponent
   },
- {
-     path:'**',
-     component:LoginComponent
-  },
+//  {
+//      path:'**',
+//      component:LoginComponent
+//   },
   {
     path: 'reports',
     component: ReportsComponent
