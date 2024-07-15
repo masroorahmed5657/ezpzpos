@@ -164,6 +164,9 @@ export class PosZubaidaComponent {
   orderItemWrapperList:OrderItemProductWrapper[]=[];
 
   appName=environment.appName;
+  cancelSaleFlag:boolean = true;
+  retrieveSaleFlag:boolean = true;
+  showTaxFlag:boolean=true;
   salesAgentList:AdminUser[]=[];
   payment: Payment = new Payment();
 
@@ -183,10 +186,18 @@ export class PosZubaidaComponent {
   ngOnInit(): void {
     let holdData = localStorage.getItem('localCart');
     this.signInUser = sessionStorage.getItem("username");
-    if (this.appName==='ZUBAIDA'){
-      this.customer.firstName = 'POSCustomer';//this.customer.firstName;
-      this.customer.email = 'info@techmaci.com';//this.customer.email;
+    this.cancelSaleFlag = environment.cancelSaleFlag;
+    this.retrieveSaleFlag = environment.retrieveSaleFlag;
+    this.showTaxFlag = environment.showTaxFlag;
+
+
+    if (!environment.posCustomerNameFlag){
+      this.customer.firstName = 'POSCustomer';//set default
     }
+    if (!environment.posCustomerEmailFlag){
+      this.customer.email = 'info@techmaci.com';//set default
+    }
+
 
     this.salesAgentList = this.cache.getList("salesAgent");
     this.selectedAgent = JSON.parse(this.cache.get("selectedAgent"));
@@ -238,12 +249,22 @@ export class PosZubaidaComponent {
       this.customer.phone1 = this.cartDataList.customer.phone1;
     } //end if
 
-    let test = this.cartDataList.product.length;
+    
 
     //window.scrollTo(0, 0);
     this.errorMsg = '';
     this.searchFlag = false;
     let search = '';
+
+    let agentInput = <HTMLInputElement>document.getElementById('selectAgentInput');
+    agentInput.focus();
+    
+    agentInput.autofocus=true;
+
+
+   
+    
+
     //let catId: number = Number(this.route.snapshot.paramMap.get('catId'));
     // let reload = this.cache.get('reload');
     // if (reload === null || reload === undefined) {
@@ -308,6 +329,21 @@ export class PosZubaidaComponent {
     //   }
     // }
   } //ngOnInit
+
+
+  ngAfterViewInit():void{
+    let len = this.cartDataList.product.length - 1;
+
+    const discountColName = 'discount_' + len ;
+    let discountInput = <HTMLInputElement>document.getElementById(discountColName); 
+
+    
+
+    if (discountInput!==null){
+      discountInput.focus();
+      discountInput.autofocus = true;
+    }
+  }
   /* *************************************************** */
   // program to sort array by property name
   /* ************************************************************* */
@@ -588,7 +624,13 @@ export class PosZubaidaComponent {
                 }
                 localStorage.setItem('localCart', JSON.stringify(rcvdProduct))
                 found = true;
+                
+                const discountInput = <HTMLInputElement>document.getElementById(`discount_${i}`); 
+                discountInput.autofocus = true;
+                
                 break;
+
+
               }
           
 
@@ -600,6 +642,8 @@ export class PosZubaidaComponent {
               data.firstName = this.selectedAgent?.firstName;
 
               rcvdProduct.product.push(data);
+             
+
               this.productService.localAddToCart(rcvdProduct);
             }
          
@@ -1608,9 +1652,19 @@ export class PosZubaidaComponent {
       
       let myBodyOrder =
         `<body onload="window.print();window.close();">
-    <div class="ticket">
-    <img src="assets/images/logos/zubaida-slip-logo.png" id="imagea" width: 20mm; text-align: center; ">
-    <p style="margin-left:30px !important;"><b>Z GENERATIONS</b><br>
+    <div class="ticket">  ` ;
+
+
+    if (this.appName==='ZUBAIDA'){
+      myBodyOrder = myBodyOrder + `<img src="assets/images/logos/zubaida-slip-logo.png" id="imagea" width: 20mm; text-align: center; ">` ;
+    }
+    else if(this.appName==='NIKS'){
+      myBodyOrder = myBodyOrder + `<img src="assets/images/logos/niks-logo-small.png" id="imagea" width: 20mm; text-align: center; ">` ;
+    }
+     
+    
+    myBodyOrder = myBodyOrder +
+    `<p style="margin-left:30px !important;"><b>Z GENERATIONS</b><br>
     NTN # 8057991-3</p>
  
     <h1 class="centered"  style="font-size:13px;margin-left:30px !important;"><b>Sale Receipt </b></h1>
@@ -2159,9 +2213,6 @@ handleKeyboardEvent(event: KeyboardEvent) {
     
   }
 }
-  dailySale() {
-    throw new Error('Method not implemented.');
-  }
 
   agentChange(){
     this.selectedAgent;
@@ -2325,7 +2376,15 @@ clearProductSearchFields() {
 
   }
 
+  dailySale() {
+    this.router.navigate(['reports']);
+  }
+
+
+
 
 /* ************************** THE END ***************************************** */
+
+
 
 }

@@ -632,3 +632,224 @@ export class CartHold{
  cartData: any;
 
 }
+export class OrderSaleReport{
+  orderType:any;
+  totalSale:any;
+  totalCount:any;
+  dateStr:any;
+  dayStr:any;
+  totalTax:any;
+  year:any;
+  month:any;
+  categoryId:any;
+  category:any;
+  subCategory:any;
+
+}
+
+export class OrderSaleReportResponse{
+  orderSaleReport: OrderSaleReport[]=[];
+}
+
+export class DailySale{
+  id:any;
+  date:any;
+  noOrder:any;
+  totalRevenue:any;
+  averageOrder:any;
+  categoryName:any;
+
+}
+
+export class CategorySalePrice{
+  categoryName:any;
+  salePrice:any;
+  noOrder:any;
+}
+
+export class WeeklySale{
+
+ id:any;
+ date:any;
+ noOrder:any;
+ totalRevenue:any;
+ averageOrder:any;
+
+
+}
+
+export class MonthlySale{
+
+ id:any;
+ date:any;
+ noOrder:any;
+ totalRevenue:any;
+ averageOrder:any;
+
+
+}
+
+
+export class YearlySale{
+  id:any;
+ date:any;
+ noOrder:any;
+ totalRevenue:any;
+ averageOrder:any;
+
+
+
+}
+
+
+export class DailyProductSale{
+ id:any;
+ date:any;
+ productName:any;
+ saleQty:any;
+ price:any;
+}
+
+
+export class WeeklyProductSale{
+ id:any;
+ date:any;
+ productName:any;
+ saleQty:any;
+ price:any;
+}
+
+export class MonthlyProductSale{
+ id:any;
+ date:any;
+ productName:any;
+ saleQty:any;
+ price:any;
+}
+
+export class YearlyProductSale{
+ id:any;
+ date:any;
+ productName:any;
+ saleQty:any;
+ price:any;
+}
+
+export class DailyCategorySale{
+  id:any;
+  date:any;
+  categoryName:any;
+  saleQty:any;
+  subcategoryName:any;
+  price:any;
+}
+
+export class WeeklyCategorySale{
+ id:any;
+ date:any;
+ categoryName:any;
+ saleQty:any;
+ subcategoryName:any;
+ price:any;
+}
+
+export class MonthlyCategorySale{
+ id:any;
+ date:any;
+ categoryName:any;
+ saleQty:any;
+ subcategoryName:any;
+ price:any;
+}
+
+export class YearlyCategorySale{
+ id:any;
+ date:any;
+ categoryName:any;
+ saleQty:any;
+ subcategoryName:any;
+ price:any;
+}
+
+export class DailysubCategorySale{
+ id:any;
+ date:any;
+ subcategoryName:any;
+ saleQty:any;
+ productName:any;
+ price:any;
+}
+
+export class WeeklysubCategorySale{
+ id:any;
+ date:any;
+ subcategoryName:any;
+ saleQty:any;
+ productName:any;
+ price:any;
+}
+
+export class MonthlysubCategorySale{
+ id:any;
+ date:any;
+ subcategoryName:any;
+ saleQty:any;
+ productName:any;
+ price:any;
+}
+
+export class YearlysubCategorySale{
+ id:any;
+ date:any;
+ subcategoryName:any;
+ saleQty:any;
+ productName:any;
+ price:any;
+}
+
+export class TodayTotalearning{
+  id:any;
+  name:any;
+  total:any;
+}
+
+export class WeeklyTotalearning{
+ id:any;
+ name:any;
+ total:any;
+}
+
+export class MonthlTotalyearning{
+id:any;
+name:any;
+total:any;
+}
+
+export class TotalCountSale{
+  id:any;
+  name:any;
+ total:any;
+
+}
+
+export class TotalCountOrders{
+
+ id:any;
+ name:any;
+total:any;
+
+}
+
+export class TotalCountProducts{
+ id:any;
+ name:any;
+ total:any;
+
+}
+
+export class TotalCountSignup{
+ id:any;
+ name:any;
+ total:any;
+}
+

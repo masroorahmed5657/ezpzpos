@@ -64,7 +64,7 @@
 
     <div class="col-md-2 col-lg-2 col-sm-12 d-flex align-items-center">
       <fa-icon class="ng-fa-icon" [icon]="faPerson"></fa-icon>
-      <input id="selectAgentInput" name="selectAgentInput"  style="width:20%;" (keyup)="agentKey($event)">
+      <input id="selectAgentInput"  name="selectAgentInput"  style="width:20%;" (keyup)="agentKey($event)">
       &nbsp;
       <label> {{selectedAgent?.loginId}}-{{selectedAgent?.firstName}} </label>
 
@@ -75,7 +75,7 @@
 
     <!-- Search inputs -->
     <div class="col-md-3 col-lg-3 col-sm-12">
-      <input type="search" autofocus id="upc-search" name="upc-search" class="form-control"
+      <input type="search"  id="upc-search" name="upc-search" class="form-control"
         placeholder="Search By Barcode" (keyup)="upcSearch($event)">
     </div>
 
@@ -102,11 +102,11 @@
           <!--  -->
           <tr style="background-color:black;border: 1px solid white; color: white;">
             <th scope="col" width="25%">Item</th>
-            <th scope="col" width="15%">UPC</th>
+            <th scope="col" width="15%">Barcode</th>
             <th scope="col" width="10%">Agent</th>
             <th scope="col" width="10%">Qty</th>
             <th scope="col" width="10%">Price</th>
-            <th scope="col" width="10%">Tax</th>
+            <th scope="col" width="10%" *ngIf="showTaxFlag">Tax</th>
             <th scope="col" width="10%">Discoun%</th>
             <th scope="col" width="10%">Total</th>
 
@@ -130,9 +130,9 @@
               <var class="price" *ngIf="item.salePrice">{{((item.salePrice )).toFixed(2)}}</var>
               <var class="price" *ngIf="!item.salePrice">{{(item.unitPrice ).toFixed(2)}}</var>
             </td>
-            <td><var class="price">{{ tax(item) }}</var></td>
+            <td *ngIf="showTaxFlag"><var class="price">{{ tax(item) }}</var></td>
             <td>     
-              <input type="number" name="discount_{{i}}" id="discount_{{i}}" (keyup)="chkDiscountNumber1(i)" class="form-control"
+              <input type="number" name="discount_{{i}}" id="discount_{{i}}"  (keyup)="chkDiscountNumber1(i)" class="form-control focus"
                 value="{{item.discount}}" (change)="discountChange(i)" style="width:50%;height: 10px !important;">
             </td>
             <td><var class="price">{{ itemTotal(item) }}</var></td>
@@ -230,7 +230,7 @@
 
             <div class="form-group">
               <label for="priceCheck">Barcode</label>
-              <input type="search" autofocus class="form-control" id="priceCheck" (keyup)="priceCheckByUpc($event)">
+              <input type="search"  class="form-control" id="priceCheck" (keyup)="priceCheckByUpc($event)">
             </div>
 
             <table class="table table-striped">
@@ -654,7 +654,7 @@ tabindex="-1" role="dialog" [ngClass]="{'show': cardModal, 'd-block': cardModal 
     </div>
 
 
-    <div class="col-lg-2 col-md-2 col-sm-12 " *ngIf="this.appName!=='ZUBAIDA'">
+    <div class="col-lg-2 col-md-2 col-sm-12 " *ngIf="cancelSaleFlag">
       <button class="btn btn-danger m-1" style="width: 100% !important;height:50px !important;"
         (click)="removeCart()">Cancel Sale
       </button>
@@ -671,7 +671,7 @@ tabindex="-1" role="dialog" [ngClass]="{'show': cardModal, 'd-block': cardModal 
       </button>
     </div>
 
-    <div class="col-lg-2 col-md-2 col-sm-12" *ngIf="this.appName!=='ZUBAIDA'">
+    <div class="col-lg-2 col-md-2 col-sm-12" *ngIf="retrieveSaleFlag">
       <button class="btn btn-info m-1" style="width: 100% !important;height:50px !important;" (click)="openRetrieveSalePopup()"
         data-bs-toggle="modal" data-bs-target="#myModal">Retrieve Sale
       </button>

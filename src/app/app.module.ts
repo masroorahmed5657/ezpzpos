@@ -15,6 +15,8 @@ import { LoginComponent } from './login/login.component';
 import { NgxPaginationModule} from 'ngx-pagination';
 import { PosComponent } from './pos/pos.component';
 import { PosZubaidaComponent } from './pos-zubaida/pos-zubaida.component';
+import { ReportsComponent } from './reports/reports.component';
+import { NgApexchartsModule } from 'ng-apexcharts';
 
 
 
@@ -24,6 +26,7 @@ import { PosZubaidaComponent } from './pos-zubaida/pos-zubaida.component';
     LoginComponent,
     PosComponent,
     PosZubaidaComponent,
+    ReportsComponent
 
   ],
   imports: [
@@ -34,6 +37,7 @@ import { PosZubaidaComponent } from './pos-zubaida/pos-zubaida.component';
     FontAwesomeModule,
     HttpClientModule,
     NgxPaginationModule,
+    NgApexchartsModule
 
     // NgxPrintModule,
 
