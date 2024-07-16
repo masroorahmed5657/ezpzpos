@@ -1160,12 +1160,12 @@ export class PosZubaidaComponent {
       let len = qtyInput.value.length;
 
       let qty = Number(val);
-      if (qty<1){
-          //0 or below not allowed
-          Swal.fire('WARNING','0 or negative Qty is not allowed', 'warning');
-          return;
+      // if (qty<1){
+      //     //0 or below not allowed
+      //     Swal.fire('WARNING','0 or negative Qty is not allowed', 'warning');
+      //     return;
 
-      }
+      // }
       if (len > 2) {
         qtyInput.value = qtyInput.value.toString().slice(0, 2);
       }
@@ -1182,12 +1182,12 @@ export class PosZubaidaComponent {
       let len = qtyInput.value.length;
 
       let qty = Number(val);
-      if (qty<1){
-          //0 or below not allowed
-          Swal.fire('WARNING','0 or negative Qty is not allowed', 'warning');
-          return;
+      // if (qty<1){
+      //     //0 or below not allowed
+      //     Swal.fire('WARNING','0 or negative Qty is not allowed', 'warning');
+      //     return;
 
-      }
+      // }
       if (len > 2) {
         qtyInput.value = qtyInput.value.toString().slice(0, 2);
       }
@@ -1754,7 +1754,7 @@ export class PosZubaidaComponent {
       let itemDiscount=0;
 
       for (let i = 0; i < this.cartDataList.product.length; i++) {
-        const price = (this.cartDataList.product[i].salePrice
+        let price = (this.cartDataList.product[i].salePrice
           ? this.cartDataList.product[i].salePrice
           : this.cartDataList.product[i].unitPrice)
 
@@ -1774,7 +1774,7 @@ export class PosZubaidaComponent {
           itemDiscount=0;
         }
 
-//        let price = product.unitPrice * product.quantity; //660
+      price = price * this.cartDataList.product[i].quantity; //660
       let discountPrice = (price * itemDiscount)/100; //10% 66
       let priceAfterDiscount = price - discountPrice; //660-66 = 594
 
@@ -2352,6 +2352,43 @@ handleKeyboardEvent(event: KeyboardEvent) {
     case 'F8':
       //alert('daily sale for F8');
       this.dailySale();
+      break;
+    case '=':
+      if (this.cashModal){
+        this.calculate();
+      } 
+      break; 
+    case 'Enter':  
+      if (this.cashModal){
+          this.onCustomerSave('CASH');
+      }
+      break;
+    case 'keydown':
+      break;  
+    case 'Backspace' :
+      this.backSpace();
+      break;
+    case 'Delete' :
+        this.backSpace();
+        break;
+    case 'Escape':
+      this.closeCashModal();
+      break;
+    case '.':
+      if (this.cashModal){
+        this.appendToResult(event.key);
+      }
+      break;
+    default   :
+      if (this.cashModal){
+        let numVal = Number(event.key);
+        if (numVal!==null){
+            if (numVal >=0 || numVal<=9){
+              this.appendToResult(event.key);
+            }
+        }
+        
+      }
       break;
     
   }

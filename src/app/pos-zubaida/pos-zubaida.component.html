@@ -134,7 +134,7 @@
               <var class="price" *ngIf="item.salePrice">{{((item.salePrice )).toFixed(2)}}</var>
               <var class="price" *ngIf="!item.salePrice">{{(item.unitPrice ).toFixed(2)}}</var>
             </td>
-            <td *ngIf="showTaxFlag"><var class="price">{{ tax(item) }}</var></td>
+            <td *ngIf="showTaxFlag"><var class="price">{{ tax(item) }}  ({{item.tax}}%)</var></td>
             <td>     
               <input type="number" name="discount_{{i}}" id="discount_{{i}}"  (keyup)="chkDiscountNumber1(i)" class="form-control focus"
                 value="{{item.discount}}" (change)="discountChange(i)" style="width:50%;height: 10px !important;">
@@ -424,26 +424,26 @@ tabindex="-1" role="dialog" [ngClass]="{'show': productSearchPopup, 'd-block': p
                         <button (click)="appendToResult('9')">9</button>
                         <button (click)="appendToResult('8')">8</button>
                         <button (click)="appendToResult('7')">7</button>
-                        <button (click)="appendToResult('+')">+</button>
-                        <button (click)="clear()">AC</button>
+                        <!-- <button (click)="appendToResult('+')">+</button> -->
+                        <!-- <button (click)="clear()">AC</button> -->
                         <br>
                         <button (click)="appendToResult('6')">6</button>
                         <button (click)="appendToResult('5')">5</button>
                         <button (click)="appendToResult('4')">4</button>
-                        <button (click)="appendToResult('-')">-</button>
-                        <button (click)="calculate()">=</button>
+                        <!-- <button (click)="appendToResult('-')">-</button> -->
+                        <!-- <button (click)="calculate()">=</button> -->
                         <br>
                         <button (click)="appendToResult('3')">3</button>
                         <button (click)="appendToResult('2')">2</button>
                         <button (click)="appendToResult('1')">1</button>
-                        <button (click)="appendToResult('*')">X</button>
-                        <button (click)="appendToResult('/')">/</button>
+                        <!-- <button (click)="appendToResult('*')">X</button> -->
+                        <!-- <button (click)="appendToResult('/')">/</button> -->
                         <br>
                         <button (click)="appendToResult('0')">0</button>
-                        <button (click)="appendToResult('00')">00</button>
+                        <!-- <button (click)="appendToResult('00')">00</button> -->
                         <button (click)="appendToResult('.')">.</button>
                         <button (click)="backSpace()">Clear</button>
-                        <button (click)="appendToResult('%')">%</button>
+                        <!-- <button (click)="appendToResult('%')">%</button> -->
 
                       </div>
                     </div>

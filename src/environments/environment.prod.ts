@@ -7,30 +7,30 @@ export const environment = {
   currency:'PKR',
   
 
-  // appName: 'ZUBAIDA',
-  // logoName: 'assets/images/logos/zubaida-logo.png',
-  // apiUrl: 'https://cp.fsglobaltech.com:8443/ZUBAIDA_API/',
-  // //apiUrl: 'http://localhost:8080/ZUBAIDA_API/',
-  // localHostApi: 'http://localhost:8080/ZUBAIDA_API/',
-  // cloudAPIUrl:'https://cp.fsglobaltech.com:8443/ZUBAIDA_API/',
-  // showTaxFlag: true,
-  // posCustomerNameFlag:false,
-  // posCustomerEmailFlag:false,
-  // cancelSaleFlag:false,
-  // retrieveSaleFlag:false,
-
-
-  appName: 'NIKS',
-  logoName: 'assets/images/logos/niks-logo-small.png',
+  appName: 'ZUBAIDA',
+  logoName: 'assets/images/logos/zubaida-logo.png',
   apiUrl: 'https://cp.fsglobaltech.com:8443/ZUBAIDA_API/',
   //apiUrl: 'http://localhost:8080/ZUBAIDA_API/',
   localHostApi: 'http://localhost:8080/ZUBAIDA_API/',
   cloudAPIUrl:'https://cp.fsglobaltech.com:8443/ZUBAIDA_API/',
-  showTaxFlag: false,
+  showTaxFlag: true,
   posCustomerNameFlag:false,
   posCustomerEmailFlag:false,
   cancelSaleFlag:false,
   retrieveSaleFlag:false,
+
+
+  // appName: 'NIKS',
+  // logoName: 'assets/images/logos/niks-logo-small.png',
+  // apiUrl: 'https://cp.fsglobaltech.com:8443/ZUBAIDA_API/',
+  // //apiUrl: 'http://localhost:8080/ZUBAIDA_API/',
+  // localHostApi: 'http://localhost:8080/ZUBAIDA_API/',
+  // cloudAPIUrl:'https://cp.fsglobaltech.com:8443/ZUBAIDA_API/',
+  // showTaxFlag: false,
+  // posCustomerNameFlag:false,
+  // posCustomerEmailFlag:false,
+  // cancelSaleFlag:false,
+  // retrieveSaleFlag:false,
 
 
     // appName: 'EZPZSPORTS',
