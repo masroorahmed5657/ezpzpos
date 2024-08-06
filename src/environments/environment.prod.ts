@@ -3,14 +3,14 @@ export const environment = {
   sessionTimeout: 60,
   enableLog: true,
   scannerFlag: true,
-  versionNumber: '07.12.2024',
+  versionNumber: '08.03.2024 00008',
   currency:'PKR',
   
 
   appName: 'ZUBAIDA',
   logoName: 'assets/images/logos/zubaida-logo.png',
-  apiUrl: 'https://cp.fsglobaltech.com:8443/ZUBAIDA_API/',
-  //apiUrl: 'http://localhost:8080/ZUBAIDA_API/',
+  //apiUrl: 'https://cp.fsglobaltech.com:8443/ZUBAIDA_API/',
+ apiUrl: 'http://localhost:8080/ZUBAIDA_API/',
   localHostApi: 'http://localhost:8080/ZUBAIDA_API/',
   cloudAPIUrl:'https://cp.fsglobaltech.com:8443/ZUBAIDA_API/',
   showTaxFlag: true,
@@ -22,8 +22,8 @@ export const environment = {
 
   // appName: 'NIKS',
   // logoName: 'assets/images/logos/niks-logo-small.png',
-  // apiUrl: 'https://cp.fsglobaltech.com:8443/ZUBAIDA_API/',
-  // //apiUrl: 'http://localhost:8080/ZUBAIDA_API/',
+  // //apiUrl: 'https://cp.fsglobaltech.com:8443/ZUBAIDA_API/',
+  // apiUrl: 'http://localhost:8080/ZUBAIDA_API/',
   // localHostApi: 'http://localhost:8080/ZUBAIDA_API/',
   // cloudAPIUrl:'https://cp.fsglobaltech.com:8443/ZUBAIDA_API/',
   // showTaxFlag: false,

@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "ezpzfashion-backoffice": {
+    "ezpzpos": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -20,7 +20,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/ezpzfashion-backoffice",
+            "outputPath": "dist/ezpzpos",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -72,10 +72,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "ezpzfashion-backoffice:build:production"
+              "browserTarget": "ezpzpos:build:production"
             },
             "development": {
-              "browserTarget": "ezpzfashion-backoffice:build:development"
+              "browserTarget": "ezpzpos:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -83,7 +83,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "ezpzfashion-backoffice:build"
+            "browserTarget": "ezpzpos:build"
           }
         },
         "test": {
@@ -107,5 +107,5 @@
       }
     }
   },
-  "defaultProject": "ezpzfashion-backoffice"
+  "defaultProject": "ezpzpos"
 }

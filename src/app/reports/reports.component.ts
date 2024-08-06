@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import * as XLSX from 'xlsx';
 import { ReportsService } from '../services/reports.service';
-import { OrderSaleReport, OrderSaleReportResponse  } from '../model/model-classes.model';
+import { OrderSaleDailyReport, OrderSaleReport, OrderSaleReportResponse  } from '../model/model-classes.model';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { faSignOut } from '@fortawesome/free-solid-svg-icons';
@@ -22,7 +22,7 @@ import {
   ApexFill,
   ApexTooltip
 } from "ng-apexcharts";
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 export type ChartOptions = {
   responsive: ApexResponsive[];
@@ -54,6 +54,7 @@ export class ReportsComponent implements OnInit {
 
   filteredYearlyItems: any;
   selectedYear: any;
+  legacyReport:boolean=false;
 
 
 
@@ -66,6 +67,16 @@ export class ReportsComponent implements OnInit {
   monthlySaleList: OrderSaleReport[] = [];
   yearlySaleList: OrderSaleReport[] = [];
   orderSaleReport: OrderSaleReport[] = [];
+  dailySaleExcelReport: OrderSaleDailyReport[]=[];
+  dailySaleCashReport: OrderSaleDailyReport[]=[];
+  dailySaleCardReport: OrderSaleDailyReport[]=[];
+  totalCashSaleCount=0;
+  totalCashTax=0;
+  totalCashSaleAmount=0;
+  totalCardSaleCount=0;
+  totalCardTax=0;
+  totalCardSaleAmount=0;
+
   sortOrder: 'asc' | 'desc' = 'asc'; //
 
 
@@ -77,25 +88,127 @@ export class ReportsComponent implements OnInit {
   series: ApexAxisChartSeries = [];
 
   title = 'angular-app';
-  fileName = 'ExcelSheet.xlsx';
+  fileName = 'DailySale.xlsx';
 
 
+
+  print(){
+    let popupWin:any ;
+    if (this.legacyReport){
+      let cashHtml: any = document.getElementById('cash-table');
+      let cardHtml: any = document.getElementById('card-table');
+      popupWin = window.open('', '_blank');
+      
+      let headHtmlTag = `
+      <html> 
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"> `;
+
+    let styleTag=`
+     <style>
+     @media print {
+            .no-print { display: none; }
+            .page-break {page-break-after: always;
+			}
+     </style>
+     `;
+      
+     let bodyHtmlTag  =
+     `<title>Niks Receipt</title>
+     </head>    
+     <body  onload="window.print();window.close();">`;
+
+
+
+      let footerHtml=
+     `</body>
+     </html>
+       `;
+
+    let finalHTMLTag =   headHtmlTag +  styleTag + bodyHtmlTag + cashHtml + cardHtml; + footerHtml;
+ 
+     popupWin.document.write(finalHTMLTag);
+ 
+     popupWin.document.close();
+       
+  
+    }
+  }
 
 
   openPDF(): void {
-    let DATA: any = document.getElementById('excel-table');
-    html2canvas(DATA).then((canvas) => {
-      let fileWidth = 208;
-      let fileHeight = (canvas.height * fileWidth) / canvas.width;
-      const FILEURI = canvas.toDataURL('image/png');
-      let PDF = new jsPDF('p', 'mm', 'a4');
-      let position = 0;
-      PDF.addImage(FILEURI, 'PNG', 0, position, fileWidth, fileHeight);
-      PDF.save('angular-demo.pdf');
-    });
+
+    if (this.legacyReport){
+      let DATA: any = document.getElementById('cash-table');
+      html2canvas(DATA).then((canvas) => {
+        let fileWidth = 208;
+        let fileHeight = (canvas.height * fileWidth) / canvas.width;
+        const FILEURI = canvas.toDataURL('image/png');
+        let PDF = new jsPDF('p', 'mm', 'a4');
+        let position = 0;
+        PDF.addImage(FILEURI, 'PNG', 0, position, fileWidth, fileHeight);
+        PDF.save('cash-sale.pdf');
+        PDF.autoPrint();
+      });
+      let DATA2: any = document.getElementById('card-table');
+      html2canvas(DATA2).then((canvas) => {
+        let fileWidth = 208;
+        let fileHeight = (canvas.height * fileWidth) / canvas.width;
+        const FILEURI = canvas.toDataURL('image/png');
+        let PDF = new jsPDF('p', 'mm', 'a4');
+        let position = 0;
+        PDF.addImage(FILEURI, 'PNG', 0, position, fileWidth, fileHeight);
+        PDF.save('card-sale.pdf');
+      });
+  
+    }
+    else{
+      let DATA: any = document.getElementById('excel-table');
+      html2canvas(DATA).then((canvas) => {
+        let fileWidth = 208;
+        let fileHeight = (canvas.height * fileWidth) / canvas.width;
+        const FILEURI = canvas.toDataURL('image/png');
+        let PDF = new jsPDF('p', 'mm', 'a4');
+        let position = 0;
+        PDF.addImage(FILEURI, 'PNG', 0, position, fileWidth, fileHeight);
+        PDF.save('daily-sale.pdf');
+        
+      });
+  
+
+    }
+
+
   }
 
   exportexcel(): void {
+    if (this.legacyReport){
+      /* pass here the table id */
+      let element = document.getElementById('cash-table');
+      const ws: XLSX.WorkSheet = XLSX.utils.table_to_sheet(element);
+
+      /* generate workbook and add the worksheet */
+      const wb: XLSX.WorkBook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+
+      /* save to file */
+      XLSX.writeFile(wb, this.fileName);
+
+        /* pass here the table id */
+        let element2 = document.getElementById('card-table');
+        const ws2: XLSX.WorkSheet = XLSX.utils.table_to_sheet(element2);
+    
+        /* generate workbook and add the worksheet */
+        const wb2: XLSX.WorkBook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb2, ws2, 'Sheet1');
+    
+        /* save to file */
+        XLSX.writeFile(wb2, this.fileName);
+    
+    }
+    else{
     /* pass here the table id */
     let element = document.getElementById('excel-table');
     const ws: XLSX.WorkSheet = XLSX.utils.table_to_sheet(element);
@@ -107,6 +220,10 @@ export class ReportsComponent implements OnInit {
     /* save to file */
     XLSX.writeFile(wb, this.fileName);
 
+
+    }
+
+
   }
 
   yearlyFlag = false;
@@ -115,11 +232,21 @@ export class ReportsComponent implements OnInit {
   dailyFlage = true; //default
 
 
-  constructor(
+  constructor(private route: ActivatedRoute,
     private reportsService: ReportsService,
     private router: Router) { }
 
   ngOnInit(): void {
+
+    
+    let reportType = this.route.snapshot.paramMap.get('reportType');
+
+    if (reportType==='false'){
+      this.legacyReport = true;
+    }
+    else{
+      this.legacyReport = false;
+    }
 
     this.getReports();
 
@@ -168,44 +295,79 @@ export class ReportsComponent implements OnInit {
   }
   /* ****************************************************** */
   getReports() {
-    if (this.dailyFlage) {
-      //get Daily Sales
-      this.reportsService.getDailySale().subscribe((data: OrderSaleReportResponse) => {
+    if (this.legacyReport){
+      let orderType='POS';
+      this.reportsService.getDailySaleExcel(orderType).subscribe((data: OrderSaleReportResponse) => {
         //this.dailySaleList=data;
 
-        this.dailySaleList = data.orderSaleReport;
+        this.dailySaleExcelReport = data.orderSaleDailyReport;
+        //Now segregate Cash and Card records
+        for (let i=0; i<this.dailySaleExcelReport.length; i++){
+          if (this.dailySaleExcelReport[i].paymentMethod === 'CASH'){
+            this.totalCashTax += this.dailySaleExcelReport[i].tax;
+            this.totalCashSaleAmount += this.dailySaleExcelReport[i].grandTotal;
 
-        this.makeChartDaily();
+            this.dailySaleCashReport.push(this.dailySaleExcelReport[i]);
+          }
+          else if (this.dailySaleExcelReport[i].paymentMethod === 'CARD'){
+            this.totalCardTax += this.dailySaleExcelReport[i].tax;
+            this.totalCardSaleAmount += this.dailySaleExcelReport[i].grandTotal;
 
-      });
-    }
-    if (this.weeklyflage) {
-      //get weekly Sales
-      this.reportsService.weeklySaleTotal().subscribe((data: OrderSaleReportResponse) => {
-        this.weeklySaleList = data.orderSaleReport;
+            this.dailySaleCardReport.push(this.dailySaleExcelReport[i]);
+          }
 
-        this.makeChartWeekly();
-
-      });
-    }
-    if (this.monthlyFlag) {
-      //get monthly Sales
-      this.reportsService.getMonthlySale().subscribe((data: OrderSaleReportResponse) => {
-        this.monthlySaleList = data.orderSaleReport;
-
-        this.makeChartMonthly();
-
+        }//for loop
+        this.totalCashSaleCount = this.dailySaleCashReport.length;
+        this.totalCardSaleCount = this.dailySaleCardReport.length;
 
 
       });
-    }
-    if (this.yearlyFlag) {
-      //get yearly Sales
-      this.reportsService.getYearlySale().subscribe((data: OrderSaleReportResponse) => {
-        this.yearlySaleList = data.orderSaleReport;
-      });
 
     }
+    else{
+      if (this.dailyFlage) {
+        //get Daily Sales
+        this.reportsService.getDailySale().subscribe((data: OrderSaleReportResponse) => {
+          //this.dailySaleList=data;
+  
+          this.dailySaleList = data.orderSaleReport;
+  
+          this.makeChartDaily();
+  
+        });
+      }
+      if (this.weeklyflage) {
+        //get weekly Sales
+        this.reportsService.weeklySaleTotal().subscribe((data: OrderSaleReportResponse) => {
+          this.weeklySaleList = data.orderSaleReport;
+  
+          this.makeChartWeekly();
+  
+        });
+      }
+      if (this.monthlyFlag) {
+        //get monthly Sales
+        this.reportsService.getMonthlySale().subscribe((data: OrderSaleReportResponse) => {
+          this.monthlySaleList = data.orderSaleReport;
+  
+          this.makeChartMonthly();
+  
+  
+  
+        });
+      }
+      if (this.yearlyFlag) {
+        //get yearly Sales
+        this.reportsService.getYearlySale().subscribe((data: OrderSaleReportResponse) => {
+          this.yearlySaleList = data.orderSaleReport;
+          this.makeChartYearly();
+        });
+  
+      }
+  
+
+    }
+
 
   }
 
@@ -331,6 +493,48 @@ export class ReportsComponent implements OnInit {
 
   }
 
+  /* ************************************************************ */
+  makeChartYearly() {
+    /* ******* 1- No of Orders Chart ********** */
+
+    //this.series.
+    let saleArray = [];
+    for (let i = 0; i < this.yearlySaleList.length; i++) {
+      saleArray.push((this.yearlySaleList[i].totalSale).toFixed(2));
+    }
+
+    let yearArray = [];
+    for (let i = 0; i < this.yearlySaleList.length; i++) {
+      let xLabel = this.yearlySaleList[i].year ;
+      yearArray.push(xLabel);
+    }
+
+
+    this.chart1Options = {
+      series: [
+        {
+          name: "SALE",
+          data: saleArray,
+          label: { text: "$" }
+        }
+      ],
+      chart: {
+        height: 350,
+        type: "bar"
+      },
+      title: {
+        text: "Sale ($) Chart"
+      },
+      xaxis: {
+        categories: yearArray 
+
+      }
+    };
+
+
+  }
+
+
   /* ******************************************************* */
   populateDailySaleList(data: any): OrderSaleReportResponse {
 
@@ -425,6 +629,16 @@ signOut() {
 }
 
 
+@HostListener('document:keydown', ['$event'])
+handleKeyboardEvent(event: KeyboardEvent) {
+  let t1=0;
+  switch (event.key) {
+    case 'Escape':
+      this.router.navigate(['pos']);
+      break;
+
+    }
+  }
 
 }
 

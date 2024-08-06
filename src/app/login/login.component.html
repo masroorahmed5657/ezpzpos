@@ -1,4 +1,4 @@
-<section class="vh-100">
+<section class="vh-100" style="height:0;background-repeat: no-repeat;background: url('assets/images/pos-background.jpeg')">
   <div class="container-fluid h-custom" style="position: relative;top: 5rem;">
     <div class="row d-flex justify-content-center align-items-center ">
       <div class="col-md-8 col-lg-10 col-xl-4 offset-xl-1">
@@ -29,10 +29,11 @@
           <div class="form-outline mb-3">
             <input type="password" id="password" [(ngModel)]="password" [type]="showPassword ? 'text' : 'password'"
              formControlName="loginPassword" class="form-control form-control-lg" style="background-color: #e6f3fd;" placeholder="Enter password" style="width: 100%;">
-             <!-- <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16" (click)="togglePasswordVisibility()" style="cursor:pointer;width: 10%;position: absolute;right:440px;bottom:137px;">
+             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16" (click)="togglePasswordVisibility()" 
+             style="cursor:pointer;width: 10%;position: absolute;right:80px;bottom:107px;">
               <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
               <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/>
-            </svg> -->
+            </svg>
           </div>
 
           <div *ngIf="registerFlag">

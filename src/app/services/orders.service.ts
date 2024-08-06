@@ -88,7 +88,7 @@ export class OrdersService {
     );
 
   }
-
+/* ****************************************************************** */
   uploadSales(orders: OrderResponse): Observable<ApiResponse>{
 
     //check if POS and Admin both are on same server in cloud, then just ignore it.
@@ -107,5 +107,20 @@ export class OrdersService {
 
 
   }
+/* ******************************************************** */
+/* ************************************************************* */
+getLastBillOfSale(): Observable<OrderResponse>{
+
+  let myUrl = `${this.myUrl}` + `orders/findLastBillOfSale` ;
+
+  return this.http.get<OrderResponse>(myUrl ).pipe(
+    //tap( error ==> this.log('Save saveOrders') ),
+    catchError(this.errors.handleError<OrderResponse>('findLastBillOfSale'))
+  );
+
+}
+
+
+
 
 }

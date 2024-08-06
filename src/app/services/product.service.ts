@@ -73,19 +73,7 @@ export class ProductService {
   localAddToCart(data:CartHold){
     let cartData = [];
     let localCart = localStorage.getItem('localCart');
-    //if there is no data in cart
-    //if (!localCart){
       localStorage.setItem('localCart',JSON.stringify(data));
-    // }
-    //// else{
-      //else if there is a data in cart
-   //   // cartData=JSON.parse(localCart);
-   //   // cartData.push(data)
-   //   // localStorage.setItem('localCart', JSON.stringify(cartData));
-////
-  //  // }
-////
-  //  //this.cartData.emit(cartData)
 
     }
 
@@ -101,9 +89,7 @@ export class ProductService {
         localStorage.setItem('localCart', JSON.stringify(cartData));
       }
 
-      //this.cartData.emit(cartData)
-
-      }
+    }
 /* ******************************************************** */
     removeItemFromCart(productId: number) {
       let cartData = localStorage.getItem('localCart');
@@ -202,12 +188,22 @@ let myUrl = `${this.myUrl}` + `alert/sms` ;
 
 getProductsByUPC(upc: string): Observable<ProductView>{
 
-  let myUrl = `${this.myUrl}` + `products/pos/findProductsByUpc/` + upc ;
+  let retFlag=true;
+  if (upc===undefined) retFlag=false;
+  if (upc.length===0) retFlag=false;
 
-  return this.http.get<ProductView>(myUrl).pipe(
-      //tap( error ==> this.log('Fetched Product') ),
-    catchError(this.errors.handleError<ProductView>('getProducts'))
-  );
+  if (retFlag){
+    let myUrl = `${this.myUrl}` + `products/pos/findProductsByUpc/` + upc ;
+
+    return this.http.get<ProductView>(myUrl).pipe(
+        //tap( error ==> this.log('Fetched Product') ),
+      catchError(this.errors.handleError<ProductView>('getProducts'))
+    );
+  
+  }
+  else{
+    return new Observable();
+  }
 
 }
 /* ************************************************************* */

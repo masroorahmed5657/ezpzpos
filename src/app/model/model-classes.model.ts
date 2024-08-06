@@ -122,7 +122,11 @@ export class ProductView{
    agentId:any;
    loginId:any;
    firstName:any;
-   
+   discountVal:any;
+   totalPrice:any;
+   totalTax:any;
+   price:any;
+
 }
 
 export class ProductDocuments{
@@ -291,6 +295,7 @@ export class Orders{
   tax:any;
   shippingHandling:any;
   grandTotal:any;
+  discount:any;
 
 }
 
@@ -417,7 +422,9 @@ export interface PriceSummary{
   tax:number,
   delivery:number,
   total:number,
-  grandTotal:number
+  grandTotal:number,
+  totalQty:number,
+  totalWithoutDiscount:number
 }
 
 export interface Cart{
@@ -626,6 +633,7 @@ export class CartHold{
  dicsount:any;
  total:any;
  price: any;
+ totalQty:any;
 
  product:ProductView[]=[];
  customer:Customer = new Customer();
@@ -646,9 +654,23 @@ export class OrderSaleReport{
   subCategory:any;
 
 }
+export class OrderSaleDailyReport {
+  orderId:any;
+  orderNum:any;
+  paymentMethod:any;
+  orderAmount:any;
+  tax:any;
+  grandTotal:any;
+  discount:any;
+  advanceAmount:any;
+  dateStr:any;
+  phone1:any;
+}
+
 
 export class OrderSaleReportResponse{
   orderSaleReport: OrderSaleReport[]=[];
+  orderSaleDailyReport: OrderSaleDailyReport[]=[];
 }
 
 export class DailySale{

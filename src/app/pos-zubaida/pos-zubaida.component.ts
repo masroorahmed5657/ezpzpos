@@ -29,7 +29,7 @@ import { environment } from 'src/environments/environment';
 import { faSignOut } from '@fortawesome/free-solid-svg-icons';
 import { DepartmentsService } from '../services/departments.service';
 import Swal from 'sweetalert2';
-import {faCloudUpload, faCloudDownload, faPerson, faPlusSquare, faDashboard, faRemove, faRupeeSign, faDollar, faCar, faHome, faSave, faUndo, faFilter, faEdit, faPlusCircle, faHistory, faFileInvoiceDollar, faShoppingCart, faSort, faSearch } from '@fortawesome/free-solid-svg-icons';
+import {faCloudUpload, faCloudDownload, faPerson,faCreditCard, faCashRegister, faPlusSquare, faDashboard, faRemove, faRupeeSign, faDollar, faCar, faHome, faSave, faUndo, faFilter, faEdit, faPlusCircle, faHistory, faFileInvoiceDollar, faShoppingCart, faSort, faSearch } from '@fortawesome/free-solid-svg-icons';
 // import { product } from '../data-type';
 import {
   FormGroup,
@@ -41,6 +41,7 @@ import { CustomerService } from '../services/customer.service';
 import { StoreServiceService } from '../services/store-service.service';
 import { OrdersService } from '../services/orders.service';
 import { UserService } from '../services/user.service';
+import { ReportsService } from '../services/reports.service';
 
 
 @Component({
@@ -51,8 +52,14 @@ import { UserService } from '../services/user.service';
 export class PosZubaidaComponent {
   private myUrl = environment.apiUrl  ; 
   private cloudAPIUrl = environment.cloudAPIUrl;
+  faCreditCard=faCreditCard; 
+  faCashRegister=faCashRegister;
+
+  totalSaleCount:number=0;
+  legacyReport:boolean=false;
 
   attemptCount=0;
+  attempTotalCount=0;
   invoiceNumber: any = 'BL00012';
   selectedAgent:AdminUser | undefined; 
   mobileshow: any = false;
@@ -112,6 +119,8 @@ export class PosZubaidaComponent {
     delivery: 0,
     total: 0,
     grandTotal: 0,
+    totalQty:0,
+    totalWithoutDiscount:0
   };
 
   holdSales: CartHold[] = [];
@@ -179,7 +188,8 @@ export class PosZubaidaComponent {
     private orderService: OrdersService,
     private customerService: CustomerService,
     private userService: UserService,
-    private paymentService: PaymentService
+    private paymentService: PaymentService,
+    private reportsService: ReportsService
 
   ) { }
 
@@ -189,6 +199,8 @@ export class PosZubaidaComponent {
     this.cancelSaleFlag = environment.cancelSaleFlag;
     this.retrieveSaleFlag = environment.retrieveSaleFlag;
     this.showTaxFlag = environment.showTaxFlag;
+    this.attemptCount=0;
+    this.attempTotalCount=0;
 
 
     if (!environment.posCustomerNameFlag){
@@ -202,6 +214,16 @@ export class PosZubaidaComponent {
     this.salesAgentList = this.cache.getList("salesAgent");
     this.selectedAgent = JSON.parse(this.cache.get("selectedAgent"));
     
+    //Get totalSaleCount
+    this.totalSaleCount=0;
+
+    this.reportsService.getDailySaleTotalCount().subscribe((data:number)=> {
+      if (data !==undefined){
+
+          this.totalSaleCount = data;
+      }
+    });
+
 
     if (this.salesAgentList===undefined || this.salesAgentList===null)
     {
@@ -223,10 +245,13 @@ export class PosZubaidaComponent {
         this.cache.setList("salesAgent", this.salesAgentList);
 
         if (this.salesAgentList.length>0 && this.selectedAgent===undefined){
-          this.selectedAgent = this.salesAgentList[0];
+          this.selectedAgent = new AdminUser(); //this.salesAgentList[0];
         }
         else if (this.salesAgentList.length>0 && this.selectedAgent===null){
-          this.selectedAgent = this.salesAgentList[0];
+          this.selectedAgent = new AdminUser(); //this.salesAgentList[0];
+        }
+        else if (this.selectedAgent?.loginId===''){
+          this.selectedAgent = new AdminUser(); //this.salesAgentList[0];
         }
 
         
@@ -247,6 +272,13 @@ export class PosZubaidaComponent {
       this.customer.firstName = this.cartDataList.customer.firstName;
       this.customer.email = this.cartDataList.customer.email;
       this.customer.phone1 = this.cartDataList.customer.phone1;
+      //this.priceSummary.totalQty = this.cartDataList.totalQty;
+      this.calculateTotalPrice();
+      this.calculateTotalTax();
+      this.calculateQtyTotal(this.cartDataList);
+      this.calculateCartTotal();
+
+
     } //end if
 
     
@@ -256,94 +288,64 @@ export class PosZubaidaComponent {
     this.searchFlag = false;
     let search = '';
 
-    let agentInput = <HTMLInputElement>document.getElementById('selectAgentInput');
-    agentInput.focus();
-    
-    agentInput.autofocus=true;
+   this.agentFocus(true);
 
-
-   
     
 
-    //let catId: number = Number(this.route.snapshot.paramMap.get('catId'));
-    // let reload = this.cache.get('reload');
-    // if (reload === null || reload === undefined) {
-    //   this.cache.set('reload', 'T');
-    //   window.location.reload();
-    // } else if (reload === 'F') {
-    //   this.cache.set('reload', 'T');
-    //   window.location.reload();
-    // } else if (reload === 'T') {
-    //   let t1 = 1;
-      //reload happned from same screen by calling window.location.reload()
-    //}
-    //this.spinnerDataLoad = true;
-    /* ********* Department and Category List ****************** */
-    // this.productService.getCategoryList().subscribe((data: Category[]) => {
-    //   this.categoryList = data;
-    //   this.calculateTotalPrice();
-    //   this.shopCategory = this.getCategoryName(catId);
-    // });
-    // this.departmentsService
-    //   .getDepartmentList()
-    //   .subscribe((data: Departments[]) => {
-    //     this.departmentMasterList = data;
-    //     if (data != null || data != undefined) {
-    //       for (let i = 0; i < this.departmentMasterList.length; i++) {
-    //         if (this.departmentMasterList[i].activeFlag) {
-    //           this.departmentList.push(this.departmentMasterList[i]);
-    //         }
-    //       }
-    //     }
-    //   });
 
-    // if (catId !== null || catId !== undefined) {
-    //   this.selectedCategory = catId;
-    //   if (catId < 0) {
-    //     //It is from global search in header
-    //     this.productViewList = JSON.parse(this.cache.getList('searchProducts'));
-    //     this.spinnerDataLoad = false;
-    //     this.searchFlag = true;
-    //     this.searchParam = this.cache.get('searchParam');
-    //   } else {
-    //     //Get all Products
-    //     this.productService
-    //       .getProducts(catId)
-    //       .subscribe((data: ProductWrapper) => {
-    //         let myData = data;
-    //         if (myData != undefined) {
-    //           if (myData.productList.length > 0) {
-    //             this.productViewList = this.productDecorator(
-    //               myData.productList
-    //             );
-    //             this.cache.setList(
-    //               'productMasterViewList',
-    //               JSON.stringify(this.productViewList)
-    //             );
-    //           } else {
-    //             this.errorMsg = 'Items are out of Stock';
-    //           }
-    //           this.spinnerDataLoad = false;
-    //         }
-    //       });
-    //   }
-    // }
   } //ngOnInit
+
+
+
+  agentFocus(focusFlag:boolean){
+    let agentInput = <HTMLInputElement>document.getElementById('selectAgentInput');
+    if (focusFlag){
+        agentInput.focus();
+    }
+    
+    agentInput.autofocus=focusFlag;
+  }
 
 
   ngAfterViewInit():void{
     let len = this.cartDataList.product.length - 1;
 
     const discountColName = 'discount_' + len ;
-    let discountInput = <HTMLInputElement>document.getElementById(discountColName); 
-
-    
-
-    if (discountInput!==null){
-      discountInput.focus();
-      discountInput.autofocus = true;
-    }
+    this.discountFocus(false, discountColName);
   }
+
+discountFocus(focusFlag:boolean, discountColName:any){
+  let discountInput = <HTMLInputElement>document.getElementById(discountColName); 
+   
+
+  if (discountInput!==null){
+    if (focusFlag){
+      discountInput.focus();
+    }
+    
+    discountInput.autofocus = focusFlag;
+  }
+}
+
+discountAllNotFocus(){
+  for (let i=0; this.cartDataList.product.length; i++){
+
+    let discountColName = 'discount_' + i;
+    let discountInput = <HTMLInputElement>document.getElementById(discountColName); 
+    if (discountInput!==null){
+      
+      
+      discountInput.autofocus = false;
+    }
+    
+  }
+
+  
+   
+
+  
+}
+
   /* *************************************************** */
   // program to sort array by property name
   /* ************************************************************* */
@@ -568,13 +570,18 @@ export class PosZubaidaComponent {
   /* ************************************************************** */
   upcSearch(event: any) {
     let myScan = '';
-    if (event.code === 'Enter') {
+    if (event.key === 'Enter') {
       let qtyInput = <HTMLInputElement>document.getElementById('upc-search');
       if (qtyInput === undefined) {
         return;
       }
       let upc = qtyInput.value;
       if (upc !== undefined || upc !== '') {
+        if (this.selectedAgent?.loginId===undefined || this.selectedAgent?.loginId===''){
+          Swal.fire('Agent Required', 'Please select an Agent', 'warning');
+          return;
+        }
+
         //serach product by UPC
         this.productService.getProductsByUPC(upc).subscribe((data) => {
           let productId = data.productId;
@@ -585,8 +592,11 @@ export class PosZubaidaComponent {
               'Product Does not exist for this UPC',
               'error'
             );
-          } else if (productId !== null || productId !== undefined) {
+          } 
+          else if (productId !== null || productId !== undefined) {
             let rcvdProduct = new CartHold();
+            this.priceSummary.totalQty = this.priceSummary.totalQty + 1;
+            rcvdProduct.totalQty = 1;
 
             let localCartData = localStorage.getItem('localCart');
             if (localCartData) {
@@ -598,6 +608,13 @@ export class PosZubaidaComponent {
             else {
               //create brand new cart of type cartHold
               rcvdProduct.customer = new Customer();
+              if (!environment.posCustomerNameFlag){
+                rcvdProduct.customer.firstName = 'POSCustomer';//set default
+              }
+              if (!environment.posCustomerEmailFlag){
+                rcvdProduct.customer.email = 'info@techmaci.com';//set default
+              }
+              rcvdProduct.customer.phone1 = this.customer.phone1;
 
               rcvdProduct.shipping = this.priceSummary.delivery;
               rcvdProduct.subTotal = this.priceSummary.total;
@@ -605,15 +622,26 @@ export class PosZubaidaComponent {
               rcvdProduct.taxes = this.priceSummary.tax;
               rcvdProduct.transactionId = 0;
               rcvdProduct.total = this.priceSummary.grandTotal;
+              rcvdProduct.totalQty = 1;
             }
+            //Add Qty for line item
             data.quantity = this.productQuantity;
+            rcvdProduct.customer.phone1 = this.customer.phone1;
+            
+
+            
+            //Code to add the same Product/Item to already added Item with blinking
             let found = false;
             for (let i = 0; i < rcvdProduct.product.length; i++) {
-              if (rcvdProduct.product[i].productName === data.productName) {
+              if (rcvdProduct.product[i].upc === data.upc) {
                 rcvdProduct.product[i].quantity = parseInt(rcvdProduct.product[i].quantity, 10) + parseInt(this.productQuantity, 10);
-                rcvdProduct.product[i].agentId = this.selectedAgent?.userId;   
+                rcvdProduct.product[i].agentId = this.selectedAgent?.loginId;   
                 rcvdProduct.product[i].loginId = this.selectedAgent?.loginId;   
                 rcvdProduct.product[i].firstName = this.selectedAgent?.firstName;
+
+                rcvdProduct.totalQty = rcvdProduct.product[i].quantity;
+                rcvdProduct.price = this.getPrice(rcvdProduct);
+                
 
                 const row = document.getElementById(`product-row_${i}`); 
                 if (row) {
@@ -626,20 +654,29 @@ export class PosZubaidaComponent {
                 found = true;
                 
                 const discountInput = <HTMLInputElement>document.getElementById(`discount_${i}`); 
-                discountInput.autofocus = true;
+                //discountInput.autofocus = true;
+                if (discountInput!==null){
+                  let discountColName = `discount_${i}`;
+                  this.discountFocus(true, discountColName);
+  
+                  discountInput.value='0';
+                }
+                
                 
                 break;
 
 
-              }
+              }//end if
           
 
             }
+            //Code Ends here  to add the same Product/Item to already added Item with blinking
 
             if (!found) {
               data.agentId = this.selectedAgent?.userId;
               data.loginId = this.selectedAgent?.loginId;
               data.firstName = this.selectedAgent?.firstName;
+              data.price = this.getPrice(data);
 
               rcvdProduct.product.push(data);
              
@@ -670,9 +707,21 @@ export class PosZubaidaComponent {
 
             // Save updated cart and refresh page
             localStorage.setItem('localCart', JSON.stringify(rcvdProduct));
+            this.cartDataList = rcvdProduct;
+
+           this.itemCalculatedColumns();
 
             //this.cartDataList1.push(rcvdProduct);
-            window.location.reload();
+            //this.calculateTotalPrice();
+
+            this.calculateQtyTotal(this.cartDataList);
+            //this.chkDiscountNumber1(row);
+            //this.calculateDiscount(this.cartDataList.product[row].discount  , row);
+            this.calculateTotalPrice();
+            this.calculateCartTotal();
+            localStorage.setItem('localCart', JSON.stringify(this.cartDataList));
+
+            //window.location.reload();
           }
         });
       }
@@ -680,6 +729,19 @@ export class PosZubaidaComponent {
       myScan = event.target.value;
     }
   }
+/* ********************************************************************* */
+itemCalculatedColumns(){
+  if (this.cartDataList.product.length>0){
+    let row = this.cartDataList.product.length -1;
+
+    this.getItemTax(this.cartDataList.product[row], row);
+    this.getItemTotal(this.cartDataList.product[row], row);
+      
+  }
+
+}
+
+
   /* ************************************************************** */
   skuSearch(event: any) {
     let myScan = '';
@@ -803,6 +865,7 @@ export class PosZubaidaComponent {
             // }
             rcvdProduct.productName = data.productName;
             rcvdProduct.discount = data.discount;
+            rcvdProduct.discountVal = data.discountVal;
             rcvdProduct.unitPrice = data.unitPrice;
             rcvdProduct.salePrice = data.salePrice;
             rcvdProduct.agentId = this.selectedAgent?.userId; 
@@ -907,11 +970,11 @@ export class PosZubaidaComponent {
   
   /* ************************************************************** */
   openCashModal() {
-    // if (!this.customer.firstName) {
-    //   // Show alert for required fields
-    //   Swal.fire('WARNING', 'Please fill The Customer Name', 'warning');
-    //   return; // Don't proceed with saving
-    // }
+     if (!this.customer.phone1) {
+       // Show alert for required fields
+       Swal.fire('WARNING', 'Please fill The Customer Phone', 'warning');
+       return; // Don't proceed with saving
+     }
 
     let localCart = localStorage.getItem('localCart')
     if (localCart === undefined || localCart === '' || localCart === null || localCart.length === 105 || localCart.length === 0) {
@@ -922,7 +985,25 @@ export class PosZubaidaComponent {
 
     this.payment.paymentMethod='CASH';
 
+    this.focusUpc(false);
+    this.agentFocus(false);
+    //this.discountAllNotFocus();
+
     this.cashModal = true;
+    let resultInput = <HTMLInputElement>document.getElementById('result');
+    resultInput.focus();
+    //this.cashModal.nativeElement.focus();
+    if(this.priceSummary.grandTotal<0){
+
+      resultInput.value=this.priceSummary.grandTotal.toFixed(2);
+    }
+    else{
+      resultInput.value=''; //(0).toFixed(2);
+    }
+    resultInput.autofocus=true;
+    //resultInput.value='0';
+
+
 
   }
   /* ************************************************************** */
@@ -931,7 +1012,7 @@ export class PosZubaidaComponent {
     this.result='';
     this.customerBalance=0;
   }
-  /* ************************************************************** */
+  
   /* ************************************************************** */
   openCardModal() {
 
@@ -976,6 +1057,13 @@ export class PosZubaidaComponent {
     let localCart = localStorage.getItem('localCart');
     //localCart = always one object of cartHold type
     //holdCarts =  could be array list of localCarts of type cartHold[]
+    if (!this.customer.phone1) {
+      // Show alert for required fields
+      Swal.fire('WARNING', 'Please fill The Customer Phone before Hold', 'warning');
+      return; // Don't proceed with saving
+    }
+    
+    
     if (localCart) {
       Swal.fire({
         title: 'Hold Sale',
@@ -1178,6 +1266,8 @@ export class PosZubaidaComponent {
 
     let val = qtyInput.value;
 
+    //Note: Whenevr Qty changes, we must get original price from sale/unit Price and replace to price.
+
     if (qtyInput != null || qtyInput != undefined) {
       let len = qtyInput.value.length;
 
@@ -1191,56 +1281,130 @@ export class PosZubaidaComponent {
       if (len > 2) {
         qtyInput.value = qtyInput.value.toString().slice(0, 2);
       }
+
+      let localCartData = localStorage.getItem('localCart');
+      if (localCartData) {
+        let qtydata:CartHold = JSON.parse(localCartData);
+        qtydata.product[row].quantity = qtyInput.value;
+
+        qtydata.product[row].price = this.getPrice(qtydata.product[row]);
+
+        if (qty>1){
+          qtydata.product[row].totalPrice = qtydata.product[row].totalPrice * qty;
+          qtydata.product[row].totalTax = qtydata.product[row].totalTax * qty;
+          qtydata.product[row].price = qtydata.product[row].price * qty;
+        }
+        else if (qty===0){
+          qtydata.product[row].quantity = qty;
+          qtydata.product[row].totalPrice = 0;
+          qtydata.product[row].totalTax = 0;
+          qtydata.product[row].price=0;
+        }
+        else if (qty===1){
+          qtydata.product[row].quantity = qty;
+          qtydata.product[row].price = qtydata.product[row].price * qty;
+
+        }
+        else if (qty<0){
+          qtydata.product[row].quantity = qty;
+          qtydata.product[row].price = qtydata.product[row].price * qty;
+
+        }
+
+        
+        localStorage.setItem('localCart', JSON.stringify(qtydata));
+
+        this.cartDataList = qtydata;
+  
+          //this.cartDataList.product[row].quantity = qty;
+      
+      //this.chkDiscountNumber1(row);
+      this.calculateDiscount(this.cartDataList.product[row].discount  , row);
+      //this.calculateTotalPrice();
+
+      this.calculateTotalPrice();
+      this.calculateTotalTax();
+      this.calculateQtyTotal(this.cartDataList);
+      this.calculateCartTotal();
+
+
+      localStorage.setItem('localCart', JSON.stringify(this.cartDataList));
+  
+      }
+      else{
+        //Nothing to do if there is no data in Cart
+      }
+         
+
+
     }
 
-    let localCartData = localStorage.getItem('localCart');
-    if (localCartData) {
-      let qtydata = JSON.parse(localCartData);
-      qtydata.product[row].quantity = qtyInput.value;
-      localStorage.setItem('localCart', JSON.stringify(qtydata))
-
-
-    }
-    //alert('qtyChange'+ qty.value);
-
-    this.cartDataList.product[row].quantity = qtyInput.value;
-
-    this.calculateTotalPrice();
+    
   }
+/* *************************************************************** */
+calculateQtyTotal(cartDataList:CartHold){
+  this.priceSummary.totalQty=0;
+  if (cartDataList!==undefined){
+    if (cartDataList.product.length>0){
+      for (let i=0; i<cartDataList.product.length; i++){
+        this.priceSummary.totalQty = this.priceSummary.totalQty + Number(cartDataList.product[i].quantity);
+      }
+    }
+  }
+}
+
   /* ******************************************************* */
 
   calculateTotalPrice() {
     let priceTotal: any = 0;
+    let returnQtyFlag:boolean=false;//by default +ve
+    let quantity=0;
+    this.priceSummary.totalWithoutDiscount=0;
+    this.priceSummary.total=0;
+
     if (this.cartDataList.product.length > 0) {
       for (let i = 0; i < this.cartDataList.product.length; i++) {
-        let salePrice = this.cartDataList.product[i].salePrice;
-        let unitPrice = this.cartDataList.product[i].unitPrice;
+        
 
-        if (salePrice != undefined) {
+        let price = this.getPrice(this.cartDataList.product[i]); //already multiplied with qty
+
+        if (price != undefined) {
           //Added logic for MEAT Only products. Don't show price and don't add to Total
+
+          this.priceSummary.totalWithoutDiscount = this.priceSummary.totalWithoutDiscount + (price * this.cartDataList.product[i].quantity);
+          
           let myCategory = this.getCategoryName(
             this.cartDataList.product[i].categoryId
           );
           if (myCategory.category !== 'MEAT') {
-            let price = salePrice * this.cartDataList.product[i].quantity;
-            let discountPrice = (price * this.cartDataList.product[i].discount)/100; 
-            priceTotal = priceTotal + price - discountPrice;
+            if (this.cartDataList.product[i].quantity < 0){
+              returnQtyFlag=true;
+              quantity = (-1 * this.cartDataList.product[i].quantity); //reverse
+    
+            }
+            else{
+              quantity = this.cartDataList.product[i].quantity;
+            }
+
+
+            if (this.cartDataList.product[i].discountVal>0){
+              let discountPrice = this.cartDataList.product[i].discountVal; 
+              priceTotal = priceTotal + (price*quantity) - discountPrice;
+            }
+            else{
+              let discountPrice = (price * this.cartDataList.product[i].discount)/100; 
+              priceTotal = priceTotal + (price*quantity) - discountPrice;
+            }
+
+            if (returnQtyFlag){
+              priceTotal = (-1 * priceTotal);
+            }
+            
           }
         }
-        else if (unitPrice != undefined) {
-          //Added logic for MEAT Only products. Don't show price and don't add to Total
-          let myCategory = this.getCategoryName(
-            this.cartDataList.product[i].categoryId
-          );
-          if (myCategory.category !== 'MEAT') {
-           
-            let price = unitPrice * this.cartDataList.product[i].quantity;
-            let discountPrice = (price * this.cartDataList.product[i].discount)/100; 
-            priceTotal = priceTotal + price - discountPrice;
-
-          }
-        }
-
+        
+        
+        //priceTotal +=  price;
 
 
       }//for loop
@@ -1257,6 +1421,28 @@ export class PosZubaidaComponent {
 
 
   }
+/* ************************************************** */
+calculateTotalTax() {
+  this.priceSummary.tax=0;
+
+  if (this.cartDataList.product.length > 0) {
+    for (let i = 0; i < this.cartDataList.product.length; i++) {
+
+      let tax = this.cartDataList.product[i].totalTax;
+
+      if (tax != undefined) {
+        //Added logic for MEAT Only products. Don't show price and don't add to Total
+
+        this.priceSummary.tax = this.priceSummary.tax + tax;
+        
+          
+      }
+
+    }//for loop
+
+  }
+
+}
 
 
   /* ********************************************* */
@@ -1265,9 +1451,11 @@ export class PosZubaidaComponent {
     let details = this.cartDataList.product[index]?.productDetails;
     this.cartDataList.product.splice(index, 1);
 
+    this.calculateQtyTotal(this.cartDataList);
+
     this.calculateTotalPrice();
     localStorage.setItem('localCart', JSON.stringify(this.cartDataList));
-    //window.location.reload();
+    window.location.reload();
   }
   /* ******************************************************* */
   getProduct(productId: any): Product {
@@ -1319,6 +1507,8 @@ export class PosZubaidaComponent {
       order.updatedBy = this.signInUser;
       order.price = this.priceSummary.price
       order.orderAmount = this.priceSummary.total;//order.price; //price/cut price of each item
+      order.discount = this.priceSummary.discount;
+
       if (this.showTaxFlag){
         order.grandTotal = this.priceSummary.total + this.priceSummary.tax;
         order.tax = this.priceSummary.tax.toFixed(2);
@@ -1350,11 +1540,11 @@ export class PosZubaidaComponent {
           orderItem.weight = items.weight;
         }
 
-        orderItem.discount = 0; //items.discount;
-        orderItem.unitPrice = items.unitPrice;//items.unitPrice;
+        orderItem.discount = items.discount; //items.discount;
+        orderItem.unitPrice = this.getPrice(items);//items.unitPrice;
         orderItem.updatedBy = this.signInUser;
         orderItem.itemStatus = 'NEW';
-        orderItem.agentId = items.agentId;
+        orderItem.agentId = items.loginId;
 
         orderSaveResponse.orderItems?.push(orderItem);
 
@@ -1385,6 +1575,8 @@ export class PosZubaidaComponent {
 
               this.todaydatashow = data.orders.createDate;
               localStorage.setItem('localCart', '');
+              this.selectedAgent = new AdminUser();
+              this.cache.set("selectedAgent", JSON.stringify(this.selectedAgent));
               
 
               Swal.fire('Submit', 'Order#' + orderNum + ' has been created.', 'success')
@@ -1450,23 +1642,57 @@ export class PosZubaidaComponent {
   //   return Number(myNumber);
   // }
 
-  itemTotal(product: ProductView): any {
+  getItemTotal(product: ProductView, row:any): any {
     let totalPrice;
     let tax=0;
+    let returnQtyFlag:boolean=false;
+    let quantity=0;
+
+
     this.attemptCount++;
     if (product.salePrice !== null && product.salePrice !== undefined) 
       {
+        if (product.quantity<0){
+          returnQtyFlag=true;
+          quantity = (-1 * product.quantity);
 
-        let price = product.salePrice * product.quantity; //660
-        let discountPrice = (price * product.discount)/100; //10% 66
+        }
+        else{
+          quantity = product.quantity;
+        }
+
+        let price = product.salePrice * quantity; //660
+        let discountPrice=0;
+
+        if (product.discountVal>0){
+          discountPrice = product.discountVal; //10% 66
+        }
+        else{
+          discountPrice = (price * product.discount)/100; //10% 66
+        }
+        
         let priceAfterDiscount = price - discountPrice; //660-66=594
 
         tax = (priceAfterDiscount * product.tax)/100; //106.92
+
+
         if (this.showTaxFlag){
-          totalPrice = Number(priceAfterDiscount + tax).toFixed(2);
+          if (returnQtyFlag){
+            totalPrice = Number((priceAfterDiscount + tax)*-1).toFixed(2);
+          }
+          else{
+            totalPrice = Number(priceAfterDiscount + tax).toFixed(2);
+          }
+          
         }
         else{
-          totalPrice = Number(priceAfterDiscount ).toFixed(2);
+          if (returnQtyFlag){
+            totalPrice = Number(priceAfterDiscount * -1 ).toFixed(2);
+          }
+          else{
+            totalPrice = Number(priceAfterDiscount ).toFixed(2);
+          }
+          
         }
         
 
@@ -1475,30 +1701,54 @@ export class PosZubaidaComponent {
     } 
     else 
     {
-      let price = product.unitPrice * product.quantity; //660
+      if (product.quantity<0){
+        returnQtyFlag=true;
+        quantity = (-1 * product.quantity);
+
+      }
+      else{
+        quantity = product.quantity;
+      }
+
+      let price = product.unitPrice * quantity; //660
       let discountPrice = (price * product.discount)/100; //10% 66
       let priceAfterDiscount = price - discountPrice; //660-66=594
 
       tax = (priceAfterDiscount * product.tax)/100; //106.92
+     
 
       if (this.showTaxFlag){
-        totalPrice = Number(priceAfterDiscount + tax).toFixed(2);
+        
+          if (returnQtyFlag){
+            totalPrice = Number((priceAfterDiscount + tax)*-1).toFixed(2);
+          }
+          else{
+            totalPrice = Number(priceAfterDiscount + tax).toFixed(2);
+          }
+        
       }
       else{
-        totalPrice = Number(priceAfterDiscount ).toFixed(2);
+        if (returnQtyFlag){
+          totalPrice = Number(priceAfterDiscount * -1 ).toFixed(2);
+        }
+        else{
+          totalPrice = Number(priceAfterDiscount ).toFixed(2);
+        }
       }
 
       
 
     }
 
-    //this.priceSummary.total = this.priceSummary.total + Number(totalPrice);
-    return totalPrice;
+    this.cartDataList.product[row].totalPrice = totalPrice;
+
+    return Math.round(Number(totalPrice)).toFixed(2)
+    
   }
 
  
 
-  tax(product: ProductView): any {
+  getItemTax(product: ProductView, row:any): any {
     let totalTax;
     
 
@@ -1521,6 +1771,8 @@ export class PosZubaidaComponent {
     }
 
     //this.priceSummary.tax +=  Number(totalTax);
+
+    this.cartDataList.product[row].totalTax = totalTax;
 
     return Number(totalTax).toFixed(2);
   }
@@ -1574,6 +1826,15 @@ export class PosZubaidaComponent {
     //This methods gets called from Guest Customer Data Entry form, when user click Checkout after entering his/her data.
     let customer = new Customer();
     customer = this.convertCustFormToVar(customer);
+
+    if (this.customer.phone1===undefined){
+      Swal.fire('WARNING','Please input Customer Phone Number', 'warning');
+      return;
+    }
+    else if (this.customer.phone1===null){
+      Swal.fire('WARNING','Please input Customer Phone Number', 'warning');
+      return;
+    }
 
     customer.firstName = 'POSCustomer';//this.customer.firstName;
     customer.email = 'info@techmaci.com';//this.customer.email;
@@ -1645,8 +1906,503 @@ export class PosZubaidaComponent {
     return customer;
   }
   /* *********************************************************************************** */
-
   printThermal(): void {
+    let popupWin;
+    //let printContents:HTMLElement = (document.getElementById('print-section-0').innerHTML) as HTMLElement ;
+    popupWin = window.open('', '_blank');
+    if (popupWin != null || popupWin != undefined) {
+      // popupWin.document.open();
+
+      this.customer.firstName ='POSCustomer';
+
+      let orderAddress =
+        this.customer?.address +
+        ',' +
+        this.customer?.city +
+        ',' +
+        this.customer?.stateProvince +
+        ',' +
+        this.customer?.postalCode;
+
+
+        let mainImage=``;
+        if (this.appName==='ZUBAIDA'){
+          mainImage = `assets/images/logos/zubaida-color-logo.png` ;
+        }
+        else if(this.appName==='NIKS'){
+          mainImage = `assets/images/logos/niks-logo-small.png` ;
+        }
+  
+
+      let myHtml01Tag = `
+      <html> 
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"> `;
+
+    let styleTag=`
+     <style>
+
+.recipt_container
+{
+    width: 100% !important;
+    max-width: 100mm;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* .tax
+{
+    display: none;
+} */
+
+.header
+{
+    text-align: center;
+}
+.header img
+{
+    width: 75%;
+}
+
+.float
+{
+    float: left;
+}
+.clear
+{
+    float: left;
+    clear: both;
+}
+
+.company_details p
+{
+    font-size: 8pt;
+    text-transform: uppercase;
+    font-weight: 400;
+    line-height: 11px;
+}
+.inv_details table
+{
+    font-size: 7pt;
+    margin-left: auto;
+    margin-right: auto;
+    width: 95% !important;
+    text-align: left;
+
+}
+.inv_details table th
+{
+    width: 50%;
+
+}
+.items table
+{
+    width: 98%;
+    font-size: 7pt;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    border-collapse: collapse;
+
+
+}
+.items table thead tr, .items table tfoot tr
+{
+    border-top: 1pt solid black;
+    border-bottom: 1pt solid black;
+}
+.items table tbody tr
+{
+    border-top: 0.9pt dotted black;
+    border-bottom: 0.9pt dotted black;
+}
+.items table th:first-child{
+   text-align: left;
+}
+.items table td:first-child{
+    text-align: left;
+}
+
+.items table th:last-child{
+    text-align: right;
+ }
+ .items table td:last-child{
+     text-align: right;
+ }
+
+.totals table
+ {
+    width: 98%;
+    font-size: 8pt;
+    text-align: right;
+    margin-right: 0px;
+ }
+ .totals table td:last-child
+ {
+     max-width: 30%;
+ }
+ .fbr
+ {
+     text-align: center;
+ }
+ .fbr_logo_0
+ {
+     width: 30mm;
+     text-align: center;
+ }
+ .usin
+ {
+    width: 80%;
+    max-height: 100px;
+}
+
+.fbr p
+{
+    font-size: 9pt;
+    margin-top: 3px;
+    margin-bottom: 3px;
+    padding-left: 1%;
+    padding-right: 1%;
+}
+
+.terms
+{
+    font-size: 8pt;
+    text-align: center;
+    padding-left: 1%;
+    padding-right: 1%;
+}
+
+.copy
+{
+    font-size: 6pt;
+    text-align: center;
+}
+
+.items table .inv_of td:last-child{
+    text-align: center;
+}
+
+.logo
+{
+    margin-top: 5%;
+    max-width: 100%;
+    max-height: 100px;
+}
+
+.contact
+{
+    font-size: 7pt;
+    text-align: center;
+    padding-left: 1%;
+    padding-right: 1%;
+}
+
+@media print {
+
+    .recipt_container {
+        page-break-after: always;
+
+    }
+
+}
+    </style>`;
+
+    let titleHtmlTag  =
+    `<title>Niks Receipt</title>
+    </head>    
+    <body  onload="window.print();window.close();">
+    <div class="recipt_container">  
+      <div class="header">
+    	<img class="logo" src="` + mainImage + `" >`;
+    
+
+      let companyInfoHtmlTag=``;
+
+      if (this.showTaxFlag){
+        companyInfoHtmlTag = `	
+        <div class="company_details">
+    		  <p ><b> ABC SONS </b><br>
+    			  <span class="strn">STRN:1700223239612|NTN:2232396-1</span>
+    		  </p>
+        </div>
+      `;
+      }
+      else{
+        companyInfoHtmlTag = `	
+        <div class="company_details">
+    		  <p ><b> Z GENERATIONS </b><br>
+    			  <span class="strn">NTN:8057991-3</span>
+    		  </p>
+        </div>
+      `;
+      }
+
+
+
+
+      let myHtml02Tag = `
+      <div class="inv_details">
+    	  <p style="text-align:left; font-size: 7pt;"><b>Customer: ` + this.customer.firstName + `  (` + this.customer.phone1 + ` )` + `</b></p>
+    	  <p style="text-align:left"><b>Date/Time:   &nbsp;` + this.todaydatashow +  `</b></p>
+      	<p style="text-align:left"><b> Bill#:` + this.invoiceNumber + `</b></p>
+      </div>  
+      <div class="items">
+      `;
+
+      let myHtmlTableTag=`
+      <table >
+       
+      <thead>
+        <tr class="inv_of">
+            <td colspan="7" style="text-align: center;border-top: 1px solid #000;"><b>---SALES---</b>
+            </td>
+        </tr>    
+
+        <tr>
+        <th>Barcode</th>
+        <th>Price</th>
+        <th>Qty</th>
+        <th>Disc</th>` ; 
+        
+        let taxItemTag=``;
+        if (this.showTaxFlag){
+        taxItemTag = `<th >Tax</th>
+        <th >GST%</th>`;
+        }
+
+        myHtmlTableTag = myHtmlTableTag + taxItemTag +
+        
+        `<th >Total</th>
+        </tr>
+        <tr >
+            <th colspan="6" >Description</th>
+            <th></th>
+        </tr>
+      </thead>
+      <tbody >
+      
+      `;
+
+      let myHtmlItemHeadingTag=`
+          <table >
+       
+          <thead>
+            <tr class="inv_of">
+                <td colspan="7" style="text-align: center;border-top: 1px solid #000;"><b>---SALES---</b>
+                </td>
+            </tr>    
+
+            <tr>
+            <th>Barcode</th>
+            <th>Price</th>
+            <th>Qty</th>
+            <th>Disc</th>`;
+
+            taxItemTag=``;
+            if (this.showTaxFlag){
+            taxItemTag = `<th >Tax</th>
+            <th >GST%</th>`;
+            }
+
+            myHtmlItemHeadingTag = myHtmlItemHeadingTag + taxItemTag +
+
+           
+           ` <th >Total</th>
+            </tr>
+            <tr >
+                <th colspan="6" >Description</th>
+                <th></th>
+            </tr>
+          </thead>
+          <tbody >
+      `;
+
+
+      let itemListHtmlTag = ``;
+      let taxTdBlock=``;
+      let price:any=0;
+
+      for (let i = 0; i < this.cartDataList.product.length; i++) {
+        price = (this.cartDataList.product[i].salePrice
+          ? this.cartDataList.product[i].salePrice
+          : this.cartDataList.product[i].unitPrice)
+
+          itemListHtmlTag = itemListHtmlTag + 
+          `<tr>
+            <td>` +
+              this.cartDataList.product[i].loginId + `-` +  this.cartDataList.product[i].upc +               
+            `</td>
+            <td>` +
+              price.toFixed(2) +
+            `</td>
+            <td>` +
+              this.cartDataList.product[i].quantity +
+            `</td>
+            <td>` +
+              (this.cartDataList.product[i].discount===null?0: this.cartDataList.product[i].discount) +
+            `</td>`;
+
+
+          if (this.showTaxFlag){
+            taxTdBlock = `<td><b>` +
+            (this.cartDataList.product[i].totalTax).toFixed(2) +
+          `</b></td>
+            <td><b>` +
+            this.cartDataList.product[i].tax +
+          `</b></td>`;
+
+          }
+          else{
+            taxTdBlock = ``;
+          }
+        
+          itemListHtmlTag += taxTdBlock +
+          `<td><b>` +
+            (Number(this.cartDataList.product[i].totalPrice)).toFixed(2) +
+          `</b></td>
+          </tr>
+          <tr>
+            <td colspan="6">` +
+              this.cartDataList.product[i].productName +
+            `</td>
+             <td><td>
+          </tr>
+          `;
+
+
+      } //for loop  
+
+      let tableFooterHtmlTag = `
+      </tbody>
+        <tfoot>
+        <tr>
+        <td >Sub Total:</td>
+        <td colspan="6" style="text-align: left;border-top: 1px solid #000;">Rs.` + (this.priceSummary.total).toFixed(2) + ` </td>
+        
+        </tr>
+        <tr>
+        <td style="text-align: left;">Total Qty:</td>
+        <td colspan="5" style="text-align: left;"> ` +
+        this.priceSummary.totalQty +
+        `</td>
+        </tr>
+        <tr>
+        <td >Discount:</td>
+        <td colspan="5" style="text-align: left;">Rs.` +  this.priceSummary.discount + ` </td>
+        </tr> `  
+
+        let taxItemTRTag=``;
+        if (this.showTaxFlag){
+          taxItemTRTag=`<tr>
+          <td >Tax:</td>
+          <td colspan="5" style="text-align: left;">Rs.` +  (this.priceSummary.tax).toFixed(2) + ` </td>
+          </tr>`;
+
+        }
+        tableFooterHtmlTag = tableFooterHtmlTag + taxItemTRTag +
+          `<tr> 
+          <td ><b>Total: </b></td>
+          <td colspan="5" style="text-align: left;"><b>Rs.` + (this.priceSummary.grandTotal).toFixed(2) + `</b> </td>
+          </tr><tr>
+          <td >Cash Paid:</td>
+          <td colspan="5" style="text-align: left;">Rs.` +  this.result + ` </td>
+          </tr><tr>
+        <td style="text-align: left;border-bottom: 1px solid #000;" ><b>Customer Balance: </b></td>
+        <td colspan="5" style="text-align: left;border-bottom: 1px solid #000;"><b>Rs.` + (this.customerBalance).toFixed(2) + `</b> 
+        </td>
+        
+            </tfoot>
+        </table>
+      
+      `;
+
+      let fbrHtmlTag=`
+      <div class="tax fbr" style="display: block;">          
+  
+        <img src="assets/images/barcode.jpg" id="imagea" class="usin fbr">
+        <p>FBR Invoice#: 133330240702174</p>
+        <div class="fbr_logo">
+          <img style="width:30mm;" src="assets/images/fbr.png"  alt="We are integrated with FBR">
+          <img style="width:30mm;" src="assets/images/FBR_QRReceipt.png" >
+        </div>
+          <p>
+                   <em>Verify your invoice through FBR Tax Asaan Mobile App
+                    or SMS at 9966 and win exciting prizes in draw.</em>
+          </p>
+        
+      </div>
+
+      `;
+
+      let contactHtmlTag = `
+        <div class="contact">
+          <p>If you have any queries related, feel free to reach us at: <br>
+              <i class="fa fa-fw fa-phone"></i>+92 300 3932177 +92 21 37293088><br>
+              <i class="fa fa-fw fa-envelope"></i>info@bebekingdom.pk<br>
+              <i class="fa fa-fw fa-map-pin"></i> Shop#1, Chawla Center, P.E.C.H.S, Block 2, Tariq Road, Karachi
+          </p>
+        </div>
+      `;
+
+      let termHtmlTag = `
+      <div class="terms">
+        <p>
+          <b>**Terms &amp; Conditions**</b>
+                                        <br>
+                                        Items once sold are exchangeable/replaceable within 3 days. All items must be
+                                        returned is in original form (unused, unworn, original packaging, seals, and
+                                        tags attached), along with all accessories, manuals, and warranty card that came
+                                        with it.
+                                        <br>
+                                        Items <b>SOLD ON SALE</b> are <b>NOT</b> exchangeable or replaceable.
+                                        <br>
+                                        <b>PAYMENTS MADE ON CARD</b> are <b>NOT</b> exchangeable or replaceable.
+                                        <br>
+                                         GST is exclusive of pricing 
+        </p>
+      </div>
+      `;
+
+      let lastHtmlTag = `
+      <p style="margin-left:30px !important;">
+        	<b>Thanks for your purchase!</b>
+      </p>
+       
+      </div>
+       
+    
+      </body>
+    </html>
+      `;
+
+
+      let finalHTMLTag=``;
+      //Add all hmt tags
+      if (this.showTaxFlag){
+        finalHTMLTag = myHtml01Tag + styleTag+ titleHtmlTag + companyInfoHtmlTag + myHtml02Tag + myHtmlItemHeadingTag + itemListHtmlTag + tableFooterHtmlTag + fbrHtmlTag + contactHtmlTag + termHtmlTag + lastHtmlTag ;
+      }
+      else{
+        finalHTMLTag = myHtml01Tag + styleTag+ titleHtmlTag + companyInfoHtmlTag + myHtml02Tag + myHtmlItemHeadingTag + itemListHtmlTag + tableFooterHtmlTag + contactHtmlTag + termHtmlTag + lastHtmlTag ;
+      }
+      
+
+
+       //Initializae payment object after save
+       this.payment = new Payment();
+
+       popupWin.document.write(finalHTMLTag);
+ 
+       popupWin.document.close();
+
+    }//popupWin
+
+  }
+
+  /* ******************************************************************************** */
+
+  printThermalOld(): void {
     /* Must open Chrome in KIOSK mode */
     /* "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" --kiosk-printing */
 
@@ -1685,7 +2441,7 @@ export class PosZubaidaComponent {
 
 
     if (this.appName==='ZUBAIDA'){
-      myBodyOrder = myBodyOrder + `<img src="assets/images/logos/zubaida-slip-logo.png" id="imagea" width: 20mm; text-align: center; ">` ;
+      myBodyOrder = myBodyOrder + `<img src="assets/images/logos/zubaida-color-logo.png" id="imagea" width: 20mm; text-align: center; ">` ;
     }
     else if(this.appName==='NIKS'){
       myBodyOrder = myBodyOrder + `<img src="assets/images/logos/niks-logo-small.png" id="imagea" width: 20mm; text-align: center; ">` ;
@@ -1728,15 +2484,19 @@ export class PosZubaidaComponent {
 
     
     myBodyOrder = myBodyOrder +
-    `<p style="margin-left:30px !important;"><b>Z GENERATIONS</b><br>
-    NTN # 8057991-3</p>
+    `<p style="text-align:left !important;"><b> ABC SONS </b><br>
+    STRN:1700223239612|NTN:2232396-1</p>
  
-    <h1 class="centered"  style="font-size:13px;margin-left:30px !important;"><b>Sale Receipt </b></h1>
-    <h1 class="centered"  style="font-size:13px;margin-left:30px !important;"><b> ` +
+    <h1 style="font-size:13px;text-align:left !important;"><b>Sale Receipt </b></h1>
+    <h1 style="font-size:13px;text-align:left !important;"><b> Customer: &nbsp;` +
         this.customer.firstName + `  (` + this.customer.phone1 + ` )` +
         `</b></h1>` +  
-        `<h1 class="centered"  style="font-size:13px;margin-left:30px !important;"><b> ` +
+    `<h1 style="font-size:13px;text-align:left !important;"><b> Date/Time: ` +
         this.todaydatashow + `</b></h1>` +
+
+    `<h1 style="font-size:13px;text-align:left !important;"><b> Bill#:: ` +
+      this.invoiceNumber + `</b></h1>` +
+
         
         `<table style="list-style:none;font-size:12px;text-align:left; ">` + 
         tHead + 
@@ -1758,9 +2518,7 @@ export class PosZubaidaComponent {
           ? this.cartDataList.product[i].salePrice
           : this.cartDataList.product[i].unitPrice)
 
-        taxItem = this.tax(this.cartDataList.product[i]); //((price * this.cartDataList.product[i].quantity) * this.cartDataList.product[i].tax )/100;  
-        //subtotal = subtotal + price * this.cartDataList.product[i].quantity ;
-        // tax = this.cartDataList[i].tax || 0 ;
+        taxItem = this.getItemTax(this.cartDataList.product[i], i); 
         if (this.showTaxFlag){
           total = subtotal - this.totalDiscount + taxItem;
         }
@@ -1768,38 +2526,34 @@ export class PosZubaidaComponent {
           total = subtotal - this.totalDiscount ;
         }
         
+        let discountPrice=0;
+
         //totalTax = totalTax + taxItem;
-        itemDiscount = this.cartDataList.product[i].discount;  //(this.cartDataList.product[i].unitPrice - this.cartDataList.product[i].salePrice)
+        price = price * this.cartDataList.product[i].quantity; //660
+        if (this.cartDataList.product[i].discountVal>0){
+          itemDiscount = this.cartDataList.product[i].discountVal;
+          discountPrice = this.cartDataList.product[i].discountVal;
+        }
+        else{
+          itemDiscount = this.cartDataList.product[i].discount;//%age
+          discountPrice = (price * itemDiscount)/100;
+        }
+
+
         if (itemDiscount===null){
           itemDiscount=0;
         }
-
-      price = price * this.cartDataList.product[i].quantity; //660
-      let discountPrice = (price * itemDiscount)/100; //10% 66
-      let priceAfterDiscount = price - discountPrice; //660-66 = 594
-
-      let itemTax = (priceAfterDiscount * this.cartDataList.product[i].tax)/100; //106.92
-      let totalPrice='';
-
-      if (this.showTaxFlag){
-        totalPrice = Number(priceAfterDiscount + itemTax).toFixed(2);
-      }
-      else{
-        totalPrice = Number(priceAfterDiscount ).toFixed(2);
-      }
+    
       
 
       let taxTdBlock='';
 
-      //TOTALS
-      totalTax = totalTax + itemTax;
-      subtotal = subtotal + priceAfterDiscount;
 
 
         myItems +=
           `<tr>
             <td colspan="6" style="text-align: left;border-top: 1px solid #000;"><b>` +
-          this.cartDataList.product[i].productName + `( ` + this.cartDataList.product[i].upc + ` )` +
+            this.cartDataList.product[i].loginId + `-` + this.cartDataList.product[i].productName + `( ` + this.cartDataList.product[i].upc + ` )` +
           `</b></td>
         </tr>
         <tr>
@@ -1811,13 +2565,15 @@ export class PosZubaidaComponent {
             this.cartDataList.product[i].quantity +
           `</b></td>
            <td><b>` +
-            itemDiscount +
+            //itemDiscount +
+            this.cartDataList.product[i].discount +
           `</b></td>`;
 
 
           if (this.showTaxFlag){
             taxTdBlock = `<td><b>` +
-            itemTax +
+            //itemTax +
+            this.cartDataList.product[i].totalTax +
           `</b></td>
             <td><b>` +
             this.cartDataList.product[i].tax +
@@ -1831,17 +2587,19 @@ export class PosZubaidaComponent {
           myItems += taxTdBlock +
 
           `<td><b>` +
-            totalPrice +
+            //totalPrice +
+            this.cartDataList.product[i].totalPrice +
           `</b></td>
         </tr>`;
       }
 
 
-      let mySubTotal = Number(subtotal).toFixed(2);
-      let myDiscount = (Number(this.totalDiscount)).toFixed(2);
-      let myTax = (Number(totalTax)).toFixed(2);
+      let mySubTotal = Math.round(Number(this.priceSummary.total)).toFixed(2);
+      let myDiscount = Math.round((Number(this.totalDiscount))).toFixed(2);
+      let myTax = Math.round((Number(this.priceSummary.tax))).toFixed(2);
       let fbrPos = (Number(this.FbrCharges)).toFixed(2);
-      let myTotal = (Number(this.priceSummary.grandTotal)).toFixed(2);
+      let myTotal = Math.round((Number(this.priceSummary.grandTotal))).toFixed(2);
+      let myTotalQty = this.priceSummary.totalQty; //this.calculateQtyTotal(this.cartDataList);
 
       let finalTaxBlock=``;
       let myBottonHtml =
@@ -1849,14 +2607,20 @@ export class PosZubaidaComponent {
         <tfoot>
         <tr>
         <td style="text-align: left;border-top: 1px solid #000;">Sub Total:</td>
-        <td style="text-align: left;border-top: 1px solid #000;">Rs ` +
+        <td colspan="5" style="text-align: left;border-top: 1px solid #000;">Rs. ` +
         mySubTotal +
         ` </td>
-        <td  colspan="4" style="text-align: left;border-top: 1px solid #000;">&nbsp;</td>
         </tr>
         <tr>
+        <td style="text-align: left;">Total Qty:</td>
+        <td colspan="5" style="text-align: left;"> ` +
+        myTotalQty +
+        ` </td>
+        </tr>
+
+        <tr>
         <td >Discount:</td>
-        <td style="text-align: center;">Rs ` +
+        <td colspan="5" style="text-align: left;">Rs. ` +
         myDiscount +
         ` </td>
         </tr>` ;
@@ -1865,7 +2629,7 @@ export class PosZubaidaComponent {
           finalTaxBlock = ` 
             <tr>
               <td >Tax:</td>
-              <td style="text-align: center;">Rs ` +
+              <td colspan="5" style="text-align: left;">Rs. ` +
                 myTax +
             ` </td>
             </tr>`;
@@ -1875,7 +2639,7 @@ export class PosZubaidaComponent {
         
         `<tr> 
           <td ><b>Total: </b></td>
-          <td style="text-align: center;"><b>Rs ` +
+          <td colspan="5" style="text-align: left;"><b>Rs ` +
           myTotal +
           `</b> </td>
           </tr>`;
@@ -1885,7 +2649,7 @@ export class PosZubaidaComponent {
         if (this.payment.paymentMethod==='CASH'){
           cardCash = `<tr>
           <td >Cash Paid:</td>
-          <td style="text-align: center;">Rs ` +
+          <td colspan="5" style="text-align: left;">Rs. ` +
           this.result +
           ` </td>
           </tr>`;
@@ -1895,7 +2659,7 @@ export class PosZubaidaComponent {
         {
           cardCash = `<tr>
           <td >Paid by Card</td>
-          <td style="text-align: center;"> &nbsp;` +
+          <td colspan="5" style="text-align: left;"> &nbsp;` +
           
           ` </td>
           </tr>`;
@@ -1904,16 +2668,17 @@ export class PosZubaidaComponent {
 
         myBottonHtml = myBottonHtml + cardCash +
 
-        `<tr><td style="text-align: left;border-bottom: 1px solid #000;" ><b>Customer Balance: </b></td>
-        <td style="text-align: left;border-bottom: 1px solid #000;"><b>Rs ` +
+        `<tr>
+        <td style="text-align: left;border-bottom: 1px solid #000;" ><b>Customer Balance: </b></td>
+        <td colspan="5" style="text-align: left;border-bottom: 1px solid #000;"><b>Rs ` +
         (this.customerBalance).toFixed(2) +
-        `</b> </td>
-        <td colspan="4" style="text-align: left;border-bottom: 1px solid #000;">&nbsp;</td>
+        `</b> 
+        </td>
+        
         </tr>
         </tfoot>
         </table>
-        <p class="centered" style="margin-left:10px !important;">Invoice #` + this.invoiceNumber +
-        `<br>
+        
         
         
         <p class="centered" style="margin-left:10px !important;"><b> ** Terms And Conditions ** </b><p>
@@ -1933,18 +2698,11 @@ export class PosZubaidaComponent {
              GST is included in pricing. NO extra charges. 
              </p>
        
-       <img src="assets/images/barcode.jpg" id="imagea" style="width:140px;height:30px">
+       <img src="assets/images/barcode.jpg" >
 
 
 
 
-       <p id="abc" class="centered" style="font-size:small;margin-left:10px !important;">
-       Copyright© 2024 Z GENERATIONS. </p>
-       <p id="abc" style="font-size:7px;">
-       All rights Reserved to Software Developed By <b id="abcc">TechMaci</b>
-       <br> 
-       Ph +92 300-3932177 | Cell +92 21 37293088 
-       </p>
        
        
    </div>
@@ -1954,6 +2712,16 @@ export class PosZubaidaComponent {
     
   </body>
   </html>`;
+
+  // <p id="abc" class="centered" style="font-size:small;margin-left:10px !important;">
+  // Copyright© 2024 Z GENERATIONS. </p>
+  // <p id="abc" style="font-size:7px;">
+  // All rights Reserved to Software Developed By <b id="abcc">TechMaci</b>
+  // <br> 
+  // Ph +92 300-3932177 | Cell +92 21 37293088 
+  // </p>
+
+
       let myFinalHtml = myHtml + myBodyOrder + myItems + myBottonHtml;
 //alert(myFinalHtml);
 
@@ -2189,21 +2957,24 @@ img {
 
 /* ***************************************************** */
   calculateCartTotal(): any {
-    this.priceSummary.total = 0;
+    //this.priceSummary.total = 0;
     this.priceSummary.tax=0;
     let totalTax=0;
 
     if (this.cartDataList.product.length===0) return 0;
 
     let finalPrice=0;
-
+    let row=-1;
+    this.attempTotalCount++;
     if (this.showTaxFlag){
-      for (let item of this.cartDataList.product) {
+      
+      for (let item of this.cartDataList.product ) {
         //const price = item.salePrice ? item.salePrice : item.unitPrice;
-        let price = this.itemTotal(item);
-        totalTax = this.tax(item); //Number((item.quantity * price)* item.tax/100);
+        row++;
+        let price = this.getItemTotal(item, row);
+        totalTax = this.getItemTax(item, row); //Number((item.quantity * price)* item.tax/100);
   
-        this.priceSummary.total += Number(price) - Number(totalTax);     //item.quantity * price;
+        //this.priceSummary.total += Number(price);// - Number(totalTax);     //item.quantity * price;
   
         
         this.priceSummary.tax+= Number(totalTax);
@@ -2216,16 +2987,20 @@ img {
     else{
       for (let item of this.cartDataList.product) {
         //const price = item.salePrice ? item.salePrice : item.unitPrice;
-        let price = this.itemTotal(item);
+        row++;
+        let price = this.getItemTotal(item, row);
         //totalTax = this.tax(item); //Number((item.quantity * price)* item.tax/100);
   
-        this.priceSummary.total += Number(price) ;
+        //this.priceSummary.total += Number(price) ;
   
         
         this.priceSummary.tax= 0;
   
       }//for loop
-      this.priceSummary.grandTotal = this.priceSummary.total - this.totalDiscount ;
+      this.priceSummary.grandTotal = Number(this.priceSummary.total - this.totalDiscount) ;
+
+      this.priceSummary.grandTotal = Math.round((Number(this.priceSummary.grandTotal)));
+
       finalPrice = Number(this.priceSummary.total - this.totalDiscount );
   
     }
@@ -2337,14 +3112,15 @@ handleKeyboardEvent(event: KeyboardEvent) {
     case 'F2':
       this.openProductSearchPopup();
       break;
+    case 'F9':
+        //alert('cash sale for F3');
+        this.openCashModal();
+        break;      
     case 'F4':
       //alert('hold sale for F4');
       this.checkHoldSale();
       break;
-    case 'F3':
-      //alert('cash sale for F3');
-      this.openCashModal();
-      break;
+
     case 'F5':
       //alert('card sale for F5');
       this.openCardModal();
@@ -2353,6 +3129,9 @@ handleKeyboardEvent(event: KeyboardEvent) {
       //alert('daily sale for F8');
       this.dailySale();
       break;
+    case 'F6':
+      this.openPriceCheckPopup();
+      break;  
     case '=':
       if (this.cashModal){
         this.calculate();
@@ -2361,6 +3140,10 @@ handleKeyboardEvent(event: KeyboardEvent) {
     case 'Enter':  
       if (this.cashModal){
           this.onCustomerSave('CASH');
+      }
+      else{
+        //alert(event.key)
+        //this.upcSearch(event);
       }
       break;
     case 'keydown':
@@ -2373,6 +3156,12 @@ handleKeyboardEvent(event: KeyboardEvent) {
         break;
     case 'Escape':
       this.closeCashModal();
+      if (this.priceCheckPopup){
+        this.closeModal();
+      }
+      if (this.productSearchPopup){
+        this.closeProductSearchPopup();
+      }
       break;
     case '.':
       if (this.cashModal){
@@ -2384,7 +3173,7 @@ handleKeyboardEvent(event: KeyboardEvent) {
         let numVal = Number(event.key);
         if (numVal!==null){
             if (numVal >=0 || numVal<=9){
-              this.appendToResult(event.key);
+              //this.appendToResult(event.key);
             }
         }
         
@@ -2401,9 +3190,8 @@ handleKeyboardEvent(event: KeyboardEvent) {
 
   }
 
-
   agentKey(event: any) {
-    if (event.code === 'Enter') {
+    if (event.key === 'Enter') {
       let agentInput = <HTMLInputElement>document.getElementById('selectAgentInput');
       if (agentInput === undefined) {
         return;
@@ -2416,24 +3204,75 @@ handleKeyboardEvent(event: KeyboardEvent) {
 
               this.cache.set("selectedAgent", JSON.stringify(this.selectedAgent));
 
+
+
             }
-          }
+          }//for loop
+          this.focusUpc(true);
       }
   }
 }
+/* **************************************************** */
+customerPhoneKey(event: any){
+  
+    if (event.key === 'Enter') {
+      let selectedPhoneInput = <HTMLInputElement>document.getElementById('selectedPhoneInput');
+      if (selectedPhoneInput === undefined) {
+        return;
+      }
+      let phone = selectedPhoneInput.value;
+      if (phone !== undefined || phone !== '') {
+        this.focusAgent(true);
 
+      }
+    }      
+}
+
+focusAgent(focusFlag:boolean)
+{
+  let agentInput = <HTMLInputElement>document.getElementById('selectAgentInput');
+  if (focusFlag){
+    agentInput.focus();
+  }
+  else{
+    //upcInput.focus();
+  }
+  
+  agentInput.autofocus=focusFlag;
+
+}
+
+
+focusUpc(focusFlag:boolean)
+{
+  let upcInput = <HTMLInputElement>document.getElementById('upc-search');
+  if (focusFlag){
+    upcInput.focus();
+  }
+  else{
+    //upcInput.focus();
+  }
+  
+  upcInput.autofocus=focusFlag;
+
+}
   /* ************************************************************* */
   discountChange(row: number) {
 
     let discountInput = <HTMLInputElement>document.getElementById('discount_' + row);
+    let discountValInput = <HTMLInputElement>document.getElementById('discount_val_' + row);
 
     let val = discountInput.value;
+    let discountVal:any;
+    if (discountValInput.value!==null){
+      discountVal = Number(discountValInput.value);
+    }
 
     if (discountInput != null || discountInput != undefined) {
       let len = discountInput.value.length;
 
-      let qty = Number(val);
-      if (qty<1){
+      let discount = Number(val);
+      if (discount<0){
           //0 or below not allowed
           Swal.fire('WARNING','0 or negative Qty is not allowed', 'warning');
           return;
@@ -2444,41 +3283,114 @@ handleKeyboardEvent(event: KeyboardEvent) {
       }
     }
 
+    this.cartDataList.product[row].discount = discountInput.value;
+    let price = (this.cartDataList.product[row].salePrice
+      ? this.cartDataList.product[row].salePrice
+      : this.cartDataList.product[row].unitPrice)
+
+
+    discountVal = Number((Number(discountInput.value) * price) / 100);
+
     let localCartData = localStorage.getItem('localCart');
     if (localCartData) {
       let discountData = JSON.parse(localCartData);
       discountData.product[row].discount = discountInput.value;
+      discountData.product[row].discountVal = discountVal;
       localStorage.setItem('localCart', JSON.stringify(discountData))
 
 
     }
     //alert('qtyChange'+ qty.value);
 
+
+    
+    
     this.cartDataList.product[row].discount = discountInput.value;
 
+    this.cartDataList.product[row].discountVal = discountVal;
+    
+
+    this.calculateTotalPrice();
+    this.focusUpc(true);
+    
+
+  }
+
+  /* ************************************************************* */
+  discountValChange(row: number) {
+
+    
+    let discountValInput = <HTMLInputElement>document.getElementById('discount_val_' + row);
+    let discountInput = <HTMLInputElement>document.getElementById('discount_' + row);
+    
+    let discountVal:any;
+    if (discountValInput.value!==null){
+      discountVal = Number(discountValInput.value);
+    }
+    let price = (this.cartDataList.product[row].salePrice
+      ? this.cartDataList.product[row].salePrice
+      : this.cartDataList.product[row].unitPrice)
+
+    let localCartData = localStorage.getItem('localCart');
+    if (localCartData) {
+      let discountData = JSON.parse(localCartData);
+      discountData.product[row].discountVal = discountVal;
+      let discountPercentage = (discountVal * 100)/price;
+
+      discountData.product[row].discount = discountPercentage.toFixed(2);
+      this.cartDataList.product[row].discountVal = discountVal;
+      discountInput.value =   discountPercentage.toFixed(2);    
+
+      localStorage.setItem('localCart', JSON.stringify(discountData))
+    }
+
+    //discountVal = Number((Number(discountInput.value) * price) / 100);
+    this.cartDataList.product[row].discount = discountInput.value;
+    this.cartDataList.product[row].discountVal = discountVal;
+   
+    this.focusUpc(true);
+
+    
     this.calculateTotalPrice();
   }
+
 
   /* ************************************************************** */
   chkDiscountNumber1(row: number) {
     let discountInput = <HTMLInputElement>document.getElementById('discount_' + row);
+    let discountValInput = <HTMLInputElement>document.getElementById('discount_val_' + row);
     let val = discountInput.value;
 
     if (discountInput != null || discountInput != undefined) {
       let len = discountInput.value.length;
 
       let qty = Number(val);
-      if (qty<1){
+      if (qty<0){
           //0 or below not allowed
-          Swal.fire('WARNING','0 or negative discount is not allowed', 'warning');
+          Swal.fire('WARNING','Negative discount is not allowed', 'warning');
           return;
 
       }
       if (len > 2) {
         discountInput.value = discountInput.value.toString().slice(0, 2);
       }
+
+      discountValInput.value = this.calculateDiscount(discountInput.value, row);
     }
   } //chkNumber
+/* ************************************************************* */
+calculateDiscount(discount:any, row:any):any{
+
+  let price = this.cartDataList.product[row].price ;
+  let discountVal =0;
+
+  discountVal = (discount * price )/100;
+  this.cartDataList.product[row].discountVal = discountVal;
+
+  return discountVal;
+}
+
+
 
 /* ************************************************************* */
 openProductSearchPopup(){
@@ -2560,7 +3472,786 @@ clearProductSearchFields() {
     this.router.navigate(['reports']);
   }
 
+  lastBillOfSale(){
 
+    
+    this.orderService.getLastBillOfSale().subscribe((data: OrderResponse) => {
+      if (data !== undefined){
+
+        let orderCustomer = data.orderCustomer;
+        let orders:any = new Orders();
+        if (data.orderCustomer.length>0){
+          orders= data.orderCustomer[0].orders ;
+          let customer:any = data.orderCustomer[0]?.customer ;
+          let orderItems = data.orderItems;
+  
+          this.printThermalLastBill(orders, customer, orderItems);
+  
+        }
+        
+
+      }
+
+    });
+
+
+  }
+/* ******************************************************************************************************* */
+printThermalLastBill(order:Orders, customer:Customer, orderItems:OrderItemProductWrapper[]){
+  let popupWin;
+  //let printContents:HTMLElement = (document.getElementById('print-section-0').innerHTML) as HTMLElement ;
+  popupWin = window.open('', '_blank');
+  if (popupWin != null || popupWin != undefined) {
+    // popupWin.document.open();
+
+    this.customer = customer;
+
+    
+      let mainImage=``;
+      if (this.appName==='ZUBAIDA'){
+        mainImage = `assets/images/logos/zubaida-color-logo.png` ;
+      }
+      else if(this.appName==='NIKS'){
+        mainImage = `assets/images/logos/niks-logo-small.png` ;
+      }
+
+
+    let myHtml01Tag = `
+    <html> 
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+   <style>
+
+.recipt_container
+{
+  width: 100% !important;
+  max-width: 100mm;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* .tax
+{
+  display: none;
+} */
+
+.header
+{
+  text-align: center;
+}
+.header img
+{
+  width: 75%;
+}
+
+.float
+{
+  float: left;
+}
+.clear
+{
+  float: left;
+  clear: both;
+}
+
+.company_details p
+{
+  font-size: 8pt;
+  text-transform: uppercase;
+  font-weight: 400;
+  line-height: 11px;
+}
+.inv_details table
+{
+  font-size: 7pt;
+  margin-left: auto;
+  margin-right: auto;
+  width: 95% !important;
+  text-align: left;
+
+}
+.inv_details table th
+{
+  width: 50%;
+
+}
+.items table
+{
+  width: 98%;
+  font-size: 7pt;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+  border-collapse: collapse;
+
+
+}
+.items table thead tr, .items table tfoot tr
+{
+  border-top: 1pt solid black;
+  border-bottom: 1pt solid black;
+}
+.items table tbody tr
+{
+  border-top: 0.9pt dotted black;
+  border-bottom: 0.9pt dotted black;
+}
+.items table th:first-child{
+ text-align: left;
+}
+.items table td:first-child{
+  text-align: left;
+}
+
+.items table th:last-child{
+  text-align: right;
+}
+.items table td:last-child{
+   text-align: right;
+}
+
+.totals table
+{
+  width: 98%;
+  font-size: 8pt;
+  text-align: right;
+  margin-right: 0px;
+}
+.totals table td:last-child
+{
+   max-width: 30%;
+}
+.fbr
+{
+   text-align: center;
+}
+.fbr_logo_0
+{
+   width: 30mm;
+   text-align: center;
+}
+.usin
+{
+  width: 80%;
+  max-height: 100px;
+}
+
+.fbr p
+{
+  font-size: 9pt;
+  margin-top: 3px;
+  margin-bottom: 3px;
+  padding-left: 1%;
+  padding-right: 1%;
+}
+
+.terms
+{
+  font-size: 8pt;
+  text-align: center;
+  padding-left: 1%;
+  padding-right: 1%;
+}
+
+.copy
+{
+  font-size: 6pt;
+  text-align: center;
+}
+
+.items table .inv_of td:last-child{
+  text-align: center;
+}
+
+.logo
+{
+  margin-top: 5%;
+  max-width: 100%;
+  max-height: 100px;
+}
+
+.contact
+{
+  font-size: 7pt;
+  text-align: center;
+  padding-left: 1%;
+  padding-right: 1%;
+}
+
+@media print {
+
+  .recipt_container {
+      page-break-after: always;
+
+  }
+
+}
+
+
+  </style>
+    
+  <title>Niks Receipt</title>
+  </head>    
+  <body  onload="window.print();window.close();">
+  <div class="recipt_container">  
+    <div class="header">
+    <img class="logo" src="` + mainImage + `" >
+  
+    <div class="company_details">
+      <p ><b> ABC SONS </b><br>
+        <span class="strn">STRN:1700223239612|NTN:2232396-1</span>
+      </p>
+    </div>
+    
+    
+    `;
+
+
+
+    let myHtml02Tag = `
+    <div class="inv_details">
+      <p style="text-align:left"><b>Customer: ` + this.customer.firstName + `  (` + this.customer.phone1 + ` )` + `</b></p>
+      <p style="text-align:left"><b>Date/Time:   &nbsp;` + order.createDate +  `</b></p>
+      <p style="text-align:left"><b> Bill#:` + order.orderId + `</b></p>
+    </div>  
+    <div class="items">
+    `;
+
+    let myHtmlTableTag=`
+        <table >
+     
+  <thead>
+      <tr class="inv_of">
+          <td colspan="7" style="text-align: center;border-top: 1px solid #000;"><b>---SALES---</b>
+          </td>
+      </tr>    
+
+      <tr>
+      <th>Barcode</th>
+      <th>Price</th>
+      <th>Qty</th>
+      <th>Disc</th>
+      <th >Tax</th>
+      <th >GST%</th>
+      <th >Total</th>
+      </tr>
+      <tr >
+          <th colspan="6" >Description</th>
+          <th></th>
+      </tr>
+    </thead>
+    <tbody >
+    
+    `;
+
+    let myHtmlItemHeadingTag=`
+        <table >
+     
+        <thead>
+          <tr class="inv_of">
+              <td colspan="7" style="text-align: center;border-top: 1px solid #000;"><b>---SALES---</b>
+              </td>
+          </tr>    
+
+          <tr>
+          <th>Barcode</th>
+          <th>Price</th>
+          <th>Qty</th>
+          <th>Disc</th>
+          <th >Tax</th>
+          <th >GST%</th>
+          <th >Total</th>
+          </tr>
+          <tr >
+              <th colspan="6" >Description</th>
+              <th></th>
+          </tr>
+        </thead>
+        <tbody >
+    `;
+
+
+    let itemListHtmlTag = ``;
+    let taxTdBlock=``;
+    let price:any=0;
+    let totalQty=0;
+    let totalDiscount=0;
+
+    for (let i = 0; i < orderItems.length; i++) {
+      price = orderItems[i].ordersItems?.unitPrice;
+      let quantity:any = orderItems[i].ordersItems?.quantity;//1
+      let discount = orderItems[i].ordersItems?.discount;//%age 10
+
+      let discountVal = price - (price * discount)/100;//52
+      let taxItem = ((orderItems[i].products?.tax) * (quantity * discountVal ))/100;
+      let totalPrice = taxItem + (quantity * discountVal);
+
+      totalQty = totalQty + quantity;
+  
+
+        itemListHtmlTag = itemListHtmlTag + 
+        `<tr>
+          <td>` +
+            orderItems[i].ordersItems?.agentId + `-` +  orderItems[i].products?.upc +               
+          `</td>
+          <td>` +
+            price.toFixed(2) +
+          `</td>
+          <td>` +
+            orderItems[i].ordersItems?.quantity +
+          `</td>
+          <td>` +
+            (orderItems[i].ordersItems?.discount===null?0: orderItems[i].ordersItems?.discount) +
+          `</td>`;
+
+
+        if (this.showTaxFlag){
+          taxTdBlock = `<td><b>` +
+          (taxItem).toFixed(2) +
+        `</b></td>
+          <td><b>` +
+          orderItems[i].products?.tax +
+        `</b></td>`;
+
+        }
+        else{
+          taxTdBlock = ``;
+        }
+      
+        itemListHtmlTag += taxTdBlock +
+        `<td><b>` +
+          (totalPrice).toFixed(2) +
+        `</b></td>
+        </tr>
+        <tr>
+          <td colspan="6">` +
+            orderItems[i].products?.productName +
+          `</td>
+           <td><td>
+        </tr>
+        `;
+
+
+    } //for loop  
+
+    let tableFooterHtmlTag = `
+    </tbody>
+      <tfoot>
+      <tr>
+      <td >Sub Total:</td>
+      <td colspan="6" style="text-align: left;border-top: 1px solid #000;">Rs.` + Math.round(Number(order.orderAmount)).toFixed(2) + ` </td>
+      
+      </tr>
+      <tr>
+      <td style="text-align: left;">Total Qty:</td>
+      <td colspan="5" style="text-align: left;"> ` +
+      totalQty +
+      `</td>
+      </tr>
+      <tr>
+      <td >Discount:</td>
+      <td colspan="5" style="text-align: left;">Rs.` +  totalDiscount + ` </td>
+      </tr> 
+          <tr>
+            <td >Tax:</td>
+            <td colspan="5" style="text-align: left;">Rs.` +  Math.round((Number(order.tax))).toFixed(2) + ` </td>
+          </tr><tr> 
+        <td ><b>Total: </b></td>
+        <td colspan="5" style="text-align: left;"><b>Rs.` + Math.round((Number(order.grandTotal))).toFixed(2) + `</b> </td>
+        </tr><tr>
+        <td >Cash Paid:</td>
+        <td colspan="5" style="text-align: left;">Rs.` +  this.result + ` </td>
+        </tr><tr>
+      <td style="text-align: left;border-bottom: 1px solid #000;" ><b>Customer Balance: </b></td>
+      <td colspan="5" style="text-align: left;border-bottom: 1px solid #000;"><b>Rs.` + (this.customerBalance).toFixed(2) + `</b> 
+      </td>
+      
+          </tfoot>
+      </table>
+    
+    `;
+
+    let fbrHtmlTag=`
+    <div class="tax fbr" style="display: block;">          
+
+      <img src="assets/images/barcode.jpg" id="imagea" class="usin fbr">
+      <p>FBR Invoice#: 133330240702174</p>
+      <div class="fbr_logo">
+        <img style="width:30mm;" src="assets/images/fbr.png"  alt="We are integrated with FBR">
+        <img style="width:30mm;" src="assets/images/FBR_QRReceipt.png" >
+      </div>
+        <p>
+                 <em>Verify your invoice through FBR Tax Asaan Mobile App
+                  or SMS at 9966 and win exciting prizes in draw.</em>
+        </p>
+      
+    </div>
+
+    `;
+
+    let contactHtmlTag = `
+      <div class="contact">
+        <p>If you have any queries related, feel free to reach us at: <br>
+            <i class="fa fa-fw fa-phone"></i>+92 300 3932177 +92 21 37293088><br>
+            <i class="fa fa-fw fa-envelope"></i>info@bebekingdom.pk<br>
+            <i class="fa fa-fw fa-map-pin"></i> Shop#1, Chawla Center, P.E.C.H.S, Block 2, Tariq Road, Karachi
+        </p>
+      </div>
+    `;
+
+    let termHtmlTag = `
+    <div class="terms">
+      <p>
+        <b>**Terms &amp; Conditions**</b>
+                                      <br>
+                                      Items once sold are exchangeable/replaceable within 3 days. All items must be
+                                      returned is in original form (unused, unworn, original packaging, seals, and
+                                      tags attached), along with all accessories, manuals, and warranty card that came
+                                      with it.
+                                      <br>
+                                      Items <b>SOLD ON SALE</b> are <b>NOT</b> exchangeable or replaceable.
+                                      <br>
+                                       GST is exclusive of pricing 
+      </p>
+    </div>
+    `;
+
+    let lastHtmlTag = `
+    <p style="margin-left:30px !important;">
+        <b>Thanks for your purchase!</b>
+    </p>
+     
+    </div>
+     
+  
+    </body>
+  </html>
+    `;
+
+
+    //Add all hmt tags
+    let finalHTMLTag = myHtml01Tag + myHtml02Tag + myHtmlItemHeadingTag + itemListHtmlTag + tableFooterHtmlTag + fbrHtmlTag + contactHtmlTag + termHtmlTag + lastHtmlTag ;
+
+
+     //Initializae payment object after save
+     this.payment = new Payment();
+
+     popupWin.document.write(finalHTMLTag);
+
+     popupWin.document.close();
+
+  }//popupWin
+
+}
+
+
+
+
+
+  /* ************************************************************************************************** */
+  printThermalLastBillOld(order:Orders, customer:Customer, orderItems:OrderItemProductWrapper[]){
+   
+      /* Must open Chrome in KIOSK mode */
+      /* "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" --kiosk-printing */
+  
+    this.customer = customer;
+    
+      let popupWin;
+      //let printContents:HTMLElement = (document.getElementById('print-section-0').innerHTML) as HTMLElement ;
+      popupWin = window.open('', '_blank');
+      if (popupWin != null || popupWin != undefined) {
+        // popupWin.document.open();
+  
+        customer.firstName;
+  
+        let orderAddress =
+          customer?.address +
+          ',' +
+          customer?.city +
+          ',' +
+          customer?.stateProvince +
+          ',' +
+          customer?.postalCode;
+  
+        let myCss = this.getCss();
+  
+        let myHead = `
+      <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta http-equiv="X-UA-Compatible" content="ie=edge">
+      <title>Niks Receipt</title>
+      </head>    `;
+  
+        let myHtml = ` <html> ` + myHead;
+        
+        let myBodyOrder =
+          `<body onload="window.print();window.close();">
+      <div class="ticket">  ` ;
+  
+  
+      if (this.appName==='ZUBAIDA'){
+        myBodyOrder = myBodyOrder + `<img src="assets/images/logos/zubaida-color-logo.png" id="imagea" width: 20mm; text-align: center; ">` ;
+      }
+      else if(this.appName==='NIKS'){
+        myBodyOrder = myBodyOrder + `<img src="assets/images/logos/niks-logo-small.png" id="imagea" width: 20mm; text-align: center; ">` ;
+      }
+       
+  
+      let tHead='';
+      if (this.showTaxFlag){
+        tHead = 
+        `<thead>
+          <tr >
+              <td colspan="6" style="text-align: left;border-top: 1px solid #000;"><b>Product Description</b></td>
+          </tr>
+          <tr >
+          <td style="text-align: left;border-top: 1px solid #000;"><b>Price</b></td>
+          <td style="text-align: left;border-top: 1px solid #000;" ><b>Qty</b></td>
+          <td style="text-align: left;border-top: 1px solid #000;" ><b>Discount</b></td>
+          <td style="text-align: left;border-top: 1px solid #000;"><b>Tax</b></td>
+          <td style="text-align: left;border-top: 1px solid #000;"><b>GST%</b></td>
+          <td style="text-align: left;border-top: 1px solid #000;"><b>Total</b></td>
+          </tr>
+        </thead>`
+      }
+      else{
+        tHead = 
+        `<thead>
+          <tr >
+              <td colspan="6" style="text-align: left;border-top: 1px solid #000;"><b>Product Description</b></td>
+          </tr>
+          <tr >
+          <td style="text-align: left;border-top: 1px solid #000;"><b>Price</b></td>
+          <td style="text-align: left;border-top: 1px solid #000;" ><b>Qty</b></td>
+          <td style="text-align: left;border-top: 1px solid #000;" ><b>Discount</b></td>
+          <td style="text-align: left;border-top: 1px solid #000;"><b>Total</b></td>
+          </tr>
+        </thead>`
+      }
+  
+  
+  
+      
+      myBodyOrder = myBodyOrder +
+      `<p style="text-align:left !important;"><b> ABC SONS </b><br>
+      STRN:1700223239612|NTN:2232396-1</p>
+   
+      <h1 style="font-size:13px;text-align:left !important;"><b>Sale Receipt </b></h1>
+      <h1 style="font-size:13px;text-align:left !important;"><b> ` +
+          customer.firstName + `  (` + customer.phone1 + ` )` +
+          `</b></h1>` +  
+          `<h1 style="font-size:13px;text-align:left !important;"><b> ` +
+          order.createDate + `</b></h1>` +
+          
+          `<table style="list-style:none;font-size:12px;text-align:left; ">` + 
+          tHead + 
+          `<tbody >`;
+  
+       
+  
+  
+        let myItems = ``;
+        let subtotal = 0;
+        let taxItem = 0;
+        let totalTax=0;
+        let FbrCharges = 0;
+        let total = 0;
+        let itemDiscount=0;
+  
+        for (let i = 0; i < orderItems.length; i++) {
+          let price = orderItems[i].ordersItems?.unitPrice;//520
+          let quantity:any = orderItems[i].ordersItems?.quantity;//1
+          let discount = orderItems[i].ordersItems?.discount;//%age 10
+          let discountVal = price - (price * discount)/100;//52
+            
+  
+          //taxItem = this.tax(orderItems[i].products); //((price * this.cartDataList.product[i].quantity) * this.cartDataList.product[i].tax )/100;  
+          //subtotal = subtotal + price * this.cartDataList.product[i].quantity ;
+          // tax = this.cartDataList[i].tax || 0 ;
+          taxItem = ((orderItems[i].products?.tax) * (quantity * discountVal ))/100;
+          let totalPrice = taxItem + (quantity * discountVal);
+          
+          let discountPrice=0;
+  
+          //totalTax = totalTax + taxItem;
+          //price = price * orderItems[i].products?.quantity; //660
+            
+        
+  
+        let taxTdBlock='';
+  
+      
+  
+  
+          myItems +=
+            `<tr>
+              <td colspan="6" style="text-align: left;border-top: 1px solid #000;"><b>` +
+              orderItems[i].products?.productName + `( ` + orderItems[i].products?.upc + ` )` +
+            `</b></td>
+          </tr>
+          <tr>
+              <td><b>` +
+              price.toFixed(2) +
+            
+            `</b></td>
+              <td><b>` +
+              quantity +
+            `</b></td>
+             <td><b>` +
+             discount +
+            `</b></td>`;
+  
+            
+  
+            if (this.showTaxFlag){
+              taxTdBlock = `<td><b>` +
+              taxItem +
+            `</b></td>
+              <td><b>` +
+              orderItems[i].products?.tax +
+            `</b></td>`;
+  
+            }
+            else{
+              taxTdBlock = ``;
+            }          
+            myItems += taxTdBlock +
+  
+            `<td><b>` +
+              totalPrice +
+            `</b></td>
+          </tr>`;
+        }//for
+  
+  
+        let mySubTotal = Math.round(Number(order.orderAmount)).toFixed(2);
+        let myDiscount = (Number(0)).toFixed(2);
+        let myTax = Math.round((Number(order.tax))).toFixed(2);
+        let fbrPos = (Number(this.FbrCharges)).toFixed(2);
+        let myTotal = Math.round((Number(order.grandTotal))).toFixed(2);
+  
+        let finalTaxBlock=``;
+        let myBottonHtml =
+         `</tbody>
+          <tfoot>
+          <tr>
+          <td style="text-align: left;border-top: 1px solid #000;">Sub Total:</td>
+          <td colspan="5" style="text-align: left;border-top: 1px solid #000;">Rs. ` +
+          mySubTotal +
+          ` </td>
+          
+          </tr>
+          <tr>
+          <td >Discount:</td>
+          <td colspan="5" style="text-align: left;">Rs. ` +
+          myDiscount +
+          ` </td>
+          </tr>` ;
+  
+          if (this.showTaxFlag){
+            finalTaxBlock = ` 
+              <tr>
+                <td >Tax:</td>
+                <td colspan="5" style="text-align: left;">Rs. ` +
+                  myTax +
+              ` </td>
+              </tr>`;
+          }
+  
+          myBottonHtml = myBottonHtml + finalTaxBlock +
+          
+          `<tr> 
+            <td ><b>Total: </b></td>
+            <td colspan="5" style="text-align: left;"><b>Rs ` +
+            myTotal +
+            `</b> </td>
+            </tr>`;
+  
+          
+          
+  
+          myBottonHtml = myBottonHtml  +
+  
+          
+          `</tfoot>
+          </table>
+          <p class="centered" style="margin-left:10px !important;">Invoice#:BL` + order.orderId +
+          `<br>
+          
+          
+          <p class="centered" style="margin-left:10px !important;"><b> ** Terms And Conditions ** </b><p>
+  
+               <p style="font-size:7px;">
+               Items once sold are Exchangeable/Replaceable Within 03 Days with original </p>
+               <p style="font-size:7px;">packing(unused, unworn, tags attached, seals) and receipt </p>
+               <p style="font-size:7px;"> along with all accessories, manuals, and warranty card that come with it. 
+               </p>
+               <p style="font-size:7px;margin-top:-5px !important;">
+               Exchange or Return due to quality efficacy
+               </p>
+               <p style="font-size:7px;margin-top:-5px !important;">
+               Items SOLD ON SALE are NOT exchangeable or replaceable. 
+               </p>
+               <p style="font-size:7px;margin-top:-5px !important;">
+               GST is included in pricing. NO extra charges. 
+               </p>
+         
+         <img src="assets/images/barcode.jpg" id="imagea" style="width:140px;height:30px">
+  
+  
+  
+  
+         
+         
+     </div>
+          <p style="margin-left:30px !important;">
+          <b>Thanks for your purchase!</b>
+          </p>
+      
+    </body>
+    </html>`;
+  
+    // <p id="abc" class="centered" style="font-size:small;margin-left:10px !important;">
+    // Copyright© 2024 Z GENERATIONS. </p>
+    // <p id="abc" style="font-size:7px;">
+    // All rights Reserved to Software Developed By <b id="abcc">TechMaci</b>
+    // <br> 
+    // Ph +92 300-3932177 | Cell +92 21 37293088 
+    // </p>
+  
+  
+        let myFinalHtml = myHtml + myBodyOrder + myItems + myBottonHtml;
+  //alert(myFinalHtml);
+  
+        //Initializae payment object after save
+        this.payment = new Payment();
+  
+        popupWin.document.write(myFinalHtml);
+  
+        popupWin.document.close();
+  
+  
+      } //end if
+   
+  
+  }
+
+    getPrice(product:any):any{
+      let price = (product.salePrice
+        ? product.salePrice
+        : product.unitPrice);
+
+        return price;
+    }
+
+    salesReportExcel(legacyReport:boolean){
+      this.legacyReport = legacyReport;
+      let url = 'reports/' + legacyReport;
+      this.router.navigate([url]);
+
+    }
 
 
 /* ************************** THE END ***************************************** */

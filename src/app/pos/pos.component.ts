@@ -104,6 +104,8 @@ export class PosComponent {
     delivery: 0,
     total: 0,
     grandTotal: 0,
+    totalQty: 0,
+    totalWithoutDiscount:0
   };
 
   holdSales: CartHold[] = [];
