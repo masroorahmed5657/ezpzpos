@@ -513,7 +513,7 @@ export class PosComponent {
       if (sku !== undefined || sku !== '') {
         //serach product by UPC
         this.productService.getProductsBySKU(sku).subscribe((data) => {
-          let productId = data.productId;
+          let productId = data[0].productId;
           //// this.searchbyname=data.productList;
           if (productId === null) {
             Swal.fire('Not Found', 'Product Does not exist', 'error');
@@ -533,9 +533,9 @@ export class PosComponent {
               rcvdProduct.transactionId = 0;
               rcvdProduct.total = 0;
             }
-            data.quantity = this.productQuantity;
+            data[0].quantity = this.productQuantity;
 
-            rcvdProduct.product.push(data);
+            rcvdProduct.product.push(data[0]);
 
             this.productService.localAddToCart(rcvdProduct);
             //this.cartDataList1.push(rcvdProduct);

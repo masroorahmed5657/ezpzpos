@@ -71,8 +71,6 @@ export class ProductService {
 
 /* ******************************************************** */
   localAddToCart(data:CartHold){
-    let cartData = [];
-    let localCart = localStorage.getItem('localCart');
       localStorage.setItem('localCart',JSON.stringify(data));
 
     }
@@ -208,13 +206,13 @@ getProductsByUPC(upc: string): Observable<ProductView>{
 }
 /* ************************************************************* */
 
-getProductsBySKU(sku: string): Observable<ProductView>{
+getProductsBySKU(sku: string): Observable<ProductView[]>{
 
   let myUrl = `${this.myUrl}` + `products/pos/findProductsBySku/` + sku ;
 
-  return this.http.get<ProductView>(myUrl).pipe(
+  return this.http.get<ProductView[]>(myUrl).pipe(
       //tap( error ==> this.log('Fetched Product') ),
-    catchError(this.errors.handleError<ProductView>('getProducts'))
+    catchError(this.errors.handleError<ProductView[]>('getProducts'))
   );
 
 }
@@ -263,6 +261,28 @@ saveProductListToLocalDB(productList: ProductView): Observable<ApiResponse>{
 
 
 }
+/* ************************************************************* */
+getLastUpdateDate(): Observable<any>{
+
+  let myUrl = `${this.myUrl}` + `products/getLastUpdateDate`  ;
+
+  return this.http.get<any>(myUrl).pipe(
+      //tap( error ==> this.log('Fetched Product') ),
+    catchError(this.errors.handleError<any>('getLastUpdateDate'))
+  );
+
+}
+/* ************************************************************* */
+getProductsUpdatedInCloud(lastUpdateDate:any): Observable<ProductWrapper>{
+  let remoteUrl = `${this.cloudApiUrl}` + `products/pos/getProductsUpdatedInCloud`  ;
+  //let remoteUrl = `${this.myUrl}` + `products/pos/getProductsUpdatedInCloud`  ;
+
+  return this.http.post<ProductWrapper>(remoteUrl, lastUpdateDate).pipe(
+    catchError(this.errors.handleError<ProductWrapper>('getProductsUpdatedInCloud'))
+  );
+}
 
 
+
+/* ************************ END OF SERVICE ************************* */
 }

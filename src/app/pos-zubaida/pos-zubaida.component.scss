@@ -87,4 +87,67 @@
         .card {
             border: 0px !important;
         }
-      
+
+        table {
+          width: 100%;
+          border-collapse: collapse;
+      }
+      thead, tbody {
+          display: block;
+      }
+      thead {
+          background: #f2f2f2;
+          width: 100%;
+      }
+      tbody {
+          height: 520px; /* Adjust based on your needs */
+          overflow-y: auto;
+          width: 100%;
+          display: block;
+          font-size: small;
+      }
+      tr {
+          display: table;
+          width: 100%;
+          table-layout: fixed; /* Ensures proper alignment */
+      }
+      th, td {
+          padding: 1px;
+          border: 1px solid #ddd;
+          text-align: left;
+      }
+
+      html, body {
+        height: 100%;
+        margin: 0;
+        //position: relative;
+      }
+      body {
+        display: flex;
+      flex-direction: column;
+      }
+
+      footer {
+        background: #ebe8e8;
+        color: black;
+        //padding: 1rem;
+        text-align: center;
+        //position: absolute;
+      //bottom: 0;
+      //left: 0;
+      //width: 100%;
+      padding-bottom: 1rem;
+      padding-top: 1rem;
+      }
+
+      .controls-container {
+        display: flex;
+        gap: 5px; /* Adjust gap between controls as needed */
+        
+    }
+
+      .price-css{
+        text-align: center;
+        align-items: center;
+        
+      }

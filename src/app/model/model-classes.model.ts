@@ -76,6 +76,9 @@ export class Product{
   subCategory: string | undefined;
   id: any;
   tax:any;
+  createdBy:any;
+  createdDate:any;
+  hsn:any;
 
 }
 
@@ -126,7 +129,9 @@ export class ProductView{
    totalPrice:any;
    totalTax:any;
    price:any;
-
+   createdBy:any;
+   createdDate:any;
+   hsn:any;
 }
 
 export class ProductDocuments{
@@ -296,7 +301,12 @@ export class Orders{
   shippingHandling:any;
   grandTotal:any;
   discount:any;
-
+  custPhone:any;
+  custEmail:any;
+  branchName:any;
+  posName:any;
+  invoiceNumber:any
+  fbrInvoiceNumber:any;
 }
 
 export class OrdersItems {
@@ -315,7 +325,12 @@ export class OrdersItems {
   notes:any;
   attributes: any;
   pickupType:any;
-  agentId:any
+  agentId:any;
+  taxAmount:any;
+  totalPrice:any;
+  discountValue:any
+
+
 }
 
 /*
@@ -381,7 +396,20 @@ export class OrderResponse extends ApiResponse{
 export class OrderSaveResponse extends ApiResponse{
   orders?: Orders;
   orderItems: OrdersItems[]=[] ;
+  payment: Payment = new Payment();
+  fbrInvoiceNumber:any;
+  barcodeResp: BarcodeResponse = new BarcodeResponse;
+  showTaxFlag:any;
+  taxCouponFlag:any;
 }
+
+export class BarcodeResponse extends ApiResponse{
+  image: any;
+  qrcode:any;
+  imageType:any;
+}
+
+
 
 export class ProductSearch {
   custId: any;
@@ -652,6 +680,7 @@ export class OrderSaleReport{
   categoryId:any;
   category:any;
   subCategory:any;
+  invoiceNumber:any;
 
 }
 export class OrderSaleDailyReport {
@@ -665,12 +694,30 @@ export class OrderSaleDailyReport {
   advanceAmount:any;
   dateStr:any;
   phone1:any;
+  invoiceNumber:any;
+}
+
+export class PaymentMethodResponse{
+  paymentCountMap:any;
+  paymentAmountMap:any;
+  paymentTaxesMap:any
+
+}
+export class PaymentMethodReport{
+  cashCount:any;
+  cardCount:any;
+  cashAmount:any;
+  cardAmount:any;
+  cashTax:any;
+  cardTax:any;
+
 }
 
 
 export class OrderSaleReportResponse{
   orderSaleReport: OrderSaleReport[]=[];
   orderSaleDailyReport: OrderSaleDailyReport[]=[];
+  orderSaleDailyReturnReport: OrderSaleDailyReport[]=[];
 }
 
 export class DailySale{
@@ -875,3 +922,17 @@ export class TotalCountSignup{
  total:any;
 }
 
+export class ReportRequest {
+  reportType:any; 
+  reportValue:any; 
+  startDate:any;
+  endDate:any;
+  startTime:any;
+  endTime:any;
+
+
+}
+export class DbUpdate {
+  tableName:any;
+  updateDate:any;
+}

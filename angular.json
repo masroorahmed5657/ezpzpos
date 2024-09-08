@@ -107,5 +107,8 @@
       }
     }
   },
-  "defaultProject": "ezpzpos"
+  "defaultProject": "ezpzpos",
+  "cli": {
+    "analytics": false
+  }
 }

@@ -68,9 +68,9 @@
           </div>
 
           <a *ngIf="!registerFlag" href="#!" style="color: #6dbe78; font-weight: bolder;">Forgot password?</a>
-          <div *ngIf="!registerFlag" class="d-grid gap-2" style="padding-top:1vh ;">
-            <button type="submit" class="btn btn-primary btn-lg" style="background-color:#eb5334;width: 100%; " (click)="signInClick()">
-              <fa-icon [icon]="faSignIn" style="padding-right:1vh ;"></fa-icon>
+          <div *ngIf="!registerFlag" class="d-grid gap-2" style="padding-top:1vh ;cursor: pointer;">
+            <button type="submit" class="btn btn-primary btn-lg" style="background-color:#eb5334;width: 100%;cursor: pointer; " (click)="signInClick()">
+              <fa-icon [icon]="faSignIn" style="padding-right:1vh ;cursor: pointer;"></fa-icon>
               Sign In
             </button>
           </div>
@@ -141,6 +141,7 @@
         <div class="form-outline  d-flex justify-content-center align-items-center">
       Version: {{versionNumber}}
       Environment: {{appEnv}}
+      DB: {{apiDB}}
     </div>
   </div>
 </div>

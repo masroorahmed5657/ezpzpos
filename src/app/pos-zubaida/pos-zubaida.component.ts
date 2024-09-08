@@ -2,10 +2,12 @@ import { Component, HostListener } from '@angular/core';
 import {
   AdminUser,
   ApiResponse,
+  BarcodeResponse,
   CartHold,
   Category,
   Customer,
   CustomerRequest,
+  DbUpdate,
   Departments,
   OrderItemProductWrapper,
   OrderResponse,
@@ -29,7 +31,7 @@ import { environment } from 'src/environments/environment';
 import { faSignOut } from '@fortawesome/free-solid-svg-icons';
 import { DepartmentsService } from '../services/departments.service';
 import Swal from 'sweetalert2';
-import {faCloudUpload, faCloudDownload, faPerson,faCreditCard, faCashRegister, faPlusSquare, faDashboard, faRemove, faRupeeSign, faDollar, faCar, faHome, faSave, faUndo, faFilter, faEdit, faPlusCircle, faHistory, faFileInvoiceDollar, faShoppingCart, faSort, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faCloudUpload, faCloudDownload, faPerson, faCreditCard, faCashRegister, faPlusSquare, faDashboard, faRemove, faRupeeSign, faDollar, faCar, faHome, faSave, faUndo, faFilter, faEdit, faPlusCircle, faHistory, faFileInvoiceDollar, faShoppingCart, faSort, faSearch } from '@fortawesome/free-solid-svg-icons';
 // import { product } from '../data-type';
 import {
   FormGroup,
@@ -50,26 +52,28 @@ import { ReportsService } from '../services/reports.service';
   styleUrls: ['./pos-zubaida.component.scss']
 })
 export class PosZubaidaComponent {
-  private myUrl = environment.apiUrl  ; 
+  private myUrl = environment.apiUrl;
   private cloudAPIUrl = environment.cloudAPIUrl;
-  faCreditCard=faCreditCard; 
-  faCashRegister=faCashRegister;
+  faCreditCard = faCreditCard;
+  faCashRegister = faCashRegister;
+  branchName = environment.branchName;
 
-  totalSaleCount:number=0;
-  legacyReport:boolean=false;
+  totalSaleCount: number = 0;
+  legacyReport: boolean = false;
+  taxCouponFlag:boolean=false;
 
-  attemptCount=0;
-  attempTotalCount=0;
+  attemptCount = 0;
+  attempTotalCount = 0;
   invoiceNumber: any = 'BL00012';
-  selectedAgent:AdminUser | undefined; 
+  selectedAgent: AdminUser | undefined;
   mobileshow: any = false;
   nameSearchModal: any = false;
   logoName = environment.logoName;
   categoryId: number = 0;
   public isLoggedIn = false;
   faSignOut = faSignOut;
-  faPerson=faPerson;
-  result: any ='' ;
+  faPerson = faPerson;
+  result: any = '';
   totalDiscount: any = '';
   FbrCharges = 1;
   search: any;
@@ -85,7 +89,7 @@ export class PosZubaidaComponent {
   categoryList: Category[] = [];
   cartDataList: CartHold = new CartHold();
   // cartDataList1: CartHold[] = [];
-  todaydatashow:any='';
+  todaydatashow: any = '';
 
   signInUser: any = '';
 
@@ -119,8 +123,8 @@ export class PosZubaidaComponent {
     delivery: 0,
     total: 0,
     grandTotal: 0,
-    totalQty:0,
-    totalWithoutDiscount:0
+    totalQty: 0,
+    totalWithoutDiscount: 0
   };
 
   holdSales: CartHold[] = [];
@@ -165,19 +169,21 @@ export class PosZubaidaComponent {
     postalCode: new FormControl(''),
   });
 
-  faCloudUpload= faCloudUpload;
+  faCloudUpload = faCloudUpload;
   faCloudDownload = faCloudDownload;
-  errorsFlag: boolean=false;
-  orderList:OrdersCustomerWrapper[]=[];
-  orderViewList:OrdersCustomerWrapper[]=[];
-  orderItemWrapperList:OrderItemProductWrapper[]=[];
+  errorsFlag: boolean = false;
+  orderList: OrdersCustomerWrapper[] = [];
+  orderViewList: OrdersCustomerWrapper[] = [];
+  orderItemWrapperList: OrderItemProductWrapper[] = [];
 
-  appName=environment.appName;
-  cancelSaleFlag:boolean = true;
-  retrieveSaleFlag:boolean = true;
-  showTaxFlag:boolean=true;
-  salesAgentList:AdminUser[]=[];
+  appName = environment.appName;
+  cancelSaleFlag: boolean = true;
+  retrieveSaleFlag: boolean = true;
+  showTaxFlag: boolean = true;
+  salesAgentList: AdminUser[] = [];
   payment: Payment = new Payment();
+  fbrInvoiceNumber: any;
+  fbrQRCode: BarcodeResponse = new BarcodeResponse();
 
   constructor(
     private route: ActivatedRoute,
@@ -199,42 +205,41 @@ export class PosZubaidaComponent {
     this.cancelSaleFlag = environment.cancelSaleFlag;
     this.retrieveSaleFlag = environment.retrieveSaleFlag;
     this.showTaxFlag = environment.showTaxFlag;
-    this.attemptCount=0;
-    this.attempTotalCount=0;
+    this.attemptCount = 0;
+    this.attempTotalCount = 0;
 
 
-    if (!environment.posCustomerNameFlag){
+    if (!environment.posCustomerNameFlag) {
       this.customer.firstName = 'POSCustomer';//set default
     }
-    if (!environment.posCustomerEmailFlag){
+    if (!environment.posCustomerEmailFlag) {
       this.customer.email = 'info@techmaci.com';//set default
     }
 
 
     this.salesAgentList = this.cache.getList("salesAgent");
     this.selectedAgent = JSON.parse(this.cache.get("selectedAgent"));
-    
+
     //Get totalSaleCount
-    this.totalSaleCount=0;
+    this.totalSaleCount = 0;
 
-    this.reportsService.getDailySaleTotalCount().subscribe((data:number)=> {
-      if (data !==undefined){
+    this.reportsService.getDailySaleTotalCount().subscribe((data: number) => {
+      if (data !== undefined) {
 
-          this.totalSaleCount = data;
+        this.totalSaleCount = data;
       }
     });
 
 
-    if (this.salesAgentList===undefined || this.salesAgentList===null)
-    {
-      this.userService.getUserList().subscribe((data:AdminUser[])=> {
+    if (this.salesAgentList === undefined || this.salesAgentList === null) {
+      this.userService.getUserList().subscribe((data: AdminUser[]) => {
         //this.salesAgentList = data;
-        if (data !==undefined){
-          if (data.length>0){
+        if (data !== undefined) {
+          if (data.length > 0) {
             this.salesAgentList = [];
-            for (let i=0; i<data.length; i++){
+            for (let i = 0; i < data.length; i++) {
               let userRole = data[i].userRole;
-              if (userRole==='AGENT'){
+              if (userRole === 'AGENT') {
                 this.salesAgentList.push(data[i]);
               }
             }
@@ -244,25 +249,25 @@ export class PosZubaidaComponent {
 
         this.cache.setList("salesAgent", this.salesAgentList);
 
-        if (this.salesAgentList.length>0 && this.selectedAgent===undefined){
+        if (this.salesAgentList.length > 0 && this.selectedAgent === undefined) {
           this.selectedAgent = new AdminUser(); //this.salesAgentList[0];
         }
-        else if (this.salesAgentList.length>0 && this.selectedAgent===null){
+        else if (this.salesAgentList.length > 0 && this.selectedAgent === null) {
           this.selectedAgent = new AdminUser(); //this.salesAgentList[0];
         }
-        else if (this.selectedAgent?.loginId===''){
+        else if (this.selectedAgent?.loginId === '') {
           this.selectedAgent = new AdminUser(); //this.salesAgentList[0];
         }
 
-        
+
       });
-        
+
     }
-    else{
-      if (this.salesAgentList.length>0 && this.selectedAgent===undefined){
+    else {
+      if (this.salesAgentList.length > 0 && this.selectedAgent === undefined) {
         this.selectedAgent = this.salesAgentList[0];
       }
-      else if (this.salesAgentList.length>0 && this.selectedAgent===null){
+      else if (this.salesAgentList.length > 0 && this.selectedAgent === null) {
         this.selectedAgent = this.salesAgentList[0];
       }
     }
@@ -272,79 +277,87 @@ export class PosZubaidaComponent {
       this.customer.firstName = this.cartDataList.customer.firstName;
       this.customer.email = this.cartDataList.customer.email;
       this.customer.phone1 = this.cartDataList.customer.phone1;
-      //this.priceSummary.totalQty = this.cartDataList.totalQty;
-      this.calculateTotalPrice();
-      this.calculateTotalTax();
-      this.calculateQtyTotal(this.cartDataList);
-      this.calculateCartTotal();
 
+      this.priceCalculationTotal();
 
     } //end if
 
-    
+
 
     //window.scrollTo(0, 0);
     this.errorMsg = '';
     this.searchFlag = false;
     let search = '';
 
-   this.agentFocus(true);
+    //Only select Agent when it was not selected before
+    setTimeout(() => {
+      if (this.selectedAgent === undefined || this.selectedAgent === null) {
+        this.agentFocus(true);
+      }
+      else {
+        this.focusUpc(true);
+      }
 
-    
+    }, 500);
+
+
 
 
   } //ngOnInit
 
 
 
-  agentFocus(focusFlag:boolean){
+  agentFocus(focusFlag: boolean) {
     let agentInput = <HTMLInputElement>document.getElementById('selectAgentInput');
-    if (focusFlag){
+    if (focusFlag) {
+      if (this.selectedAgent === undefined || this.selectedAgent === null) {
         agentInput.focus();
+      }
     }
-    
-    agentInput.autofocus=focusFlag;
+
+    agentInput.autofocus = focusFlag;
   }
 
 
-  ngAfterViewInit():void{
+  ngAfterViewInit(): void {
     let len = this.cartDataList.product.length - 1;
 
-    const discountColName = 'discount_' + len ;
+    const discountColName = 'discount_' + len;
     this.discountFocus(false, discountColName);
+    this.agentFocus(true);
   }
 
-discountFocus(focusFlag:boolean, discountColName:any){
-  let discountInput = <HTMLInputElement>document.getElementById(discountColName); 
-   
+  discountFocus(focusFlag: boolean, discountColName: any) {
+    let discountInput = <HTMLInputElement>document.getElementById(discountColName);
 
-  if (discountInput!==null){
-    if (focusFlag){
-      discountInput.focus();
+
+    if (discountInput !== null) {
+      if (focusFlag) {
+        discountInput.focus();
+      }
+
+      discountInput.autofocus = focusFlag;
     }
-    
-    discountInput.autofocus = focusFlag;
   }
-}
 
-discountAllNotFocus(){
-  for (let i=0; this.cartDataList.product.length; i++){
+  discountAllNotFocus() {
+    for (let i = 0; this.cartDataList.product.length; i++) {
 
-    let discountColName = 'discount_' + i;
-    let discountInput = <HTMLInputElement>document.getElementById(discountColName); 
-    if (discountInput!==null){
-      
-      
-      discountInput.autofocus = false;
+      let discountColName = 'discount_' + i;
+      let discountInput = <HTMLInputElement>document.getElementById(discountColName);
+      if (discountInput !== null) {
+
+
+        discountInput.autofocus = false;
+      }
+
     }
-    
+
+
+
+
+
   }
-
-  
-   
-
-  
-}
 
   /* *************************************************** */
   // program to sort array by property name
@@ -546,19 +559,18 @@ discountAllNotFocus(){
       //this.onSearch();
       let nameSearch = <HTMLInputElement>document.getElementById('name-search');
       this.search = nameSearch.value;
-  
-      if (this.search === null || this.search === undefined || this.search === '' ) 
-      {
-          //Don't do anything
+
+      if (this.search === null || this.search === undefined || this.search === '') {
+        //Don't do anything
       }
-      else{
+      else {
         this.productService.getSearchProducts(this.search).subscribe((data) => {
           //let productId = data.productId;
-          this.productcheckList =data.productList;
+          this.productcheckList = data.productList;
           if (this.productcheckList === null) {
             Swal.fire('Not Found', 'Product Does not exist', 'error');
-          } 
-          
+          }
+
         });
 
       }
@@ -567,6 +579,175 @@ discountAllNotFocus(){
 
     }
   }
+
+  commonAdditionToCart(productView: ProductView) {
+
+    //There are 3 possibilities when product/upc found:
+    //1-There was no Cart available, brand new case
+    //2-Cart available but no products
+    //3-Cart available some products, and this upc is new to cart
+    //4-Cart available and this upc scanned again, increase QTY
+    let found = false;
+    let foundRow = 0;
+    //this.resetProductViewPrices(productView);
+    //Check Cart in cache
+    let localCartData = localStorage.getItem('localCart');
+    let cartData: CartHold = new CartHold();
+
+    if (localCartData) {
+      //CASE-2,3,4
+      //Now get the existing cart with products/customer and other data
+      cartData = JSON.parse(localCartData);
+      //check if there is any product in this cart
+      if (cartData.product.length > 0) {
+        //CASE 3 or 4, Check this product in Cart
+
+        for (let i = 0; i < cartData.product.length; i++) {
+          if (cartData.product[i].upc === productView.upc) {
+            found = true;
+            foundRow = i;//saved row found in
+            break;
+
+          }
+        }//for loop
+        if (!found) {
+          //CASE-3-Cart available some products, and this upc is new to cart
+          productView.quantity = 1;
+          productView.agentId = this.selectedAgent?.userId;
+          productView.loginId = this.selectedAgent?.loginId;
+          productView.firstName = this.selectedAgent?.firstName;
+          productView.price = this.getPrice(productView);
+          productView.totalPrice = 0;
+          productView.totalTax = 0;
+
+          //@TODO Commented out 2024-09-06
+          //productView.discount = 0;
+          //productView.discountVal = 0;
+          cartData.product.push(productView);
+          this.productService.localAddToCart(cartData);
+
+        }
+        else {
+          //CASE-4-Cart available and this upc scanned again, increase QTY
+          //Get current Qty from Cart.product found and add one to it
+          cartData.product[foundRow].quantity = Number(Number(cartData.product[foundRow].quantity) + 1);
+          let price = this.getPrice(productView);
+          //cartData.product[foundRow].price = Number(price) * Number(cartData.product[foundRow].quantity);
+          this.cartDataList = cartData;
+          this.calculateDiscount(this.cartDataList.product[foundRow].discount, foundRow);
+          this.priceCalculationPerRow(foundRow);
+          this.priceCalculationTotal();
+          this.productService.localAddToCart(cartData);
+
+
+          const row = document.getElementById(`product-row_${foundRow}`);
+          if (row) {
+            row.classList.add('blink');
+            setTimeout(() => {
+              row.classList.remove('blink');
+            }, 25000);
+          }
+
+
+        }
+
+      }
+      else {
+        //CASE-2: Cart available but no products
+        //Add new item to product List for this cart
+        productView.quantity = 1;
+        productView.agentId = this.selectedAgent?.userId;
+        productView.loginId = this.selectedAgent?.loginId;
+        productView.firstName = this.selectedAgent?.firstName;
+        productView.price = this.getPrice(productView);
+        productView.totalPrice = 0;
+        productView.totalTax = 0;
+
+        //@TODO Commented out 2024-09-06
+        // productView.discount = 0;
+        // productView.discountVal = 0;
+
+        cartData.product.push(productView);
+
+        this.productService.localAddToCart(cartData);
+
+      }
+
+
+
+    }
+    else {
+      //CASE-1: No Cart available, No Item available, Brand new Empty Case
+      //create brand new cart of type cartHold, already declared
+      cartData.customer = new Customer();
+      if (!environment.posCustomerNameFlag) {
+        cartData.customer.firstName = 'POSCustomer';//set default
+      }
+      if (!environment.posCustomerEmailFlag) {
+        cartData.customer.email = 'info@techmaci.com';//set default
+      }
+      cartData.customer.phone1 = this.customer.phone1;
+
+      cartData.shipping = 0;
+      cartData.subTotal = 0;
+      cartData.dicsount = 0;
+      cartData.taxes = 0;
+      cartData.transactionId = 0;
+
+      //Add new item to product List for this cart
+      productView.quantity = 1;
+      productView.agentId = this.selectedAgent?.userId;
+      productView.loginId = this.selectedAgent?.loginId;
+      productView.firstName = this.selectedAgent?.firstName;
+      productView.price = this.getPrice(productView);
+      productView.totalPrice = 0;
+      productView.totalTax = 0;
+
+      //@TODO Commented out 2024-09-06
+      // productView.discount = 0;
+      // productView.discountVal = 0;
+
+      cartData.product.push(productView);
+
+      this.productService.localAddToCart(cartData);
+
+    }
+
+    this.cartDataList = cartData; //Assign current local cartData
+    //Finally, set all variables and focus on Discount
+    let count = this.cartDataList.product.length - 1;
+    this.priceCalculationPerRow(count);
+    this.priceCalculationTotal();
+    //Save again
+    localStorage.setItem('localCart', JSON.stringify(this.cartDataList));
+
+    let discountColName = '';
+    if (found) {
+      discountColName = `discount_${foundRow}`;
+      this.discountFocus(true, discountColName);
+    }
+    else {
+      discountColName = `discount_${count}`;
+      this.discountFocus(true, discountColName);
+    }
+
+
+    setTimeout(() => {
+      this.discountFocus(true, discountColName);
+      let upcInput = <HTMLInputElement>document.getElementById('upc-search');
+      if (upcInput === undefined) {
+        return;
+      }
+      else {
+        upcInput.value = '';
+      }
+    }, 500);
+
+
+
+
+  }
+
   /* ************************************************************** */
   upcSearch(event: any) {
     let myScan = '';
@@ -577,151 +758,37 @@ discountAllNotFocus(){
       }
       let upc = qtyInput.value;
       if (upc !== undefined || upc !== '') {
-        if (this.selectedAgent?.loginId===undefined || this.selectedAgent?.loginId===''){
+        if (this.selectedAgent?.loginId === undefined || this.selectedAgent?.loginId === '') {
           Swal.fire('Agent Required', 'Please select an Agent', 'warning');
           return;
         }
 
+        // let found = false;
+        // let foundRow = 0;
+        let productView: ProductView = new ProductView();
         //serach product by UPC
         this.productService.getProductsByUPC(upc).subscribe((data) => {
-          let productId = data.productId;
-          // this.searchbyname=data.productList;
-          if (productId === null) {
+          if (data === undefined) {
             Swal.fire(
               'Not Found',
               'Product Does not exist for this UPC',
               'error'
             );
-          } 
-          else if (productId !== null || productId !== undefined) {
-            let rcvdProduct = new CartHold();
-            this.priceSummary.totalQty = this.priceSummary.totalQty + 1;
-            rcvdProduct.totalQty = 1;
+          }
+          productView = data;
 
-            let localCartData = localStorage.getItem('localCart');
-            if (localCartData) {
-              //Now get the existing cart with products/customer and other data
-              rcvdProduct = JSON.parse(localCartData);
-
-            }
-
-            else {
-              //create brand new cart of type cartHold
-              rcvdProduct.customer = new Customer();
-              if (!environment.posCustomerNameFlag){
-                rcvdProduct.customer.firstName = 'POSCustomer';//set default
-              }
-              if (!environment.posCustomerEmailFlag){
-                rcvdProduct.customer.email = 'info@techmaci.com';//set default
-              }
-              rcvdProduct.customer.phone1 = this.customer.phone1;
-
-              rcvdProduct.shipping = this.priceSummary.delivery;
-              rcvdProduct.subTotal = this.priceSummary.total;
-              rcvdProduct.dicsount = this.priceSummary.discount;
-              rcvdProduct.taxes = this.priceSummary.tax;
-              rcvdProduct.transactionId = 0;
-              rcvdProduct.total = this.priceSummary.grandTotal;
-              rcvdProduct.totalQty = 1;
-            }
-            //Add Qty for line item
-            data.quantity = this.productQuantity;
-            rcvdProduct.customer.phone1 = this.customer.phone1;
-            
-
-            
-            //Code to add the same Product/Item to already added Item with blinking
-            let found = false;
-            for (let i = 0; i < rcvdProduct.product.length; i++) {
-              if (rcvdProduct.product[i].upc === data.upc) {
-                rcvdProduct.product[i].quantity = parseInt(rcvdProduct.product[i].quantity, 10) + parseInt(this.productQuantity, 10);
-                rcvdProduct.product[i].agentId = this.selectedAgent?.loginId;   
-                rcvdProduct.product[i].loginId = this.selectedAgent?.loginId;   
-                rcvdProduct.product[i].firstName = this.selectedAgent?.firstName;
-
-                rcvdProduct.totalQty = rcvdProduct.product[i].quantity;
-                rcvdProduct.price = this.getPrice(rcvdProduct);
-                
-
-                const row = document.getElementById(`product-row_${i}`); 
-                if (row) {
-                row.classList.add('blink');
-                setTimeout(() => {
-                 row.classList.remove('blink');
-                }, 3000); 
-                }
-                localStorage.setItem('localCart', JSON.stringify(rcvdProduct))
-                found = true;
-                
-                const discountInput = <HTMLInputElement>document.getElementById(`discount_${i}`); 
-                //discountInput.autofocus = true;
-                if (discountInput!==null){
-                  let discountColName = `discount_${i}`;
-                  this.discountFocus(true, discountColName);
-  
-                  discountInput.value='0';
-                }
-                
-                
-                break;
-
-
-              }//end if
           
 
-            }
-            //Code Ends here  to add the same Product/Item to already added Item with blinking
+          if (productView === null) {
+            Swal.fire(
+              'Not Found',
+              'Product Does not exist for this UPC',
+              'error'
+            );
+          }
+          else if (productView !== null || productView !== undefined) {
+            this.commonAdditionToCart(productView);
 
-            if (!found) {
-              data.agentId = this.selectedAgent?.userId;
-              data.loginId = this.selectedAgent?.loginId;
-              data.firstName = this.selectedAgent?.firstName;
-              data.price = this.getPrice(data);
-
-              rcvdProduct.product.push(data);
-             
-
-              this.productService.localAddToCart(rcvdProduct);
-            }
-         
-          if (rcvdProduct.product.length === 0) {
-              rcvdProduct.product.push(data);
-
-              this.productService.localAddToCart(rcvdProduct);
-
-            }
-
-            if (rcvdProduct.product.length === undefined) {
-              rcvdProduct.product.push(data);
-
-              this.productService.localAddToCart(rcvdProduct);
-
-            }
-
-            if (rcvdProduct.product.length === null) {
-              rcvdProduct.product.push(data);
-
-              this.productService.localAddToCart(rcvdProduct);
-
-            }
-
-            // Save updated cart and refresh page
-            localStorage.setItem('localCart', JSON.stringify(rcvdProduct));
-            this.cartDataList = rcvdProduct;
-
-           this.itemCalculatedColumns();
-
-            //this.cartDataList1.push(rcvdProduct);
-            //this.calculateTotalPrice();
-
-            this.calculateQtyTotal(this.cartDataList);
-            //this.chkDiscountNumber1(row);
-            //this.calculateDiscount(this.cartDataList.product[row].discount  , row);
-            this.calculateTotalPrice();
-            this.calculateCartTotal();
-            localStorage.setItem('localCart', JSON.stringify(this.cartDataList));
-
-            //window.location.reload();
           }
         });
       }
@@ -729,18 +796,6 @@ discountAllNotFocus(){
       myScan = event.target.value;
     }
   }
-/* ********************************************************************* */
-itemCalculatedColumns(){
-  if (this.cartDataList.product.length>0){
-    let row = this.cartDataList.product.length -1;
-
-    this.getItemTax(this.cartDataList.product[row], row);
-    this.getItemTotal(this.cartDataList.product[row], row);
-      
-  }
-
-}
-
 
   /* ************************************************************** */
   skuSearch(event: any) {
@@ -753,45 +808,29 @@ itemCalculatedColumns(){
 
       let sku = qtyInput.value;
       if (sku !== undefined || sku !== '') {
-        //serach product by UPC
-        this.productService.getProductsBySKU(sku).subscribe((data) => {
-          let productId = data.productId;
-          //// this.searchbyname=data.productList;
-          if (productId === null) {
-            Swal.fire('Not Found', 'Product Does not exist', 'error');
-          } else if (productId !== null || productId !== undefined) {
-            let rcvdProduct = new CartHold();
 
-            let localCartData = localStorage.getItem('localCart');
-            if (localCartData) {
-              //Now get the existing cart with products/customer and other data
-              rcvdProduct = JSON.parse(localCartData);
-            } else {
-              //create brand new cart of type cartHold
-              rcvdProduct.customer = new Customer();
-              rcvdProduct.shipping = 0;
-              rcvdProduct.subTotal = 0;
-              rcvdProduct.taxes = 0;
-              rcvdProduct.transactionId = 0;
-              rcvdProduct.total = 0;
-            }
-            data.quantity = this.productQuantity;
-            data.agentId = this.selectedAgent?.userId; 
-            data.loginId = this.selectedAgent?.loginId; 
-            data.firstName = this.selectedAgent?.firstName;
-
-            rcvdProduct.product.push(data);
-
-            this.productService.localAddToCart(rcvdProduct);
-            //this.cartDataList1.push(rcvdProduct);
-
-            this.productService.localAddToCart(rcvdProduct);
-            window.location.reload();
+        if (sku !== undefined || sku !== '') {
+          if (this.selectedAgent?.loginId === undefined || this.selectedAgent?.loginId === '') {
+            Swal.fire('Agent Required', 'Please select an Agent', 'warning');
+            return;
           }
-        });
+          //serach product by SKU
+          let productView: ProductView = new ProductView();
+          this.productService.getProductsBySKU(sku).subscribe((data) => {
+            let productId = data[0].productId;
+            productView = data[0];
+
+            if (productId === null) {
+              Swal.fire('Not Found', 'Product Does not exist', 'error');
+            }
+            else if (productId !== null || productId !== undefined) {
+              this.commonAdditionToCart(productView);
+            }
+          });
+        }
+      } else {
+        myScan = event.target.value;
       }
-    } else {
-      myScan = event.target.value;
     }
   }
 
@@ -806,14 +845,24 @@ itemCalculatedColumns(){
 
       let price = qtyInput.value;
       if (price !== undefined || price !== '') {
-        //serach product by UPC
+        if (this.selectedAgent?.loginId === undefined || this.selectedAgent?.loginId === '') {
+          Swal.fire('Agent Required', 'Please select an Agent', 'warning');
+          return;
+        }
+        //serach product by Price
+        let productView: ProductView = new ProductView();
         this.productService.getProductsByPrice(price).subscribe((data) => {
-          //let productId = data.productId;
-          this.productcheckList =data.productList;
-          if (this.productcheckList === null) {
+          productView = data.productList[0];
+          let productId = productView.productId;
+
+          this.productcheckList = data.productList;
+          if (productView === null) {
             Swal.fire('Not Found', 'Product Does not exist', 'error');
-          } 
-          
+          }
+          else if (productId !== null || productId !== undefined) {
+            this.commonAdditionToCart(productView);
+          }
+
         });
       }
     } else {
@@ -868,7 +917,7 @@ itemCalculatedColumns(){
             rcvdProduct.discountVal = data.discountVal;
             rcvdProduct.unitPrice = data.unitPrice;
             rcvdProduct.salePrice = data.salePrice;
-            rcvdProduct.agentId = this.selectedAgent?.userId; 
+            rcvdProduct.agentId = this.selectedAgent?.userId;
             rcvdProduct.loginId = this.selectedAgent?.loginId;
             rcvdProduct.firstName = this.selectedAgent?.firstName;
 
@@ -892,7 +941,7 @@ itemCalculatedColumns(){
 
   /* ************************************************************** */
   removeCart() {
-       
+
 
     Swal.fire({
       title: 'Cancel Sale',
@@ -913,7 +962,7 @@ itemCalculatedColumns(){
 
 
 
-    
+
   }
   /* ************************************************************** */
   openPriceCheckPopup() {
@@ -961,29 +1010,33 @@ itemCalculatedColumns(){
   /* *************************************************************** */
   closeNameSearchModal() {
     this.nameSearchModal = false;
+    this.clearFields();
   }
   /* ************************************************************** */
   closeModal() {
     this.priceCheckPopup = false;
     this.clearFields();
   }
-  
+
   /* ************************************************************** */
   openCashModal() {
-     if (!this.customer.phone1) {
-       // Show alert for required fields
-       Swal.fire('WARNING', 'Please fill The Customer Phone', 'warning');
-       return; // Don't proceed with saving
-     }
-
     let localCart = localStorage.getItem('localCart')
     if (localCart === undefined || localCart === '' || localCart === null || localCart.length === 105 || localCart.length === 0) {
       Swal.fire('WARNING', 'Cart is Empty', 'warning');
       return;
     }
+    if (this.customer.phone1 === undefined) {
+      Swal.fire('WARNING', 'Please input Customer Phone Number', 'warning');
+      return;
+    }
+    if (this.customer.phone1 === '') {
+      Swal.fire('WARNING', 'Please input Customer Phone Number', 'warning');
+      return;
+    }
 
 
-    this.payment.paymentMethod='CASH';
+
+    this.payment.paymentMethod = 'CASH';
 
     this.focusUpc(false);
     this.agentFocus(false);
@@ -993,14 +1046,14 @@ itemCalculatedColumns(){
     let resultInput = <HTMLInputElement>document.getElementById('result');
     resultInput.focus();
     //this.cashModal.nativeElement.focus();
-    if(this.priceSummary.grandTotal<0){
+    if (this.priceSummary.grandTotal < 0) {
 
-      resultInput.value=this.priceSummary.grandTotal.toFixed(2);
+      resultInput.value = this.priceSummary.grandTotal.toFixed(2);
     }
-    else{
-      resultInput.value=''; //(0).toFixed(2);
+    else {
+      resultInput.value = ''; //(0).toFixed(2);
     }
-    resultInput.autofocus=true;
+    resultInput.autofocus = true;
     //resultInput.value='0';
 
 
@@ -1009,10 +1062,10 @@ itemCalculatedColumns(){
   /* ************************************************************** */
   closeCashModal() {
     this.cashModal = false;
-    this.result='';
-    this.customerBalance=0;
+    this.result = '';
+    this.customerBalance = 0;
   }
-  
+
   /* ************************************************************** */
   openCardModal() {
 
@@ -1021,22 +1074,34 @@ itemCalculatedColumns(){
       Swal.fire('WARNING', 'Cart is Empty', 'warning');
       return;
     }
+    if (this.customer.phone1 === undefined) {
+      Swal.fire('WARNING', 'Please input Customer Phone Number', 'warning');
+      return;
+    }
+    if (this.customer.phone1 === '') {
+      Swal.fire('WARNING', 'Please input Customer Phone Number', 'warning');
+      return;
+    }
 
-    this.payment.paymentMethod='CARD';
+
+    const button = document.getElementById('card-button') as HTMLButtonElement;
+    button.disabled = true;
+
+    this.payment.paymentMethod = 'CARD';
     //this.cardModal = true;
     //No need to show the popup screen
     //this.calculateBalance()
-    this.calculateCartTotal();
+    //this.calculateCartTotal();
     this.result = this.priceSummary.total;
 
-    this.onCustomerSave('CARD')
+    this.onCustomerSave('CARD');
 
   }
   /* ************************************************************** */
   closeCardModal() {
     this.cardModal = false;
-    this.result='';
-    this.customerBalance=0;
+    this.result = '';
+    this.customerBalance = 0;
   }
 
   /* ************************************************************** */
@@ -1052,7 +1117,7 @@ itemCalculatedColumns(){
     this.productcheckList = [];
   }
   /* ************************************************************** */
-  checkHoldSale(){
+  checkHoldSale() {
 
     let localCart = localStorage.getItem('localCart');
     //localCart = always one object of cartHold type
@@ -1062,8 +1127,8 @@ itemCalculatedColumns(){
       Swal.fire('WARNING', 'Please fill The Customer Phone before Hold', 'warning');
       return; // Don't proceed with saving
     }
-    
-    
+
+
     if (localCart) {
       Swal.fire({
         title: 'Hold Sale',
@@ -1073,16 +1138,16 @@ itemCalculatedColumns(){
         confirmButtonText: 'Yes, hold it!',
         cancelButtonText: 'No, keep it'
       }).then((response: any) => {
-  
+
         if (response.value) {
-  
+
           this.holdSale();
         }
-  
+
       });
-  
+
     }
-    else{
+    else {
       Swal.fire('Please select Sale to Hold');
     }
 
@@ -1091,8 +1156,8 @@ itemCalculatedColumns(){
   // Method to hold the current sale
   holdSale() {
     // Check if any of the input fields are empty
-    
-    
+
+
     this.cartDataList.customer.firstName = this.customer.firstName;
     this.cartDataList.customer.email = this.customer.email;
     this.cartDataList.customer.phone1 = this.customer.phone1;
@@ -1259,6 +1324,31 @@ itemCalculatedColumns(){
       }
     }
   } //chkNumber
+  /* *************************************************************** */
+  qtyAddMinus(row: number, action: string) {
+    let qtyInput = <HTMLInputElement>document.getElementById('Qty_' + row);
+
+    let val = qtyInput.value;
+
+    //Note: Whenevr Qty changes, we must get original price from sale/unit Price and replace to price.
+
+    if (qtyInput != null || qtyInput != undefined) {
+      let len = qtyInput.value.length;
+      let qty = Number(val);
+      if (action === '+') {
+        qty = qty + 1;
+      }
+      else {
+        qty = qty - 1;
+      }
+
+      qtyInput.value = qty.toString();
+      this.qtyChange(row);
+
+    }
+
+  }
+
   /* ************************************************************* */
   qtyChange(row: number) {
 
@@ -1284,178 +1374,81 @@ itemCalculatedColumns(){
 
       let localCartData = localStorage.getItem('localCart');
       if (localCartData) {
-        let qtydata:CartHold = JSON.parse(localCartData);
+        let qtydata: CartHold = JSON.parse(localCartData);
         qtydata.product[row].quantity = qtyInput.value;
 
         qtydata.product[row].price = this.getPrice(qtydata.product[row]);
 
-        if (qty>1){
-          qtydata.product[row].totalPrice = qtydata.product[row].totalPrice * qty;
+        if (qty > 1) {
+          qtydata.product[row].totalPrice = qtydata.product[row].price * qty;
           qtydata.product[row].totalTax = qtydata.product[row].totalTax * qty;
-          qtydata.product[row].price = qtydata.product[row].price * qty;
+
         }
-        else if (qty===0){
-          qtydata.product[row].quantity = qty;
+        else if (qty === 0) {
+          qtydata.product[row].quantity = 0;
           qtydata.product[row].totalPrice = 0;
           qtydata.product[row].totalTax = 0;
-          qtydata.product[row].price=0;
+          qtydata.product[row].price = 0;
         }
-        else if (qty===1){
+        else if (qty === 1) {
           qtydata.product[row].quantity = qty;
-          qtydata.product[row].price = qtydata.product[row].price * qty;
+          qtydata.product[row].totalPrice = qtydata.product[row].price * qty;
 
         }
-        else if (qty<0){
+        else if (qty < 0) {
           qtydata.product[row].quantity = qty;
-          qtydata.product[row].price = qtydata.product[row].price * qty;
+          qtydata.product[row].totalPrice = qtydata.product[row].price * qty;
 
         }
 
-        
         localStorage.setItem('localCart', JSON.stringify(qtydata));
 
         this.cartDataList = qtydata;
-  
-          //this.cartDataList.product[row].quantity = qty;
-      
-      //this.chkDiscountNumber1(row);
-      this.calculateDiscount(this.cartDataList.product[row].discount  , row);
-      //this.calculateTotalPrice();
 
-      this.calculateTotalPrice();
-      this.calculateTotalTax();
-      this.calculateQtyTotal(this.cartDataList);
-      this.calculateCartTotal();
+        this.calculateDiscount(this.cartDataList.product[row].discount, row);
 
+        this.priceCalculationPerRow(row);
+        this.priceCalculationTotal();
 
-      localStorage.setItem('localCart', JSON.stringify(this.cartDataList));
-  
+        localStorage.setItem('localCart', JSON.stringify(this.cartDataList));
+
       }
-      else{
+      else {
         //Nothing to do if there is no data in Cart
       }
-         
-
 
     }
 
-    
   }
-/* *************************************************************** */
-calculateQtyTotal(cartDataList:CartHold){
-  this.priceSummary.totalQty=0;
-  if (cartDataList!==undefined){
-    if (cartDataList.product.length>0){
-      for (let i=0; i<cartDataList.product.length; i++){
-        this.priceSummary.totalQty = this.priceSummary.totalQty + Number(cartDataList.product[i].quantity);
+  /* *************************************************************** */
+  calculateQtyTotal(cartDataList: CartHold) {
+    this.priceSummary.totalQty = 0;
+    if (cartDataList !== undefined) {
+      if (cartDataList.product.length > 0) {
+        for (let i = 0; i < cartDataList.product.length; i++) {
+          this.priceSummary.totalQty = this.priceSummary.totalQty + Number(cartDataList.product[i].quantity);
+        }
       }
     }
   }
-}
 
   /* ******************************************************* */
 
-  calculateTotalPrice() {
-    let priceTotal: any = 0;
-    let returnQtyFlag:boolean=false;//by default +ve
-    let quantity=0;
-    this.priceSummary.totalWithoutDiscount=0;
-    this.priceSummary.total=0;
-
-    if (this.cartDataList.product.length > 0) {
-      for (let i = 0; i < this.cartDataList.product.length; i++) {
-        
-
-        let price = this.getPrice(this.cartDataList.product[i]); //already multiplied with qty
-
-        if (price != undefined) {
-          //Added logic for MEAT Only products. Don't show price and don't add to Total
-
-          this.priceSummary.totalWithoutDiscount = this.priceSummary.totalWithoutDiscount + (price * this.cartDataList.product[i].quantity);
-          
-          let myCategory = this.getCategoryName(
-            this.cartDataList.product[i].categoryId
-          );
-          if (myCategory.category !== 'MEAT') {
-            if (this.cartDataList.product[i].quantity < 0){
-              returnQtyFlag=true;
-              quantity = (-1 * this.cartDataList.product[i].quantity); //reverse
-    
-            }
-            else{
-              quantity = this.cartDataList.product[i].quantity;
-            }
-
-
-            if (this.cartDataList.product[i].discountVal>0){
-              let discountPrice = this.cartDataList.product[i].discountVal; 
-              priceTotal = priceTotal + (price*quantity) - discountPrice;
-            }
-            else{
-              let discountPrice = (price * this.cartDataList.product[i].discount)/100; 
-              priceTotal = priceTotal + (price*quantity) - discountPrice;
-            }
-
-            if (returnQtyFlag){
-              priceTotal = (-1 * priceTotal);
-            }
-            
-          }
-        }
-        
-        
-        //priceTotal +=  price;
-
-
-      }//for loop
-
-      let p1 = Number(priceTotal).toFixed(2);
-      this.priceSummary.total = Number(p1);
-      //this.priceSummary.tax = this.priceSummary.total  
-
-    }
-    else {
-      //No item in cart
-      this.priceSummary.total = Number(0);
-    }
-
-
-  }
-/* ************************************************** */
-calculateTotalTax() {
-  this.priceSummary.tax=0;
-
-  if (this.cartDataList.product.length > 0) {
-    for (let i = 0; i < this.cartDataList.product.length; i++) {
-
-      let tax = this.cartDataList.product[i].totalTax;
-
-      if (tax != undefined) {
-        //Added logic for MEAT Only products. Don't show price and don't add to Total
-
-        this.priceSummary.tax = this.priceSummary.tax + tax;
-        
-          
-      }
-
-    }//for loop
-
-  }
-
-}
 
 
   /* ********************************************* */
   removeItem(orderItem: any, index: any) {
-    let item = orderItem;
-    let details = this.cartDataList.product[index]?.productDetails;
-    this.cartDataList.product.splice(index, 1);
+    let itemToRemove = this.cartDataList.product[index];
+    //let details = this.cartDataList.product[index]?.productDetails;
+    //this.cartDataList.product.splice(index, 1);
 
-    this.calculateQtyTotal(this.cartDataList);
-
-    this.calculateTotalPrice();
+    this.cartDataList.product = this.cartDataList.product.filter(item => item !== itemToRemove);
+    this.priceCalculationTotal();
     localStorage.setItem('localCart', JSON.stringify(this.cartDataList));
-    window.location.reload();
+
+
+
+    //window.location.reload();
   }
   /* ******************************************************* */
   getProduct(productId: any): Product {
@@ -1479,7 +1472,7 @@ calculateTotalTax() {
 
     let currentUser: any = sessionStorage.getItem('currentUser');
     let customer: Customer = JSON.parse(currentUser);
-    
+
     // let currentUser: any = sessionStorage.getItem('currentUser');
     //let customer: any = JSON.parse(localCart);
     this.commonCheckOut(localCart, customer);
@@ -1506,19 +1499,27 @@ calculateTotalTax() {
       order.orderStatus = 'NEW';
       order.updatedBy = this.signInUser;
       order.price = this.priceSummary.price
-      order.orderAmount = this.priceSummary.total;//order.price; //price/cut price of each item
+      order.orderAmount = this.priceSummary.grandTotal;//order.price; //price/cut price of each item
       order.discount = this.priceSummary.discount;
+      order.posName = environment.posName;
+      order.branchName = environment.branchName;
+      order.custPhone = this.customer.phone1;
+      order.custEmail = this.customer.email;
+      order.grandTotal = this.priceSummary.grandTotal;;
 
-      if (this.showTaxFlag){
-        order.grandTotal = this.priceSummary.total + this.priceSummary.tax;
+      if (this.showTaxFlag) {
+//        order.grandTotal = this.priceSummary.total + this.priceSummary.tax - this.priceSummary.discount;
         order.tax = this.priceSummary.tax.toFixed(2);
+        orderSaveResponse.showTaxFlag = this.showTaxFlag;
       }
-      else{
-        order.grandTotal = this.priceSummary.total ;
-        order.tax = 0; 
+      else {
+  //      order.grandTotal = this.priceSummary.total;
+        order.tax = 0;
       }
-      
-      
+
+      orderSaveResponse.taxCouponFlag=this.taxCouponFlag;
+
+
       order.shippingHandling = this.priceSummary.delivery.toFixed(2);
 
 
@@ -1545,6 +1546,9 @@ calculateTotalTax() {
         orderItem.updatedBy = this.signInUser;
         orderItem.itemStatus = 'NEW';
         orderItem.agentId = items.loginId;
+        orderItem.discountValue = items.discountVal;
+        orderItem.taxAmount = items.totalTax;
+        orderItem.totalPrice = items.totalPrice;
 
         orderSaveResponse.orderItems?.push(orderItem);
 
@@ -1552,6 +1556,11 @@ calculateTotalTax() {
 
       let len = orderSaveResponse.orderItems.length;
       orderSaveResponse.orders = order;
+      //this.payment.orderId = orderId;
+      this.payment.discount = this.priceSummary.discount;
+      this.payment.taxesAmount = this.priceSummary.tax;
+      this.payment.totalAmount = this.priceSummary.grandTotal;
+      orderSaveResponse.payment = this.payment;
 
       this.orderService.saveOrder(orderSaveResponse).subscribe(data => {
         if (data != undefined) {
@@ -1561,35 +1570,48 @@ calculateTotalTax() {
             if (data.orders != null || data.orders != undefined) {
               let myOrder: Orders = data.orders;
               let items = data.orderItems;
+              
+              /*
               //Payment save
               this.payment.orderId = orderId;
+              this.payment.discount = this.priceSummary.discount;
+              this.payment.taxesAmount = this.priceSummary.tax;
+              this.payment.totalAmount = this.priceSummary.grandTotal;
               this.paymentService.savePayment(this.payment).subscribe(data => {
                 if (data != undefined) {
                   let resp = data.statusCode;
                 }
               });
+              */
+
+              this.fbrInvoiceNumber = data.fbrInvoiceNumber;
+              this.fbrQRCode = data.barcodeResp;
 
               let currentUser: any = sessionStorage.getItem('currentUser');
               let myCustomer: Customer = JSON.parse(currentUser);
-              this.invoiceNumber = 'BL' + orderId;
+              this.invoiceNumber = 'BL' + data.orders.invoiceNumber;
 
               this.todaydatashow = data.orders.createDate;
               localStorage.setItem('localCart', '');
               this.selectedAgent = new AdminUser();
               this.cache.set("selectedAgent", JSON.stringify(this.selectedAgent));
-              
+
 
               Swal.fire('Submit', 'Order#' + orderNum + ' has been created.', 'success')
                 .then((result) => {
                   if (result.isConfirmed) {
+                    this.cache.set('reload', 'F');
+                    this.printThermal();
+      
                     // Reload the page
                     window.location.reload();
                   }
                 });
 
-              this.cache.set('reload', 'F');
-              this.printThermal();
-              
+                // const button = document.getElementById('{card-button}') as HTMLButtonElement;
+                // button.disabled = false;  
+
+//              window.location.reload();
 
             }
             else {
@@ -1607,18 +1629,13 @@ calculateTotalTax() {
   }//commonCheckOut()
 
 
-
-
-
-
-
   /* ******************************************************* */
   weightChange(index: number) {
     //let qty = this.cartForm.get('qty')?.value;
     let qty = <HTMLInputElement>document.getElementById('weight_' + index);
     //alert('qtyChange'+ qty.value);
     this.cartDataList.product[index].quantity = qty.value;
-    this.calculateTotalPrice();
+
   }
   /* ********************************************* */
 
@@ -1642,144 +1659,6 @@ calculateTotalTax() {
   //   return Number(myNumber);
   // }
 
-  getItemTotal(product: ProductView, row:any): any {
-    let totalPrice;
-    let tax=0;
-    let returnQtyFlag:boolean=false;
-    let quantity=0;
-
-
-    this.attemptCount++;
-    if (product.salePrice !== null && product.salePrice !== undefined) 
-      {
-        if (product.quantity<0){
-          returnQtyFlag=true;
-          quantity = (-1 * product.quantity);
-
-        }
-        else{
-          quantity = product.quantity;
-        }
-
-        let price = product.salePrice * quantity; //660
-        let discountPrice=0;
-
-        if (product.discountVal>0){
-          discountPrice = product.discountVal; //10% 66
-        }
-        else{
-          discountPrice = (price * product.discount)/100; //10% 66
-        }
-        
-        let priceAfterDiscount = price - discountPrice; //660-66=594
-
-        tax = (priceAfterDiscount * product.tax)/100; //106.92
-
-
-        if (this.showTaxFlag){
-          if (returnQtyFlag){
-            totalPrice = Number((priceAfterDiscount + tax)*-1).toFixed(2);
-          }
-          else{
-            totalPrice = Number(priceAfterDiscount + tax).toFixed(2);
-          }
-          
-        }
-        else{
-          if (returnQtyFlag){
-            totalPrice = Number(priceAfterDiscount * -1 ).toFixed(2);
-          }
-          else{
-            totalPrice = Number(priceAfterDiscount ).toFixed(2);
-          }
-          
-        }
-        
-
-      //tax = Number((product.quantity * product.salePrice)*product.tax/100);
-      //totalPrice = (Number(product.quantity * product.salePrice) + tax ).toFixed(2);
-    } 
-    else 
-    {
-      if (product.quantity<0){
-        returnQtyFlag=true;
-        quantity = (-1 * product.quantity);
-
-      }
-      else{
-        quantity = product.quantity;
-      }
-
-      let price = product.unitPrice * quantity; //660
-      let discountPrice = (price * product.discount)/100; //10% 66
-      let priceAfterDiscount = price - discountPrice; //660-66=594
-
-      tax = (priceAfterDiscount * product.tax)/100; //106.92
-     
-
-      if (this.showTaxFlag){
-        
-          if (returnQtyFlag){
-            totalPrice = Number((priceAfterDiscount + tax)*-1).toFixed(2);
-          }
-          else{
-            totalPrice = Number(priceAfterDiscount + tax).toFixed(2);
-          }
-        
-      }
-      else{
-        if (returnQtyFlag){
-          totalPrice = Number(priceAfterDiscount * -1 ).toFixed(2);
-        }
-        else{
-          totalPrice = Number(priceAfterDiscount ).toFixed(2);
-        }
-      }
-
-      
-
-    }
-
-    this.cartDataList.product[row].totalPrice = totalPrice;
-
-    return Math.round(Number(totalPrice)).toFixed(2)
-    
-  }
-
- 
-
-  getItemTax(product: ProductView, row:any): any {
-    let totalTax;
-    
-
-    if (product.salePrice !== null && product.salePrice !== undefined) {
-      let price = product.salePrice * product.quantity; //660
-      let discountPrice = (price * product.discount)/100; //10% 66
-      let priceAfterDiscount = price - discountPrice; //660-66=594
-
-      totalTax = (priceAfterDiscount * product.tax)/100; //106.92
-      //totalTax = Number((product.quantity * product.salePrice)*product.tax/100).toFixed(2);
-    } 
-    else {
-      let price = product.unitPrice * product.quantity; //660
-      let discountPrice = (price * product.discount)/100; //10% 66
-      let priceAfterDiscount = price - discountPrice; //660-66=594
-
-      totalTax = (priceAfterDiscount * product.tax)/100; //106.92
-    
-    //  totalTax = Number((product.quantity * product.unitPrice)*product.tax/100).toFixed(2);
-    }
-
-    //this.priceSummary.tax +=  Number(totalTax);
-
-    this.cartDataList.product[row].totalTax = totalTax;
-
-    return Number(totalTax).toFixed(2);
-  }
-
-
-
-
 
   /* ********************************************* */
   chkNumber() {
@@ -1802,39 +1681,40 @@ calculateTotalTax() {
   /* ************************************************************ */
   onCustomerSave(source: any) {
     // Check if any of the input fields are empty
-    if (this.result < this.priceSummary.total) {
 
-      Swal.fire('WARNING', 'Payment is Not Enough', 'warning');
-      return; // Don't proceed with saving
+    if (source === 'CASH') {
+      if (this.result < this.priceSummary.grandTotal) {
 
-
+        Swal.fire('WARNING', 'Payment is Not Enough', 'warning');
+        return; // Don't proceed with saving
+      }
     }
 
     this.payment.paymentMethod = source;
     this.payment.discount = this.priceSummary.discount;
-    if (this.showTaxFlag){
+    if (this.showTaxFlag) {
       this.payment.taxesAmount = this.priceSummary.tax;
     }
-    else{
+    else {
       this.payment.taxesAmount = 0;
     }
-    
+
     this.payment.totalAmount = this.priceSummary.grandTotal;
     this.payment.currency = environment.currency;
-    
+
 
     //This methods gets called from Guest Customer Data Entry form, when user click Checkout after entering his/her data.
     let customer = new Customer();
     customer = this.convertCustFormToVar(customer);
 
-    if (this.customer.phone1===undefined){
-      Swal.fire('WARNING','Please input Customer Phone Number', 'warning');
+    if (this.customer.phone1 === undefined) {
+      Swal.fire('WARNING', 'Please input Customer Phone Number', 'warning');
       return;
     }
-    else if (this.customer.phone1===null){
-      Swal.fire('WARNING','Please input Customer Phone Number', 'warning');
-      return;
-    }
+    // else if (this.customer.phone1 === null) {
+    //   Swal.fire('WARNING', 'Please input Customer Phone Number', 'warning');
+    //   return;
+    // }
 
     customer.firstName = 'POSCustomer';//this.customer.firstName;
     customer.email = 'info@techmaci.com';//this.customer.email;
@@ -1845,6 +1725,10 @@ calculateTotalTax() {
 
     let customerRequest: CustomerRequest = new CustomerRequest();
     customerRequest = customer;
+
+    //@@TODO: August 22, 2024
+    //Check to see if POS user already exist in system, then don't save, this phone1 will be saved with Orders
+
 
     this.customerService.saveCustomer(customerRequest).subscribe((data) => {
       let userData = data;
@@ -1913,7 +1797,7 @@ calculateTotalTax() {
     if (popupWin != null || popupWin != undefined) {
       // popupWin.document.open();
 
-      this.customer.firstName ='POSCustomer';
+      this.customer.firstName = 'POSCustomer';
 
       let orderAddress =
         this.customer?.address +
@@ -1925,14 +1809,14 @@ calculateTotalTax() {
         this.customer?.postalCode;
 
 
-        let mainImage=``;
-        if (this.appName==='ZUBAIDA'){
-          mainImage = `assets/images/logos/zubaida-color-logo.png` ;
-        }
-        else if(this.appName==='NIKS'){
-          mainImage = `assets/images/logos/niks-logo-small.png` ;
-        }
-  
+      let mainImage = ``;
+      if (this.appName === 'ZUBAIDA') {
+        mainImage = `assets/images/logos/zubaida-color-logo.png`;
+      }
+      else if (this.appName === 'NIKS') {
+        mainImage = `assets/images/logos/niks-logo-small.png`;
+      }
+
 
       let myHtml01Tag = `
       <html> 
@@ -1941,7 +1825,7 @@ calculateTotalTax() {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge"> `;
 
-    let styleTag=`
+      let styleTag = `
      <style>
 
 .recipt_container
@@ -2105,22 +1989,27 @@ calculateTotalTax() {
         page-break-after: always;
 
     }
+        
+    .page-break {
+       page-break-before: always;
+      }
+        
 
 }
     </style>`;
 
-    let titleHtmlTag  =
-    `<title>Niks Receipt</title>
+      let titleHtmlTag =
+        `<title>Niks Receipt</title>
     </head>    
     <body  onload="window.print();window.close();">
     <div class="recipt_container">  
       <div class="header">
     	<img class="logo" src="` + mainImage + `" >`;
-    
 
-      let companyInfoHtmlTag=``;
 
-      if (this.showTaxFlag){
+      let companyInfoHtmlTag = ``;
+
+      if (this.showTaxFlag) {
         companyInfoHtmlTag = `	
         <div class="company_details">
     		  <p ><b> ABC SONS </b><br>
@@ -2129,7 +2018,7 @@ calculateTotalTax() {
         </div>
       `;
       }
-      else{
+      else {
         companyInfoHtmlTag = `	
         <div class="company_details">
     		  <p ><b> Z GENERATIONS </b><br>
@@ -2139,19 +2028,54 @@ calculateTotalTax() {
       `;
       }
 
+      let cardCash = '';
+      if (this.payment.paymentMethod === 'CASH') {
+        cardCash = `<tr>
+          <td >Cash Paid:</td>
+          <td colspan="5" style="text-align: left;">Rs. ` +
+          (Number(this.result)).toFixed(2) +
+          ` </td>
+          </tr>`;
 
+      }
+      else if (this.payment.paymentMethod === 'CARD') {
+        cardCash = `<tr>
+          <td >Paid by Card</td>
+          <td colspan="5" style="text-align: left;"> &nbsp;` +
+
+          ` </td>
+          </tr>`;
+
+      }
+
+      //myBottonHtml = myBottonHtml + cardCash +
 
 
       let myHtml02Tag = `
       <div class="inv_details">
     	  <p style="text-align:left; font-size: 7pt;"><b>Customer: ` + this.customer.firstName + `  (` + this.customer.phone1 + ` )` + `</b></p>
-    	  <p style="text-align:left"><b>Date/Time:   &nbsp;` + this.todaydatashow +  `</b></p>
+    	  <p style="text-align:left"><b>Date/Time:   &nbsp;` + this.todaydatashow + `</b></p>
       	<p style="text-align:left"><b> Bill#:` + this.invoiceNumber + `</b></p>
       </div>  
       <div class="items">
       `;
 
-      let myHtmlTableTag=`
+      let returnCart: CartHold = new CartHold();
+      let saleCount = 0;
+      let returnCount = 0;
+      let returnTotal = 0;
+      let returnTaxTotal = 0;
+      let returnDiscountTotal = 0;
+      let returnBeforeTaxTotal = 0;
+
+
+      let saleTotal = 0;
+      let saleTaxTotal = 0;
+      let saleDiscountTotal = 0;
+      let saleBeforeTaxTotal = 0;
+
+
+      let myHtmlTableTag = `
       <table >
        
       <thead>
@@ -2164,16 +2088,16 @@ calculateTotalTax() {
         <th>Barcode</th>
         <th>Price</th>
         <th>Qty</th>
-        <th>Disc</th>` ; 
-        
-        let taxItemTag=``;
-        if (this.showTaxFlag){
+        <th>Disc</th>` ;
+
+      let taxItemTag = ``;
+      if (this.showTaxFlag) {
         taxItemTag = `<th >Tax</th>
         <th >GST%</th>`;
-        }
+      }
 
-        myHtmlTableTag = myHtmlTableTag + taxItemTag +
-        
+      myHtmlTableTag = myHtmlTableTag + taxItemTag +
+
         `<th >Total</th>
         </tr>
         <tr >
@@ -2185,12 +2109,13 @@ calculateTotalTax() {
       
       `;
 
-      let myHtmlItemHeadingTag=`
+      let saleReturnString = 'SALES';
+      let myHtmlItemHeadingTag = `
           <table >
        
           <thead>
             <tr class="inv_of">
-                <td colspan="7" style="text-align: center;border-top: 1px solid #000;"><b>---SALES---</b>
+                <td colspan="7" style="text-align: center;border-top: 1px solid #000;"><b>--- ` + saleReturnString + `---</b>
                 </td>
             </tr>    
 
@@ -2200,16 +2125,16 @@ calculateTotalTax() {
             <th>Qty</th>
             <th>Disc</th>`;
 
-            taxItemTag=``;
-            if (this.showTaxFlag){
-            taxItemTag = `<th >Tax</th>
+      taxItemTag = ``;
+      if (this.showTaxFlag) {
+        taxItemTag = `<th >Tax</th>
             <th >GST%</th>`;
-            }
+      }
 
-            myHtmlItemHeadingTag = myHtmlItemHeadingTag + taxItemTag +
+      myHtmlItemHeadingTag = myHtmlItemHeadingTag + taxItemTag +
 
-           
-           ` <th >Total</th>
+
+        ` <th >Total</th>
             </tr>
             <tr >
                 <th colspan="6" >Description</th>
@@ -2221,58 +2146,215 @@ calculateTotalTax() {
 
 
       let itemListHtmlTag = ``;
-      let taxTdBlock=``;
-      let price:any=0;
+      let taxTdBlock = ``;
+      let price: any = 0;
 
       for (let i = 0; i < this.cartDataList.product.length; i++) {
         price = (this.cartDataList.product[i].salePrice
           ? this.cartDataList.product[i].salePrice
-          : this.cartDataList.product[i].unitPrice)
+          : this.cartDataList.product[i].unitPrice);
 
-          itemListHtmlTag = itemListHtmlTag + 
-          `<tr>
+
+        if (this.cartDataList.product[i].quantity < 0) {
+          //RETURNS
+          returnCart.product.push(this.cartDataList.product[i]);
+          returnCount += Number(this.cartDataList.product[i].quantity);
+
+          //saleReturnString='RETURNS';
+        }//if return items
+        else {
+          saleCount += Number(this.cartDataList.product[i].quantity);
+          itemListHtmlTag = itemListHtmlTag +
+            `<tr>
             <td>` +
-              this.cartDataList.product[i].loginId + `-` +  this.cartDataList.product[i].upc +               
+            this.cartDataList.product[i].loginId + `-` + this.cartDataList.product[i].upc +
             `</td>
             <td>` +
-              price.toFixed(2) +
+            price.toFixed(2) +
             `</td>
             <td>` +
-              this.cartDataList.product[i].quantity +
+            this.cartDataList.product[i].quantity +
             `</td>
             <td>` +
-              (this.cartDataList.product[i].discount===null?0: this.cartDataList.product[i].discount) +
+            (this.cartDataList.product[i].discount === null ? 0 : this.cartDataList.product[i].discount) +
             `</td>`;
+          saleBeforeTaxTotal += price;
+          saleDiscountTotal += Number(this.cartDataList.product[i].discountVal);
 
-
-          if (this.showTaxFlag){
+          if (this.showTaxFlag) {
+            saleTaxTotal = saleTaxTotal + this.cartDataList.product[i].totalTax;
             taxTdBlock = `<td><b>` +
-            (this.cartDataList.product[i].totalTax).toFixed(2) +
-          `</b></td>
+              (this.cartDataList.product[i].totalTax).toFixed(2) +
+              `</b></td>
             <td><b>` +
-            this.cartDataList.product[i].tax +
-          `</b></td>`;
+              this.cartDataList.product[i].tax +
+              `</b></td>`;
 
           }
-          else{
+          else {
             taxTdBlock = ``;
           }
-        
+
+          saleTotal += Number(this.cartDataList.product[i].totalPrice);
+
           itemListHtmlTag += taxTdBlock +
-          `<td><b>` +
+            `<td><b>` +
             (Number(this.cartDataList.product[i].totalPrice)).toFixed(2) +
-          `</b></td>
+            `</b></td>
           </tr>
           <tr>
-            <td colspan="6">` +
-              this.cartDataList.product[i].productName +
+            <td colspan="7">` +
+            this.cartDataList.product[i].productName +
             `</td>
              <td><td>
           </tr>
           `;
 
+        }//else if SALE items
+
 
       } //for loop  
+
+      itemListHtmlTag = itemListHtmlTag + `
+      <tr>
+            <td colspan="7" style="border-top: 1pt solid black;"> &nbsp; </td> </tr>
+      
+      `;
+
+      itemListHtmlTag = itemListHtmlTag + `
+      <tr>
+          <td colspan="7" style="border-top: 1pt solid black;"> &nbsp; </td> </tr> 
+      </tr>
+      <tr>
+          <td colspan="1" > &nbsp;  </td> 
+          <td><b>` + saleBeforeTaxTotal.toFixed(2) + `</b></td>
+          <td><b>` + saleCount + `</b></td>
+          <td><b>` + saleDiscountTotal.toFixed(2) + `</b></td>`;
+      let showTaxHTML = ``;
+      if (this.showTaxFlag) {
+        showTaxHTML = `<td colspan="1">` + saleTaxTotal.toFixed(2) + ` </td>
+        <td colspan="1"> &nbsp; </td>`;
+      }
+      else {
+        showTaxHTML = `<td colspan="1"> &nbsp; </td>`;
+      }
+
+      itemListHtmlTag = itemListHtmlTag + showTaxHTML +
+        `
+          <td><b>` + saleTotal.toFixed(2) + `</b></td>
+        </tr>
+    
+      `;
+      itemListHtmlTag = itemListHtmlTag + `
+    <tr>
+          <td colspan="7" style="border-top: 1pt solid black;"> &nbsp; </td> </tr>
+    
+    `;
+
+      /* **************** Check for any RETURNS ***************** */
+      let returnHTMLTag = ``;
+      if (returnCart.product.length > 0) {
+        //Change heading to RETURNS
+        saleReturnString = 'RETURNS';
+        returnHTMLTag =
+          `<tr class="inv_of">
+                <td colspan="7" style="text-align: center;border-top: 1px solid #000;"><b>--- ` + saleReturnString + `---</b>
+                </td>
+         </tr>
+          <tr>
+          <td colspan="7" style="border-top: 1pt solid black;"> &nbsp; </td> </tr>   `;
+
+        itemListHtmlTag = itemListHtmlTag + returnHTMLTag;
+
+        for (let i = 0; i < returnCart.product.length; i++) {
+          itemListHtmlTag = itemListHtmlTag +
+            `<tr>
+            <td>` +
+            returnCart.product[i].loginId + `-` + returnCart.product[i].upc +
+            `</td>
+            <td>` +
+            price.toFixed(2) +
+            `</td>
+            <td>` +
+            returnCart.product[i].quantity +
+            `</td>
+            <td>` +
+            (returnCart.product[i].discount === null ? 0 : returnCart.product[i].discount) +
+            `</td>`;
+          returnBeforeTaxTotal += price;
+          returnDiscountTotal += Number(returnCart.product[i].discountVal);
+
+
+          if (this.showTaxFlag) {
+            returnTaxTotal += returnCart.product[i].totalTax;
+            taxTdBlock = `<td><b>` +
+              (returnCart.product[i].totalTax).toFixed(2) +
+              `</b></td>
+            <td><b>` +
+              returnCart.product[i].tax +
+              `</b></td>`;
+
+          }
+          else {
+            taxTdBlock = ``;
+          }
+
+          returnTotal += Number(returnCart.product[i].totalPrice);
+          itemListHtmlTag += taxTdBlock +
+            `<td><b>` +
+            (Number(returnCart.product[i].totalPrice)).toFixed(2) +
+            `</b></td>
+          </tr>
+          <tr>
+            <td colspan="7">` +
+            returnCart.product[i].productName +
+            `</td>
+             <td><td>
+          </tr>
+          `;
+
+        }//for loop RETURNS
+
+      }
+
+      /* *************** LOOP for Items ENDS ********************* */
+      //Make return count +ve and return Total +ve
+
+      if (returnCart.product.length > 0) {
+        returnCount = returnCount * -1;
+        //returnTotal = returnTotal * -1;
+
+        itemListHtmlTag = itemListHtmlTag + `
+          <tr>
+              <td colspan="7" style="border-top: 1pt solid black;"> &nbsp; </td> </tr>
+          </tr>
+          <tr>
+              <td colspan="1" > &nbsp;  </td> 
+              <td><b>` + returnBeforeTaxTotal.toFixed(2) + `</b></td>
+              <td><b>` + returnCount + `</b></td>
+              <td><b>` + returnDiscountTotal.toFixed(2) + `</b></td>`;
+
+        showTaxHTML = ``;
+        if (this.showTaxFlag) {
+          showTaxHTML = `<td colspan="1">` + returnTaxTotal.toFixed(2) + ` </td>
+          <td colspan="1"> &nbsp; </td>`;
+        }
+        else {
+          showTaxHTML = `<td colspan="1"> &nbsp; </td>`;
+        }
+        itemListHtmlTag = itemListHtmlTag + showTaxHTML + `
+              
+              <td><b>` + returnTotal.toFixed(2) + `</b></td>
+          </tr>
+        
+        `;
+        itemListHtmlTag = itemListHtmlTag + `
+        <tr>
+            <td colspan="7" style="border-top: 1pt solid black;"> &nbsp; </td> </tr>
+        
+        `;
+      }
+
 
       let tableFooterHtmlTag = `
       </tbody>
@@ -2290,25 +2372,23 @@ calculateTotalTax() {
         </tr>
         <tr>
         <td >Discount:</td>
-        <td colspan="5" style="text-align: left;">Rs.` +  this.priceSummary.discount + ` </td>
-        </tr> `  
+        <td colspan="5" style="text-align: left;">Rs.` + Math.round((Number(this.priceSummary.discount))).toFixed(2);  + ` </td>
+        </tr> `
 
-        let taxItemTRTag=``;
-        if (this.showTaxFlag){
-          taxItemTRTag=`<tr>
+      let taxItemTRTag = ``;
+      if (this.showTaxFlag) {
+        taxItemTRTag = `<tr>
           <td >Tax:</td>
-          <td colspan="5" style="text-align: left;">Rs.` +  (this.priceSummary.tax).toFixed(2) + ` </td>
+          <td colspan="5" style="text-align: left;">Rs.` + (this.priceSummary.tax).toFixed(2) + ` </td>
           </tr>`;
 
-        }
-        tableFooterHtmlTag = tableFooterHtmlTag + taxItemTRTag +
-          `<tr> 
+      }
+      tableFooterHtmlTag = tableFooterHtmlTag + taxItemTRTag +
+        `<tr> 
           <td ><b>Total: </b></td>
           <td colspan="5" style="text-align: left;"><b>Rs.` + (this.priceSummary.grandTotal).toFixed(2) + `</b> </td>
-          </tr><tr>
-          <td >Cash Paid:</td>
-          <td colspan="5" style="text-align: left;">Rs.` +  this.result + ` </td>
-          </tr><tr>
+          </tr>` + cardCash + `
+          <tr>
         <td style="text-align: left;border-bottom: 1px solid #000;" ><b>Customer Balance: </b></td>
         <td colspan="5" style="text-align: left;border-bottom: 1px solid #000;"><b>Rs.` + (this.customerBalance).toFixed(2) + `</b> 
         </td>
@@ -2318,14 +2398,18 @@ calculateTotalTax() {
       
       `;
 
-      let fbrHtmlTag=`
+      //<img style="width:30mm;" src="assets/images/FBR_QRReceipt.png" >
+
+
+      let fbrHtmlTag = `
       <div class="tax fbr" style="display: block;">          
   
         <img src="assets/images/barcode.jpg" id="imagea" class="usin fbr">
-        <p>FBR Invoice#: 133330240702174</p>
+        <p>FBR Invoice#: ` + this.fbrInvoiceNumber + `</p>
         <div class="fbr_logo">
-          <img style="width:30mm;" src="assets/images/fbr.png"  alt="We are integrated with FBR">
-          <img style="width:30mm;" src="assets/images/FBR_QRReceipt.png" >
+        <img style="width:30mm;" src="assets/images/fbr.png"  alt="We are integrated with FBR">
+        <img style="width:6.5rem; height:6.5rem"  src='data:` + this.fbrQRCode.imageType + ` ;base64,` + this.fbrQRCode.image + `'
+          alt="Card image cap">
         </div>
           <p>
                    <em>Verify your invoice through FBR Tax Asaan Mobile App
@@ -2336,7 +2420,9 @@ calculateTotalTax() {
 
       `;
 
-      let contactHtmlTag = `
+      let contactHtmlTag = ``;
+      if (this.appName === 'ZUBAIDA') {
+        contactHtmlTag = `
         <div class="contact">
           <p>If you have any queries related, feel free to reach us at: <br>
               <i class="fa fa-fw fa-phone"></i>+92 300 3932177 +92 21 37293088><br>
@@ -2345,6 +2431,21 @@ calculateTotalTax() {
           </p>
         </div>
       `;
+      }
+      else if (this.appName === 'NIKS') {
+        contactHtmlTag = `
+        <div class="contact">
+          <p>If you have any queries related, feel free to reach us at: <br>
+              <i class="fa fa-fw fa-phone"></i>+92 300 3932177 +92 21 37293088><br>
+              <i class="fa fa-fw fa-envelope"></i>info@niksonline.pk<br>
+              <i class="fa fa-fw fa-map-pin"></i> Building 119, Y Block, DHA Phase 3, Lahore
+          </p>
+        </div>
+      `;
+      }
+
+
+
 
       let termHtmlTag = `
       <div class="terms">
@@ -2378,23 +2479,46 @@ calculateTotalTax() {
       `;
 
 
-      let finalHTMLTag=``;
+      let finalHTMLTag = ``;
       //Add all hmt tags
-      if (this.showTaxFlag){
-        finalHTMLTag = myHtml01Tag + styleTag+ titleHtmlTag + companyInfoHtmlTag + myHtml02Tag + myHtmlItemHeadingTag + itemListHtmlTag + tableFooterHtmlTag + fbrHtmlTag + contactHtmlTag + termHtmlTag + lastHtmlTag ;
+      if (this.showTaxFlag) {
+        finalHTMLTag = myHtml01Tag + styleTag + titleHtmlTag + companyInfoHtmlTag + myHtml02Tag + myHtmlItemHeadingTag + itemListHtmlTag + tableFooterHtmlTag + fbrHtmlTag + contactHtmlTag + termHtmlTag + lastHtmlTag;
       }
-      else{
-        finalHTMLTag = myHtml01Tag + styleTag+ titleHtmlTag + companyInfoHtmlTag + myHtml02Tag + myHtmlItemHeadingTag + itemListHtmlTag + tableFooterHtmlTag + contactHtmlTag + termHtmlTag + lastHtmlTag ;
+      else {
+        finalHTMLTag = myHtml01Tag + styleTag + titleHtmlTag + companyInfoHtmlTag + myHtml02Tag + myHtmlItemHeadingTag + itemListHtmlTag + tableFooterHtmlTag + contactHtmlTag + termHtmlTag + lastHtmlTag;
       }
+
+
+
+      //Initializae payment object after save
+      this.payment = new Payment();
+
+      ///////////////////////////////////////////////////////////////////////////
+      //1st copy
+      popupWin.document.write(finalHTMLTag);
       
+      ///////////////////////////////////////////////////////////////////////////
+      //2nd copy
+
+      if (this.showTaxFlag) {
+        finalHTMLTag = myHtml01Tag + styleTag + titleHtmlTag + companyInfoHtmlTag + myHtml02Tag + myHtmlItemHeadingTag + itemListHtmlTag + tableFooterHtmlTag + fbrHtmlTag +  lastHtmlTag;
+      }
+      else {
+        finalHTMLTag = myHtml01Tag + styleTag + titleHtmlTag + companyInfoHtmlTag + myHtml02Tag + myHtmlItemHeadingTag + itemListHtmlTag + tableFooterHtmlTag +  lastHtmlTag;
+      }
+      finalHTMLTag = '<div class="page-break"></div> ' + finalHTMLTag;
+      
+      popupWin.document.write(finalHTMLTag);
+      ///////////////////////////////////////////////////////////////////////////
+
+      //  const phoneNumber = '+923213967330'; // Replace with the recipient's phone number including country code
+      //  const message = encodeURIComponent(finalHTMLTag);
+      //  const whatsappUrl = `https://web.whatsapp.com/${phoneNumber}?text=${message}`;
+
+      //  window.location.href = whatsappUrl;
 
 
-       //Initializae payment object after save
-       this.payment = new Payment();
-
-       popupWin.document.write(finalHTMLTag);
- 
-       popupWin.document.close();
+      popupWin.document.close();
 
     }//popupWin
 
@@ -2412,7 +2536,7 @@ calculateTotalTax() {
     if (popupWin != null || popupWin != undefined) {
       // popupWin.document.open();
 
-      this.customer.firstName ='POSCustomer';
+      this.customer.firstName = 'POSCustomer';
 
       let orderAddress =
         this.customer?.address +
@@ -2434,24 +2558,24 @@ calculateTotalTax() {
     </head>    `;
 
       let myHtml = ` <html> ` + myHead;
-      
+
       let myBodyOrder =
         `<body onload="window.print();window.close();">
     <div class="ticket">  ` ;
 
 
-    if (this.appName==='ZUBAIDA'){
-      myBodyOrder = myBodyOrder + `<img src="assets/images/logos/zubaida-color-logo.png" id="imagea" width: 20mm; text-align: center; ">` ;
-    }
-    else if(this.appName==='NIKS'){
-      myBodyOrder = myBodyOrder + `<img src="assets/images/logos/niks-logo-small.png" id="imagea" width: 20mm; text-align: center; ">` ;
-    }
-     
+      if (this.appName === 'ZUBAIDA') {
+        myBodyOrder = myBodyOrder + `<img src="assets/images/logos/zubaida-color-logo.png" id="imagea" width: 20mm; text-align: center; ">`;
+      }
+      else if (this.appName === 'NIKS') {
+        myBodyOrder = myBodyOrder + `<img src="assets/images/logos/niks-logo-small.png" id="imagea" width: 20mm; text-align: center; ">`;
+      }
 
-    let tHead='';
-    if (this.showTaxFlag){
-      tHead = 
-      `<thead>
+
+      let tHead = '';
+      if (this.showTaxFlag) {
+        tHead =
+          `<thead>
         <tr >
             <td colspan="6" style="text-align: left;border-top: 1px solid #000;"><b>Product Description</b></td>
         </tr>
@@ -2464,10 +2588,10 @@ calculateTotalTax() {
         <td style="text-align: left;border-top: 1px solid #000;"><b>Total</b></td>
         </tr>
       </thead>`
-    }
-    else{
-      tHead = 
-      `<thead>
+      }
+      else {
+        tHead =
+          `<thead>
         <tr >
             <td colspan="6" style="text-align: left;border-top: 1px solid #000;"><b>Product Description</b></td>
         </tr>
@@ -2478,117 +2602,117 @@ calculateTotalTax() {
         <td style="text-align: left;border-top: 1px solid #000;"><b>Total</b></td>
         </tr>
       </thead>`
-    }
+      }
 
 
 
-    
-    myBodyOrder = myBodyOrder +
-    `<p style="text-align:left !important;"><b> ABC SONS </b><br>
+
+      myBodyOrder = myBodyOrder +
+        `<p style="text-align:left !important;"><b> ABC SONS </b><br>
     STRN:1700223239612|NTN:2232396-1</p>
  
     <h1 style="font-size:13px;text-align:left !important;"><b>Sale Receipt </b></h1>
     <h1 style="font-size:13px;text-align:left !important;"><b> Customer: &nbsp;` +
         this.customer.firstName + `  (` + this.customer.phone1 + ` )` +
-        `</b></h1>` +  
-    `<h1 style="font-size:13px;text-align:left !important;"><b> Date/Time: ` +
+        `</b></h1>` +
+        `<h1 style="font-size:13px;text-align:left !important;"><b> Date/Time: ` +
         this.todaydatashow + `</b></h1>` +
 
-    `<h1 style="font-size:13px;text-align:left !important;"><b> Bill#:: ` +
-      this.invoiceNumber + `</b></h1>` +
+        `<h1 style="font-size:13px;text-align:left !important;"><b> Bill#:: ` +
+        this.invoiceNumber + `</b></h1>` +
 
-        
-        `<table style="list-style:none;font-size:12px;text-align:left; ">` + 
-        tHead + 
+
+        `<table style="list-style:none;font-size:12px;text-align:left; ">` +
+        tHead +
         `<tbody >`;
 
-     
+
 
 
       let myItems = ``;
       let subtotal = 0;
       let taxItem = 0;
-      let totalTax=0;
+      let totalTax = 0;
       let FbrCharges = 0;
       let total = 0;
-      let itemDiscount=0;
+      let itemDiscount = 0;
 
       for (let i = 0; i < this.cartDataList.product.length; i++) {
         let price = (this.cartDataList.product[i].salePrice
           ? this.cartDataList.product[i].salePrice
           : this.cartDataList.product[i].unitPrice)
 
-        taxItem = this.getItemTax(this.cartDataList.product[i], i); 
-        if (this.showTaxFlag){
+        taxItem = this.cartDataList.product[i].totalTax; //this.getItemTax(this.cartDataList.product[i], i);
+        if (this.showTaxFlag) {
           total = subtotal - this.totalDiscount + taxItem;
         }
-        else{
-          total = subtotal - this.totalDiscount ;
+        else {
+          total = subtotal - this.totalDiscount;
         }
-        
-        let discountPrice=0;
+
+        let discountPrice = 0;
 
         //totalTax = totalTax + taxItem;
         price = price * this.cartDataList.product[i].quantity; //660
-        if (this.cartDataList.product[i].discountVal>0){
+        if (this.cartDataList.product[i].discountVal > 0) {
           itemDiscount = this.cartDataList.product[i].discountVal;
           discountPrice = this.cartDataList.product[i].discountVal;
         }
-        else{
+        else {
           itemDiscount = this.cartDataList.product[i].discount;//%age
-          discountPrice = (price * itemDiscount)/100;
+          discountPrice = (price * itemDiscount) / 100;
         }
 
 
-        if (itemDiscount===null){
-          itemDiscount=0;
+        if (itemDiscount === null) {
+          itemDiscount = 0;
         }
-    
-      
 
-      let taxTdBlock='';
+
+
+        let taxTdBlock = '';
 
 
 
         myItems +=
           `<tr>
             <td colspan="6" style="text-align: left;border-top: 1px solid #000;"><b>` +
-            this.cartDataList.product[i].loginId + `-` + this.cartDataList.product[i].productName + `( ` + this.cartDataList.product[i].upc + ` )` +
+          this.cartDataList.product[i].loginId + `-` + this.cartDataList.product[i].productName + `( ` + this.cartDataList.product[i].upc + ` )` +
           `</b></td>
         </tr>
         <tr>
             <td><b>` +
-            price.toFixed(2) +
-          
+          price.toFixed(2) +
+
           `</b></td>
             <td><b>` +
-            this.cartDataList.product[i].quantity +
+          this.cartDataList.product[i].quantity +
           `</b></td>
            <td><b>` +
-            //itemDiscount +
-            this.cartDataList.product[i].discount +
+          //itemDiscount +
+          this.cartDataList.product[i].discount +
           `</b></td>`;
 
 
-          if (this.showTaxFlag){
-            taxTdBlock = `<td><b>` +
+        if (this.showTaxFlag) {
+          taxTdBlock = `<td><b>` +
             //itemTax +
             this.cartDataList.product[i].totalTax +
-          `</b></td>
+            `</b></td>
             <td><b>` +
             this.cartDataList.product[i].tax +
-          `</b></td>`;
+            `</b></td>`;
 
-          }
-          else{
-            taxTdBlock = ``;
-          }
-        
-          myItems += taxTdBlock +
+        }
+        else {
+          taxTdBlock = ``;
+        }
+
+        myItems += taxTdBlock +
 
           `<td><b>` +
-            //totalPrice +
-            this.cartDataList.product[i].totalPrice +
+          //totalPrice +
+          this.cartDataList.product[i].totalPrice +
           `</b></td>
         </tr>`;
       }
@@ -2601,9 +2725,9 @@ calculateTotalTax() {
       let myTotal = Math.round((Number(this.priceSummary.grandTotal))).toFixed(2);
       let myTotalQty = this.priceSummary.totalQty; //this.calculateQtyTotal(this.cartDataList);
 
-      let finalTaxBlock=``;
+      let finalTaxBlock = ``;
       let myBottonHtml =
-       `</tbody>
+        `</tbody>
         <tfoot>
         <tr>
         <td style="text-align: left;border-top: 1px solid #000;">Sub Total:</td>
@@ -2625,48 +2749,47 @@ calculateTotalTax() {
         ` </td>
         </tr>` ;
 
-        if (this.showTaxFlag){
-          finalTaxBlock = ` 
+      if (this.showTaxFlag) {
+        finalTaxBlock = ` 
             <tr>
               <td >Tax:</td>
               <td colspan="5" style="text-align: left;">Rs. ` +
-                myTax +
-            ` </td>
+          myTax +
+          ` </td>
             </tr>`;
-        }
+      }
 
-        myBottonHtml = myBottonHtml + finalTaxBlock +
-        
+      myBottonHtml = myBottonHtml + finalTaxBlock +
+
         `<tr> 
           <td ><b>Total: </b></td>
           <td colspan="5" style="text-align: left;"><b>Rs ` +
-          myTotal +
-          `</b> </td>
+        myTotal +
+        `</b> </td>
           </tr>`;
 
-        let cardCash=``;
+      let cardCash = ``;
 
-        if (this.payment.paymentMethod==='CASH'){
-          cardCash = `<tr>
+      if (this.payment.paymentMethod === 'CASH') {
+        cardCash = `<tr>
           <td >Cash Paid:</td>
           <td colspan="5" style="text-align: left;">Rs. ` +
           this.result +
           ` </td>
           </tr>`;
-  
-        }
-        else if (this.payment.paymentMethod==='CARD')
-        {
-          cardCash = `<tr>
+
+      }
+      else if (this.payment.paymentMethod === 'CARD') {
+        cardCash = `<tr>
           <td >Paid by Card</td>
           <td colspan="5" style="text-align: left;"> &nbsp;` +
-          
+
           ` </td>
           </tr>`;
-  
-        }
 
-        myBottonHtml = myBottonHtml + cardCash +
+      }
+
+      myBottonHtml = myBottonHtml + cardCash +
 
         `<tr>
         <td style="text-align: left;border-bottom: 1px solid #000;" ><b>Customer Balance: </b></td>
@@ -2713,17 +2836,17 @@ calculateTotalTax() {
   </body>
   </html>`;
 
-  // <p id="abc" class="centered" style="font-size:small;margin-left:10px !important;">
-  // Copyright© 2024 Z GENERATIONS. </p>
-  // <p id="abc" style="font-size:7px;">
-  // All rights Reserved to Software Developed By <b id="abcc">TechMaci</b>
-  // <br> 
-  // Ph +92 300-3932177 | Cell +92 21 37293088 
-  // </p>
+      // <p id="abc" class="centered" style="font-size:small;margin-left:10px !important;">
+      // Copyright© 2024 Z GENERATIONS. </p>
+      // <p id="abc" style="font-size:7px;">
+      // All rights Reserved to Software Developed By <b id="abcc">TechMaci</b>
+      // <br> 
+      // Ph +92 300-3932177 | Cell +92 21 37293088 
+      // </p>
 
 
       let myFinalHtml = myHtml + myBodyOrder + myItems + myBottonHtml;
-//alert(myFinalHtml);
+      //alert(myFinalHtml);
 
       //Initializae payment object after save
       this.payment = new Payment();
@@ -2845,21 +2968,20 @@ img {
     let cashPaid = parseFloat(this.result) || 0;
     let cashDiscount = parseFloat(this.totalDiscount) || 0;
     this.priceSummary.discount = cashDiscount;
-    let invoiceTotal = Number(this.priceSummary.total) || 0;
+    //let invoiceTotal = Number(this.priceSummary.total) || 0;
 
-    //this.priceSummary.grandTotal = invoiceTotal - (this.priceSummary.tax + cashDiscount);
-    // Calculate the balance
-    
-    if (this.showTaxFlag){
+
+    if (this.showTaxFlag) {
       this.customerBalance = (this.priceSummary.total - cashDiscount + this.priceSummary.tax);
     }
-    else{
-      this.customerBalance = (this.priceSummary.total - cashDiscount) ;
+    else {
+      this.customerBalance = (this.priceSummary.total - cashDiscount);
     }
-    
+
 
 
     this.priceSummary.grandTotal = this.customerBalance;
+    this.priceSummary.grandTotal = Math.round(Number(this.priceSummary.grandTotal))
 
   }
 
@@ -2955,62 +3077,7 @@ img {
     window.location.reload();
   }
 
-/* ***************************************************** */
-  calculateCartTotal(): any {
-    //this.priceSummary.total = 0;
-    this.priceSummary.tax=0;
-    let totalTax=0;
-
-    if (this.cartDataList.product.length===0) return 0;
-
-    let finalPrice=0;
-    let row=-1;
-    this.attempTotalCount++;
-    if (this.showTaxFlag){
-      
-      for (let item of this.cartDataList.product ) {
-        //const price = item.salePrice ? item.salePrice : item.unitPrice;
-        row++;
-        let price = this.getItemTotal(item, row);
-        totalTax = this.getItemTax(item, row); //Number((item.quantity * price)* item.tax/100);
-  
-        //this.priceSummary.total += Number(price);// - Number(totalTax);     //item.quantity * price;
-  
-        
-        this.priceSummary.tax+= Number(totalTax);
-  
-      }//for loop
-      this.priceSummary.grandTotal = this.priceSummary.total - this.totalDiscount + this.priceSummary.tax;
-      finalPrice = Number(this.priceSummary.total - this.totalDiscount + this.priceSummary.tax);
-  
-    }
-    else{
-      for (let item of this.cartDataList.product) {
-        //const price = item.salePrice ? item.salePrice : item.unitPrice;
-        row++;
-        let price = this.getItemTotal(item, row);
-        //totalTax = this.tax(item); //Number((item.quantity * price)* item.tax/100);
-  
-        //this.priceSummary.total += Number(price) ;
-  
-        
-        this.priceSummary.tax= 0;
-  
-      }//for loop
-      this.priceSummary.grandTotal = Number(this.priceSummary.total - this.totalDiscount) ;
-
-      this.priceSummary.grandTotal = Math.round((Number(this.priceSummary.grandTotal)));
-
-      finalPrice = Number(this.priceSummary.total - this.totalDiscount );
-  
-    }
-
-
-
-    return finalPrice.toFixed(2);   
-
-  }
-/* ***************************************************** */
+  /* ***************************************************** */
   show() {
     this.mobileshow = false;
   }
@@ -3020,77 +3087,78 @@ img {
 
   }
 
-  uploadSale(){
+  uploadSale() {
     //step-1: find out the list of orders+orderItems generated for current date
     //step-2: Pass this list of orders+orderItems to cloud API
-    let orderSaveResponseArray: OrderResponse ;
-
+    let orderSaveResponseArray: OrderResponse;
+    this.spinnerDataLoad = true;
     this.orderService.getTodaysOrders().subscribe((data: OrderResponse) => {
-      if (data !== undefined){
+      if (data !== undefined) {
 
-        this.errorsFlag=false;
+        this.errorsFlag = false;
 
         //this.orderList=data.orderCustomer;
         //this.orderItemWrapperList=data.orderItems;
         orderSaveResponseArray = data;
 
 
-        if (data.orderCustomer!==null || data.orderCustomer!=undefined){
-           this.orderService.uploadSales(orderSaveResponseArray)
-          .subscribe((data1: ApiResponse) => {
-               if (data1 !=undefined){
-                if (data1.statusCode==0){
-                  Swal.fire('Submit',   ' Succesfully Uploaded Sales!', 'success');
-                  
+        if (data.orderCustomer !== null || data.orderCustomer != undefined) {
+          this.orderService.uploadSales(orderSaveResponseArray)
+            .subscribe((data1: ApiResponse) => {
+              if (data1 != undefined) {
+                if (data1.statusCode == 0) {
+                  Swal.fire('Submit', ' Succesfully Uploaded Sales!', 'success');
+
                 }
-                else{
-                  Swal.fire('Submit',   ' Uploaded Sales Fail', 'error');
+                else {
+                  Swal.fire('Submit', ' Uploaded Sales Fail', 'error');
                 }
-               }
-          });
+              }
+              this.spinnerDataLoad = false;
+            });
 
 
         }
       }
 
-      });
+    });
 
-    
+
 
   }
-  downloadProducts(){
+  downloadProductsOld() {
     //step-1: Get max productId from localhost DB
     //step-2: Pass this max productId to Cloud bases API
     //If there are new products added in Cloud, Cloud API will return a list of products
     //Step-4: Add these products to localhost DB 
 
-    if (this.cloudAPIUrl === this.myUrl){
-      
-      return ;
+    if (this.cloudAPIUrl === this.myUrl) {
+
+      return;
     }
-  
 
-    let maxProductId:number;
 
-    this.productService.getMaxProductId().subscribe((data:number)=>{
+    let maxProductId: number;
+    //step-1: Get Max Product Id from Local DB
+    this.productService.getMaxProductId().subscribe((data: number) => {
       maxProductId = data;
 
-      if (maxProductId==0) return;
+      if (maxProductId == 0) return;
 
-      //step-2
+      //step-2: Get List of Products from Cloud where productId>maxProductId(local)
       this.productService.getProductMissingLocal(maxProductId).subscribe(
-        (data1: ProductWrapper)=> {
-          if (data1===undefined) return;
-          if (data1.productList.length===0) return;
-
+        (data1: ProductWrapper) => {
+          if (data1 === undefined) return;
+          if (data1.productList.length === 0) return;
+          //Step-3: Save Missing products in Local DB
           this.productService.saveProductListToLocalDB(data1.productList).subscribe(
-            (data2:ApiResponse) => {
-              if (data2 !=undefined){
-                if (data2.statusCode==0){
-                  Swal.fire('Submit',   ' Succesfully Added Products!', 'success');
-                  
+            (data2: ApiResponse) => {
+              if (data2 != undefined) {
+                if (data2.statusCode == 0) {
+                  Swal.fire('Submit', ' Succesfully Added Products!', 'success');
+
                 }
-               }
+              }
             }
           );
 
@@ -3100,93 +3168,151 @@ img {
 
     });
 
+  }
+  /* ************************************************************ */
+  downloadProducts() {
+    //step-1: Get last updated date from db_update table for table_name product from localhost DB
+    //step-2: Pass this last update date to Cloud bases API
+    //If there are new products added/updated in Cloud, Cloud API will return a list of products, new and old items
+    //Step-4: Add/update these products to localhost DB 
 
+    if (this.cloudAPIUrl === this.myUrl) {
 
+      return;
+    }
 
+    let lastUpdateDate: any;
+    this.spinnerDataLoad = true;
+    //Step-1: Get last updated date from db_update table for table_name product from localhost DB
+    this.productService.getLastUpdateDate().subscribe((data: DbUpdate) => {
+      lastUpdateDate = data;
+      if (lastUpdateDate !== undefined) {
+        //Step-2: Pass this last update date to Cloud bases API
+        this.productService.getProductsUpdatedInCloud(lastUpdateDate).subscribe(
+          (data1: ProductWrapper) => {
+            if (data1 === undefined) {
+              this.spinnerDataLoad = false; 
+              Swal.fire('Submit', ' Error in Download Items', 'error');
+              return;}
+            if (data1.productList.length === 0) {
+              this.spinnerDataLoad = false; 
+              Swal.fire('Submit', ' No Products to update!', 'success');
+              return;
+            }
+            //Step-3: Save Missing products in Local DB
+            this.productService.saveProductListToLocalDB(data1.productList).subscribe(
+              (data2: ApiResponse) => {
+                if (data2 != undefined) {
+                  if (data2.statusCode == 0) {
+                    let len = data1.productList.length;
+                    Swal.fire('Submit', ' Succesfully Added/Updated ' + len + ' Items!', 'success');
+
+                  }
+                  this.spinnerDataLoad = false;
+                }
+              }
+            );
+
+          }
+        );
+
+      }//endif
+
+    });
   }
 
+
+
+  /* ************************************************************ */
   @HostListener('document:keydown', ['$event'])
-handleKeyboardEvent(event: KeyboardEvent) {
-  let t1=0;
-  switch (event.key) {
-    case 'F2':
-      this.openProductSearchPopup();
-      break;
-    case 'F9':
+  handleKeyboardEvent(event: KeyboardEvent) {
+    let t1 = 0;
+    if (event.ctrlKey) return;
+    if (event.altKey) return;
+    switch (event.key) {
+      case 'F2':
+        this.openProductSearchPopup();
+        break;
+      case 'F9':
         //alert('cash sale for F3');
         this.openCashModal();
-        break;      
-    case 'F4':
-      //alert('hold sale for F4');
-      this.checkHoldSale();
-      break;
-
-    case 'F5':
-      //alert('card sale for F5');
-      this.openCardModal();
-      break;  
-    case 'F8':
-      //alert('daily sale for F8');
-      this.dailySale();
-      break;
-    case 'F6':
-      this.openPriceCheckPopup();
-      break;  
-    case '=':
-      if (this.cashModal){
-        this.calculate();
-      } 
-      break; 
-    case 'Enter':  
-      if (this.cashModal){
-          this.onCustomerSave('CASH');
-      }
-      else{
-        //alert(event.key)
-        //this.upcSearch(event);
-      }
-      break;
-    case 'keydown':
-      break;  
-    case 'Backspace' :
-      this.backSpace();
-      break;
-    case 'Delete' :
-        this.backSpace();
         break;
-    case 'Escape':
-      this.closeCashModal();
-      if (this.priceCheckPopup){
-        this.closeModal();
-      }
-      if (this.productSearchPopup){
-        this.closeProductSearchPopup();
-      }
-      break;
-    case '.':
-      if (this.cashModal){
-        this.appendToResult(event.key);
-      }
-      break;
-    default   :
-      if (this.cashModal){
-        let numVal = Number(event.key);
-        if (numVal!==null){
-            if (numVal >=0 || numVal<=9){
-              //this.appendToResult(event.key);
-            }
+      case 'F4':
+        //alert('hold sale for F4');
+        this.checkHoldSale();
+        break;
+
+      case 'F5':
+        //alert('card sale for F5');
+        this.openCardModal();
+        break;
+      case 'F8':
+        //alert('daily sale for F8');
+        this.dailySale();
+        break;
+      case 'F6':
+        this.openPriceCheckPopup();
+        break;
+      case '=':
+        if (this.cashModal) {
+          this.calculate();
+        }
+        break;
+      case 'Enter':
+        if (this.cashModal) {
+          this.onCustomerSave('CASH');
+        }
+        else {
+          //alert(event.key)
+          //this.upcSearch(event);
+        }
+        break;
+      case 'keydown':
+        break;
+      case 'Backspace':
+        if (this.cashModal) {
+          this.backSpace();
         }
         
-      }
-      break;
-    
-  }
-}
+        break;
+      case 'Delete':
+        if (this.cashModal) {
+        this.backSpace();
+        }
+        break;
+      case 'Escape':
+        this.closeCashModal();
+        if (this.priceCheckPopup) {
+          this.closeModal();
+        }
+        if (this.productSearchPopup) {
+          this.closeProductSearchPopup();
+        }
+        break;
+      case '.':
+        if (this.cashModal) {
+          this.appendToResult(event.key);
+        }
+        break;
+      default:
+        if (this.cashModal) {
+          let numVal = Number(event.key);
+          if (numVal !== null) {
+            if (numVal >= 0 || numVal <= 9) {
+              //this.appendToResult(event.key);
+            }
+          }
 
-  agentChange(){
+        }
+        break;
+
+    }
+  }
+
+  agentChange() {
     this.selectedAgent;
     this.cache.set("selectedAgent", JSON.stringify(this.selectedAgent));
-    
+
 
   }
 
@@ -3198,23 +3324,23 @@ handleKeyboardEvent(event: KeyboardEvent) {
       }
       let agent = agentInput.value;
       if (agent !== undefined || agent !== '') {
-          for (let i=0; i<this.salesAgentList.length; i++){
-            if (this.salesAgentList[i].loginId === agent){
-              this.selectedAgent = this.salesAgentList[i];
+        for (let i = 0; i < this.salesAgentList.length; i++) {
+          if (this.salesAgentList[i].loginId === agent) {
+            this.selectedAgent = this.salesAgentList[i];
 
-              this.cache.set("selectedAgent", JSON.stringify(this.selectedAgent));
+            this.cache.set("selectedAgent", JSON.stringify(this.selectedAgent));
 
 
 
-            }
-          }//for loop
-          this.focusUpc(true);
+          }
+        }//for loop
+        this.focusUpc(true);
       }
+    }
   }
-}
-/* **************************************************** */
-customerPhoneKey(event: any){
-  
+  /* **************************************************** */
+  customerPhoneKey(event: any) {
+
     if (event.key === 'Enter') {
       let selectedPhoneInput = <HTMLInputElement>document.getElementById('selectedPhoneInput');
       if (selectedPhoneInput === undefined) {
@@ -3225,37 +3351,91 @@ customerPhoneKey(event: any){
         this.focusAgent(true);
 
       }
-    }      
-}
-
-focusAgent(focusFlag:boolean)
-{
-  let agentInput = <HTMLInputElement>document.getElementById('selectAgentInput');
-  if (focusFlag){
-    agentInput.focus();
+    }
   }
-  else{
-    //upcInput.focus();
+
+  focusAgent(focusFlag: boolean) {
+    let agentInput = <HTMLInputElement>document.getElementById('selectAgentInput');
+    if (focusFlag) {
+      agentInput.focus();
+    }
+    else {
+      //upcInput.focus();
+    }
+
+    agentInput.autofocus = focusFlag;
+
   }
-  
-  agentInput.autofocus=focusFlag;
-
-}
 
 
-focusUpc(focusFlag:boolean)
-{
-  let upcInput = <HTMLInputElement>document.getElementById('upc-search');
-  if (focusFlag){
-    upcInput.focus();
+  focusUpc(focusFlag: boolean) {
+    let upcInput = <HTMLInputElement>document.getElementById('upc-search');
+    if (focusFlag) {
+      upcInput.focus();
+    }
+    else {
+      //upcInput.focus();
+    }
+
+    upcInput.autofocus = focusFlag;
+
   }
-  else{
-    //upcInput.focus();
-  }
-  
-  upcInput.autofocus=focusFlag;
+  /* ************************************************************* */
+  priceChange(row: number) {
 
-}
+    let priceInput = <HTMLInputElement>document.getElementById('price_' + row);
+    
+
+    let val = priceInput.value;
+    let priceVal: any;
+    if (priceInput.value !== null) {
+      priceVal = Number(priceInput.value);
+    }
+
+    if (priceInput != null || priceInput != undefined) {
+      let len = priceInput.value.length;
+
+      let discount = Number(val);
+      if (discount < 0) {
+        //0 or below not allowed
+        Swal.fire('WARNING', '0 or negative price is not allowed', 'warning');
+        return;
+
+      }
+     
+    }
+
+    this.cartDataList.product[row].price = priceInput.value;
+    let price = priceInput.value;
+
+    
+    //price = price * this.cartDataList.product[row].quantity;
+
+    //discountVal = Number((Number(discountInput.value) * price) / 100);
+
+    let localCartData = localStorage.getItem('localCart');
+    if (localCartData) {
+      let discountData = JSON.parse(localCartData);
+      discountData.product[row].price = priceInput.value;
+      localStorage.setItem('localCart', JSON.stringify(discountData))
+
+
+    }
+
+
+    this.priceCalculationPerRow(row);
+    this.priceCalculationTotal();
+    this.productService.localAddToCart(this.cartDataList);
+
+    this.focusUpc(true);
+
+    //Commented out on August 19
+    //window.location.reload();
+
+
+  }
+
+
   /* ************************************************************* */
   discountChange(row: number) {
 
@@ -3263,8 +3443,8 @@ focusUpc(focusFlag:boolean)
     let discountValInput = <HTMLInputElement>document.getElementById('discount_val_' + row);
 
     let val = discountInput.value;
-    let discountVal:any;
-    if (discountValInput.value!==null){
+    let discountVal: any;
+    if (discountValInput.value !== null) {
       discountVal = Number(discountValInput.value);
     }
 
@@ -3272,10 +3452,10 @@ focusUpc(focusFlag:boolean)
       let len = discountInput.value.length;
 
       let discount = Number(val);
-      if (discount<0){
-          //0 or below not allowed
-          Swal.fire('WARNING','0 or negative Qty is not allowed', 'warning');
-          return;
+      if (discount < 0) {
+        //0 or below not allowed
+        Swal.fire('WARNING', '0 or negative discount is not allowed', 'warning');
+        return;
 
       }
       if (len > 2) {
@@ -3284,10 +3464,12 @@ focusUpc(focusFlag:boolean)
     }
 
     this.cartDataList.product[row].discount = discountInput.value;
-    let price = (this.cartDataList.product[row].salePrice
-      ? this.cartDataList.product[row].salePrice
-      : this.cartDataList.product[row].unitPrice)
+    let price = this.getPrice(this.cartDataList.product[row]);
+    //  (this.cartDataList.product[row].salePrice
+    //   ? this.cartDataList.product[row].salePrice
+    //   : this.cartDataList.product[row].unitPrice)
 
+    price = price * this.cartDataList.product[row].quantity;
 
     discountVal = Number((Number(discountInput.value) * price) / 100);
 
@@ -3300,46 +3482,49 @@ focusUpc(focusFlag:boolean)
 
 
     }
-    //alert('qtyChange'+ qty.value);
-
-
-    
-    
     this.cartDataList.product[row].discount = discountInput.value;
-
     this.cartDataList.product[row].discountVal = discountVal;
-    
 
-    this.calculateTotalPrice();
+
+    this.priceCalculationPerRow(row);
+    this.priceCalculationTotal();
+    this.productService.localAddToCart(this.cartDataList);
+
     this.focusUpc(true);
-    
+
+    //Commented out on August 19
+    //window.location.reload();
+
 
   }
 
   /* ************************************************************* */
   discountValChange(row: number) {
 
-    
+
     let discountValInput = <HTMLInputElement>document.getElementById('discount_val_' + row);
     let discountInput = <HTMLInputElement>document.getElementById('discount_' + row);
-    
-    let discountVal:any;
-    if (discountValInput.value!==null){
+
+    let discountVal: any;
+    if (discountValInput.value !== null) {
       discountVal = Number(discountValInput.value);
     }
     let price = (this.cartDataList.product[row].salePrice
       ? this.cartDataList.product[row].salePrice
       : this.cartDataList.product[row].unitPrice)
 
+
+    price = price * this.cartDataList.product[row].quantity;
+
     let localCartData = localStorage.getItem('localCart');
     if (localCartData) {
       let discountData = JSON.parse(localCartData);
       discountData.product[row].discountVal = discountVal;
-      let discountPercentage = (discountVal * 100)/price;
+      let discountPercentage = (discountVal * 100) / price;
 
       discountData.product[row].discount = discountPercentage.toFixed(2);
       this.cartDataList.product[row].discountVal = discountVal;
-      discountInput.value =   discountPercentage.toFixed(2);    
+      discountInput.value = discountPercentage.toFixed(2);
 
       localStorage.setItem('localCart', JSON.stringify(discountData))
     }
@@ -3347,12 +3532,34 @@ focusUpc(focusFlag:boolean)
     //discountVal = Number((Number(discountInput.value) * price) / 100);
     this.cartDataList.product[row].discount = discountInput.value;
     this.cartDataList.product[row].discountVal = discountVal;
-   
+
+    this.priceCalculationPerRow(row);
+    this.priceCalculationTotal();
+    this.productService.localAddToCart(this.cartDataList);
+
     this.focusUpc(true);
 
-    
-    this.calculateTotalPrice();
+    //window.location.reload();
   }
+  /* ************************************************************** */
+  chkPriceNumber1(row: number) {
+    let priceInput = <HTMLInputElement>document.getElementById('price_' + row);
+    
+    let val = priceInput.value;
+
+    if (priceInput != null || priceInput != undefined) {
+      let len = priceInput.value.length;
+
+      let qty = Number(val);
+      if (qty < 0) {
+        //0 or below not allowed
+        Swal.fire('WARNING', 'Negative Price is not allowed', 'warning');
+        return;
+
+      }
+     
+    }
+  } //chkNumber
 
 
   /* ************************************************************** */
@@ -3365,10 +3572,10 @@ focusUpc(focusFlag:boolean)
       let len = discountInput.value.length;
 
       let qty = Number(val);
-      if (qty<0){
-          //0 or below not allowed
-          Swal.fire('WARNING','Negative discount is not allowed', 'warning');
-          return;
+      if (qty < 0) {
+        //0 or below not allowed
+        Swal.fire('WARNING', 'Negative discount is not allowed', 'warning');
+        return;
 
       }
       if (len > 2) {
@@ -3378,35 +3585,40 @@ focusUpc(focusFlag:boolean)
       discountValInput.value = this.calculateDiscount(discountInput.value, row);
     }
   } //chkNumber
-/* ************************************************************* */
-calculateDiscount(discount:any, row:any):any{
+  /* ************************************************************* */
+  calculateDiscount(discount: any, row: any): any {
 
-  let price = this.cartDataList.product[row].price ;
-  let discountVal =0;
+    let price = this.cartDataList.product[row].price * this.cartDataList.product[row].quantity;
+    let discountVal = 0;
 
-  discountVal = (discount * price )/100;
-  this.cartDataList.product[row].discountVal = discountVal;
+    if (discount===undefined){
+      discount=0;
+    }
 
-  return discountVal;
-}
+    discountVal = (discount * price) / 100;
+    this.cartDataList.product[row].discountVal = discountVal;
+
+    return discountVal;
+  }
 
 
 
-/* ************************************************************* */
-openProductSearchPopup(){
-  this.productSearchPopup=true;
-}
+  /* ************************************************************* */
+  openProductSearchPopup() {
+    this.productSearchPopup = true;
+  }
 
-closeProductSearchPopup(){
-  this.productSearchPopup=false;
-  this.productcheckList = [];
-}
+  closeProductSearchPopup() {
+    this.productSearchPopup = false;
+    this.productcheckList = [];
+    this.clearProductSearchFields();
+  }
 
   /* ************************************************************** */
-clearProductSearchFields() {
+  clearProductSearchFields() {
     // Clear the priceCheck property in the component
     let nameInput = document.getElementById(
-      'name_search'
+      'name-search'
     ) as HTMLInputElement; // Get the input element
 
     if (nameInput) {
@@ -3414,7 +3626,7 @@ clearProductSearchFields() {
     }
 
     let skuInput = document.getElementById(
-      'sku_search'
+      'sku-search'
     ) as HTMLInputElement; // Get the input element
 
     if (skuInput) {
@@ -3422,7 +3634,7 @@ clearProductSearchFields() {
     }
 
     let priceInput = document.getElementById(
-      'price_search'
+      'price-search'
     ) as HTMLInputElement; // Get the input element
 
     if (priceInput) {
@@ -3434,37 +3646,58 @@ clearProductSearchFields() {
   }
 
 
-  selectSearchProduct(product: ProductView){
+  selectSearchProduct(product: ProductView) {
 
+    if (this.selectedAgent?.loginId === undefined || this.selectedAgent?.loginId === '') {
+      Swal.fire('Agent Required', 'Please select an Agent', 'warning');
+      return;
+    }
+
+    this.commonAdditionToCart(product);
+
+    /*
     let localCartData = localStorage.getItem('localCart');
     if (localCartData) {
       let cartData = JSON.parse(localCartData);
-      product.quantity=1;
+      product.quantity = 1;
       product.loginId = this.selectedAgent?.loginId;
       product.firstName = this.selectedAgent?.firstName;
       product.agentId = this.selectedAgent?.userId;
-      if (product.tax === null){
-        product.tax=18;
+      product.price = this.getPrice(product);
+      product.totalPrice = 0;
+      product.totalTax = 0;
+      //@TODO Commented out on 2024-09-06
+      // product.discount = 0;
+      // product.discountVal = 0;
+      if (product.tax === null) {
+        product.tax = 18;
       }
+
 
       cartData.product.push(product);
       localStorage.setItem('localCart', JSON.stringify(cartData));
     }
-    else{
-      product.quantity=1;
+    else {
+      product.quantity = 1;
       product.loginId = this.selectedAgent?.loginId;
       product.firstName = this.selectedAgent?.firstName;
       product.agentId = this.selectedAgent?.userId;
-      if (product.tax === null){
-        product.tax=18;
+      product.price = this.getPrice(product);
+      product.totalPrice = 0;
+      product.totalTax = 0;
+       //@TODO Commented out on 2024-09-06
+      // product.discount = 0;
+      // product.discountVal = 0;
+      if (product.tax === null) {
+        product.tax = 18;
       }
 
       this.cartDataList.product.push(product);
       localStorage.setItem('localCart', JSON.stringify(this.cartDataList));
     }
-
+*/
     this.closeProductSearchPopup();
-    window.location.reload();
+    //window.location.reload();
 
   }
 
@@ -3472,23 +3705,23 @@ clearProductSearchFields() {
     this.router.navigate(['reports']);
   }
 
-  lastBillOfSale(){
+  lastBillOfSale() {
 
-    
+
     this.orderService.getLastBillOfSale().subscribe((data: OrderResponse) => {
-      if (data !== undefined){
+      if (data !== undefined) {
 
         let orderCustomer = data.orderCustomer;
-        let orders:any = new Orders();
-        if (data.orderCustomer.length>0){
-          orders= data.orderCustomer[0].orders ;
-          let customer:any = data.orderCustomer[0]?.customer ;
+        let orders: any = new Orders();
+        if (data.orderCustomer.length > 0) {
+          orders = data.orderCustomer[0].orders;
+          let customer: any = data.orderCustomer[0]?.customer;
           let orderItems = data.orderItems;
-  
+
           this.printThermalLastBill(orders, customer, orderItems);
-  
+
         }
-        
+
 
       }
 
@@ -3496,27 +3729,27 @@ clearProductSearchFields() {
 
 
   }
-/* ******************************************************************************************************* */
-printThermalLastBill(order:Orders, customer:Customer, orderItems:OrderItemProductWrapper[]){
-  let popupWin;
-  //let printContents:HTMLElement = (document.getElementById('print-section-0').innerHTML) as HTMLElement ;
-  popupWin = window.open('', '_blank');
-  if (popupWin != null || popupWin != undefined) {
-    // popupWin.document.open();
+  /* ******************************************************************************************************* */
+  printThermalLastBill(order: Orders, customer: Customer, orderItems: OrderItemProductWrapper[]) {
+    let popupWin;
+    //let printContents:HTMLElement = (document.getElementById('print-section-0').innerHTML) as HTMLElement ;
+    popupWin = window.open('', '_blank');
+    if (popupWin != null || popupWin != undefined) {
+      // popupWin.document.open();
 
-    this.customer = customer;
+      this.customer = customer;
 
-    
-      let mainImage=``;
-      if (this.appName==='ZUBAIDA'){
-        mainImage = `assets/images/logos/zubaida-color-logo.png` ;
+
+      let mainImage = ``;
+      if (this.appName === 'ZUBAIDA') {
+        mainImage = `assets/images/logos/zubaida-color-logo.png`;
       }
-      else if(this.appName==='NIKS'){
-        mainImage = `assets/images/logos/niks-logo-small.png` ;
+      else if (this.appName === 'NIKS') {
+        mainImage = `assets/images/logos/niks-logo-small.png`;
       }
 
 
-    let myHtml01Tag = `
+      let myHtml01Tag = `
     <html> 
   <head>
   <meta charset="UTF-8">
@@ -3709,16 +3942,16 @@ printThermalLastBill(order:Orders, customer:Customer, orderItems:OrderItemProduc
 
 
 
-    let myHtml02Tag = `
+      let myHtml02Tag = `
     <div class="inv_details">
       <p style="text-align:left"><b>Customer: ` + this.customer.firstName + `  (` + this.customer.phone1 + ` )` + `</b></p>
-      <p style="text-align:left"><b>Date/Time:   &nbsp;` + order.createDate +  `</b></p>
+      <p style="text-align:left"><b>Date/Time:   &nbsp;` + order.createDate + `</b></p>
       <p style="text-align:left"><b> Bill#:` + order.orderId + `</b></p>
     </div>  
     <div class="items">
     `;
 
-    let myHtmlTableTag=`
+      let myHtmlTableTag = `
         <table >
      
   <thead>
@@ -3745,7 +3978,7 @@ printThermalLastBill(order:Orders, customer:Customer, orderItems:OrderItemProduc
     
     `;
 
-    let myHtmlItemHeadingTag=`
+      let myHtmlItemHeadingTag = `
         <table >
      
         <thead>
@@ -3772,70 +4005,70 @@ printThermalLastBill(order:Orders, customer:Customer, orderItems:OrderItemProduc
     `;
 
 
-    let itemListHtmlTag = ``;
-    let taxTdBlock=``;
-    let price:any=0;
-    let totalQty=0;
-    let totalDiscount=0;
+      let itemListHtmlTag = ``;
+      let taxTdBlock = ``;
+      let price: any = 0;
+      let totalQty = 0;
+      let totalDiscount = 0;
 
-    for (let i = 0; i < orderItems.length; i++) {
-      price = orderItems[i].ordersItems?.unitPrice;
-      let quantity:any = orderItems[i].ordersItems?.quantity;//1
-      let discount = orderItems[i].ordersItems?.discount;//%age 10
+      for (let i = 0; i < orderItems.length; i++) {
+        price = orderItems[i].ordersItems?.unitPrice;
+        let quantity: any = orderItems[i].ordersItems?.quantity;//1
+        let discount = orderItems[i].ordersItems?.discount;//%age 10
 
-      let discountVal = price - (price * discount)/100;//52
-      let taxItem = ((orderItems[i].products?.tax) * (quantity * discountVal ))/100;
-      let totalPrice = taxItem + (quantity * discountVal);
+        let discountVal = price - (price * discount) / 100;//52
+        let taxItem = ((orderItems[i].products?.tax) * (quantity * discountVal)) / 100;
+        let totalPrice = taxItem + (quantity * discountVal);
 
-      totalQty = totalQty + quantity;
-  
+        totalQty = totalQty + quantity;
 
-        itemListHtmlTag = itemListHtmlTag + 
-        `<tr>
+
+        itemListHtmlTag = itemListHtmlTag +
+          `<tr>
           <td>` +
-            orderItems[i].ordersItems?.agentId + `-` +  orderItems[i].products?.upc +               
+          orderItems[i].ordersItems?.agentId + `-` + orderItems[i].products?.upc +
           `</td>
           <td>` +
-            price.toFixed(2) +
+          price.toFixed(2) +
           `</td>
           <td>` +
-            orderItems[i].ordersItems?.quantity +
+          orderItems[i].ordersItems?.quantity +
           `</td>
           <td>` +
-            (orderItems[i].ordersItems?.discount===null?0: orderItems[i].ordersItems?.discount) +
+          (orderItems[i].ordersItems?.discount === null ? 0 : orderItems[i].ordersItems?.discount) +
           `</td>`;
 
 
-        if (this.showTaxFlag){
+        if (this.showTaxFlag) {
           taxTdBlock = `<td><b>` +
-          (taxItem).toFixed(2) +
-        `</b></td>
+            (taxItem).toFixed(2) +
+            `</b></td>
           <td><b>` +
-          orderItems[i].products?.tax +
-        `</b></td>`;
+            orderItems[i].products?.tax +
+            `</b></td>`;
 
         }
-        else{
+        else {
           taxTdBlock = ``;
         }
-      
+
         itemListHtmlTag += taxTdBlock +
-        `<td><b>` +
+          `<td><b>` +
           (totalPrice).toFixed(2) +
-        `</b></td>
+          `</b></td>
         </tr>
         <tr>
           <td colspan="6">` +
-            orderItems[i].products?.productName +
+          orderItems[i].products?.productName +
           `</td>
            <td><td>
         </tr>
         `;
 
 
-    } //for loop  
+      } //for loop  
 
-    let tableFooterHtmlTag = `
+      let tableFooterHtmlTag = `
     </tbody>
       <tfoot>
       <tr>
@@ -3846,22 +4079,22 @@ printThermalLastBill(order:Orders, customer:Customer, orderItems:OrderItemProduc
       <tr>
       <td style="text-align: left;">Total Qty:</td>
       <td colspan="5" style="text-align: left;"> ` +
-      totalQty +
-      `</td>
+        totalQty +
+        `</td>
       </tr>
       <tr>
       <td >Discount:</td>
-      <td colspan="5" style="text-align: left;">Rs.` +  totalDiscount + ` </td>
+      <td colspan="5" style="text-align: left;">Rs.` + totalDiscount + ` </td>
       </tr> 
           <tr>
             <td >Tax:</td>
-            <td colspan="5" style="text-align: left;">Rs.` +  Math.round((Number(order.tax))).toFixed(2) + ` </td>
+            <td colspan="5" style="text-align: left;">Rs.` + Math.round((Number(order.tax))).toFixed(2) + ` </td>
           </tr><tr> 
         <td ><b>Total: </b></td>
         <td colspan="5" style="text-align: left;"><b>Rs.` + Math.round((Number(order.grandTotal))).toFixed(2) + `</b> </td>
         </tr><tr>
         <td >Cash Paid:</td>
-        <td colspan="5" style="text-align: left;">Rs.` +  this.result + ` </td>
+        <td colspan="5" style="text-align: left;">Rs.` + this.result + ` </td>
         </tr><tr>
       <td style="text-align: left;border-bottom: 1px solid #000;" ><b>Customer Balance: </b></td>
       <td colspan="5" style="text-align: left;border-bottom: 1px solid #000;"><b>Rs.` + (this.customerBalance).toFixed(2) + `</b> 
@@ -3872,7 +4105,7 @@ printThermalLastBill(order:Orders, customer:Customer, orderItems:OrderItemProduc
     
     `;
 
-    let fbrHtmlTag=`
+      let fbrHtmlTag = `
     <div class="tax fbr" style="display: block;">          
 
       <img src="assets/images/barcode.jpg" id="imagea" class="usin fbr">
@@ -3890,7 +4123,7 @@ printThermalLastBill(order:Orders, customer:Customer, orderItems:OrderItemProduc
 
     `;
 
-    let contactHtmlTag = `
+      let contactHtmlTag = `
       <div class="contact">
         <p>If you have any queries related, feel free to reach us at: <br>
             <i class="fa fa-fw fa-phone"></i>+92 300 3932177 +92 21 37293088><br>
@@ -3900,7 +4133,7 @@ printThermalLastBill(order:Orders, customer:Customer, orderItems:OrderItemProduc
       </div>
     `;
 
-    let termHtmlTag = `
+      let termHtmlTag = `
     <div class="terms">
       <p>
         <b>**Terms &amp; Conditions**</b>
@@ -3917,7 +4150,7 @@ printThermalLastBill(order:Orders, customer:Customer, orderItems:OrderItemProduc
     </div>
     `;
 
-    let lastHtmlTag = `
+      let lastHtmlTag = `
     <p style="margin-left:30px !important;">
         <b>Thanks for your purchase!</b>
     </p>
@@ -3930,79 +4163,75 @@ printThermalLastBill(order:Orders, customer:Customer, orderItems:OrderItemProduc
     `;
 
 
-    //Add all hmt tags
-    let finalHTMLTag = myHtml01Tag + myHtml02Tag + myHtmlItemHeadingTag + itemListHtmlTag + tableFooterHtmlTag + fbrHtmlTag + contactHtmlTag + termHtmlTag + lastHtmlTag ;
+      //Add all hmt tags
+      let finalHTMLTag = myHtml01Tag + myHtml02Tag + myHtmlItemHeadingTag + itemListHtmlTag + tableFooterHtmlTag + fbrHtmlTag + contactHtmlTag + termHtmlTag + lastHtmlTag;
 
 
-     //Initializae payment object after save
-     this.payment = new Payment();
+      //Initializae payment object after save
+      this.payment = new Payment();
 
-     popupWin.document.write(finalHTMLTag);
+      popupWin.document.write(finalHTMLTag);
 
-     popupWin.document.close();
+      popupWin.document.close();
 
-  }//popupWin
+    }//popupWin
 
-}
-
-
-
-
+  }
 
   /* ************************************************************************************************** */
-  printThermalLastBillOld(order:Orders, customer:Customer, orderItems:OrderItemProductWrapper[]){
-   
-      /* Must open Chrome in KIOSK mode */
-      /* "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" --kiosk-printing */
-  
+  printThermalLastBillOld(order: Orders, customer: Customer, orderItems: OrderItemProductWrapper[]) {
+
+    /* Must open Chrome in KIOSK mode */
+    /* "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" --kiosk-printing */
+
     this.customer = customer;
-    
-      let popupWin;
-      //let printContents:HTMLElement = (document.getElementById('print-section-0').innerHTML) as HTMLElement ;
-      popupWin = window.open('', '_blank');
-      if (popupWin != null || popupWin != undefined) {
-        // popupWin.document.open();
-  
-        customer.firstName;
-  
-        let orderAddress =
-          customer?.address +
-          ',' +
-          customer?.city +
-          ',' +
-          customer?.stateProvince +
-          ',' +
-          customer?.postalCode;
-  
-        let myCss = this.getCss();
-  
-        let myHead = `
+
+    let popupWin;
+    //let printContents:HTMLElement = (document.getElementById('print-section-0').innerHTML) as HTMLElement ;
+    popupWin = window.open('', '_blank');
+    if (popupWin != null || popupWin != undefined) {
+      // popupWin.document.open();
+
+      customer.firstName;
+
+      let orderAddress =
+        customer?.address +
+        ',' +
+        customer?.city +
+        ',' +
+        customer?.stateProvince +
+        ',' +
+        customer?.postalCode;
+
+      let myCss = this.getCss();
+
+      let myHead = `
       <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <meta http-equiv="X-UA-Compatible" content="ie=edge">
       <title>Niks Receipt</title>
       </head>    `;
-  
-        let myHtml = ` <html> ` + myHead;
-        
-        let myBodyOrder =
-          `<body onload="window.print();window.close();">
+
+      let myHtml = ` <html> ` + myHead;
+
+      let myBodyOrder =
+        `<body onload="window.print();window.close();">
       <div class="ticket">  ` ;
-  
-  
-      if (this.appName==='ZUBAIDA'){
-        myBodyOrder = myBodyOrder + `<img src="assets/images/logos/zubaida-color-logo.png" id="imagea" width: 20mm; text-align: center; ">` ;
+
+
+      if (this.appName === 'ZUBAIDA') {
+        myBodyOrder = myBodyOrder + `<img src="assets/images/logos/zubaida-color-logo.png" id="imagea" width: 20mm; text-align: center; ">`;
       }
-      else if(this.appName==='NIKS'){
-        myBodyOrder = myBodyOrder + `<img src="assets/images/logos/niks-logo-small.png" id="imagea" width: 20mm; text-align: center; ">` ;
+      else if (this.appName === 'NIKS') {
+        myBodyOrder = myBodyOrder + `<img src="assets/images/logos/niks-logo-small.png" id="imagea" width: 20mm; text-align: center; ">`;
       }
-       
-  
-      let tHead='';
-      if (this.showTaxFlag){
-        tHead = 
-        `<thead>
+
+
+      let tHead = '';
+      if (this.showTaxFlag) {
+        tHead =
+          `<thead>
           <tr >
               <td colspan="6" style="text-align: left;border-top: 1px solid #000;"><b>Product Description</b></td>
           </tr>
@@ -4016,9 +4245,9 @@ printThermalLastBill(order:Orders, customer:Customer, orderItems:OrderItemProduc
           </tr>
         </thead>`
       }
-      else{
-        tHead = 
-        `<thead>
+      else {
+        tHead =
+          `<thead>
           <tr >
               <td colspan="6" style="text-align: left;border-top: 1px solid #000;"><b>Product Description</b></td>
           </tr>
@@ -4030,155 +4259,155 @@ printThermalLastBill(order:Orders, customer:Customer, orderItems:OrderItemProduc
           </tr>
         </thead>`
       }
-  
-  
-  
-      
+
+
+
+
       myBodyOrder = myBodyOrder +
-      `<p style="text-align:left !important;"><b> ABC SONS </b><br>
+        `<p style="text-align:left !important;"><b> ABC SONS </b><br>
       STRN:1700223239612|NTN:2232396-1</p>
    
       <h1 style="font-size:13px;text-align:left !important;"><b>Sale Receipt </b></h1>
       <h1 style="font-size:13px;text-align:left !important;"><b> ` +
-          customer.firstName + `  (` + customer.phone1 + ` )` +
-          `</b></h1>` +  
-          `<h1 style="font-size:13px;text-align:left !important;"><b> ` +
-          order.createDate + `</b></h1>` +
-          
-          `<table style="list-style:none;font-size:12px;text-align:left; ">` + 
-          tHead + 
-          `<tbody >`;
-  
-       
-  
-  
-        let myItems = ``;
-        let subtotal = 0;
-        let taxItem = 0;
-        let totalTax=0;
-        let FbrCharges = 0;
-        let total = 0;
-        let itemDiscount=0;
-  
-        for (let i = 0; i < orderItems.length; i++) {
-          let price = orderItems[i].ordersItems?.unitPrice;//520
-          let quantity:any = orderItems[i].ordersItems?.quantity;//1
-          let discount = orderItems[i].ordersItems?.discount;//%age 10
-          let discountVal = price - (price * discount)/100;//52
-            
-  
-          //taxItem = this.tax(orderItems[i].products); //((price * this.cartDataList.product[i].quantity) * this.cartDataList.product[i].tax )/100;  
-          //subtotal = subtotal + price * this.cartDataList.product[i].quantity ;
-          // tax = this.cartDataList[i].tax || 0 ;
-          taxItem = ((orderItems[i].products?.tax) * (quantity * discountVal ))/100;
-          let totalPrice = taxItem + (quantity * discountVal);
-          
-          let discountPrice=0;
-  
-          //totalTax = totalTax + taxItem;
-          //price = price * orderItems[i].products?.quantity; //660
-            
-        
-  
-        let taxTdBlock='';
-  
-      
-  
-  
-          myItems +=
-            `<tr>
+        customer.firstName + `  (` + customer.phone1 + ` )` +
+        `</b></h1>` +
+        `<h1 style="font-size:13px;text-align:left !important;"><b> ` +
+        order.createDate + `</b></h1>` +
+
+        `<table style="list-style:none;font-size:12px;text-align:left; ">` +
+        tHead +
+        `<tbody >`;
+
+
+
+
+      let myItems = ``;
+      let subtotal = 0;
+      let taxItem = 0;
+      let totalTax = 0;
+      let FbrCharges = 0;
+      let total = 0;
+      let itemDiscount = 0;
+
+      for (let i = 0; i < orderItems.length; i++) {
+        let price = orderItems[i].ordersItems?.unitPrice;//520
+        let quantity: any = orderItems[i].ordersItems?.quantity;//1
+        let discount = orderItems[i].ordersItems?.discount;//%age 10
+        let discountVal = price - (price * discount) / 100;//52
+
+
+        //taxItem = this.tax(orderItems[i].products); //((price * this.cartDataList.product[i].quantity) * this.cartDataList.product[i].tax )/100;  
+        //subtotal = subtotal + price * this.cartDataList.product[i].quantity ;
+        // tax = this.cartDataList[i].tax || 0 ;
+        taxItem = ((orderItems[i].products?.tax) * (quantity * discountVal)) / 100;
+        let totalPrice = taxItem + (quantity * discountVal);
+
+        let discountPrice = 0;
+
+        //totalTax = totalTax + taxItem;
+        //price = price * orderItems[i].products?.quantity; //660
+
+
+
+        let taxTdBlock = '';
+
+
+
+
+        myItems +=
+          `<tr>
               <td colspan="6" style="text-align: left;border-top: 1px solid #000;"><b>` +
-              orderItems[i].products?.productName + `( ` + orderItems[i].products?.upc + ` )` +
-            `</b></td>
+          orderItems[i].products?.productName + `( ` + orderItems[i].products?.upc + ` )` +
+          `</b></td>
           </tr>
           <tr>
               <td><b>` +
-              price.toFixed(2) +
-            
-            `</b></td>
+          price.toFixed(2) +
+
+          `</b></td>
               <td><b>` +
-              quantity +
-            `</b></td>
+          quantity +
+          `</b></td>
              <td><b>` +
-             discount +
-            `</b></td>`;
-  
-            
-  
-            if (this.showTaxFlag){
-              taxTdBlock = `<td><b>` +
-              taxItem +
+          discount +
+          `</b></td>`;
+
+
+
+        if (this.showTaxFlag) {
+          taxTdBlock = `<td><b>` +
+            taxItem +
             `</b></td>
               <td><b>` +
-              orderItems[i].products?.tax +
+            orderItems[i].products?.tax +
             `</b></td>`;
-  
-            }
-            else{
-              taxTdBlock = ``;
-            }          
-            myItems += taxTdBlock +
-  
-            `<td><b>` +
-              totalPrice +
-            `</b></td>
+
+        }
+        else {
+          taxTdBlock = ``;
+        }
+        myItems += taxTdBlock +
+
+          `<td><b>` +
+          totalPrice +
+          `</b></td>
           </tr>`;
-        }//for
-  
-  
-        let mySubTotal = Math.round(Number(order.orderAmount)).toFixed(2);
-        let myDiscount = (Number(0)).toFixed(2);
-        let myTax = Math.round((Number(order.tax))).toFixed(2);
-        let fbrPos = (Number(this.FbrCharges)).toFixed(2);
-        let myTotal = Math.round((Number(order.grandTotal))).toFixed(2);
-  
-        let finalTaxBlock=``;
-        let myBottonHtml =
-         `</tbody>
+      }//for
+
+
+      let mySubTotal = Math.round(Number(order.orderAmount)).toFixed(2);
+      let myDiscount = (Number(0)).toFixed(2);
+      let myTax = Math.round((Number(order.tax))).toFixed(2);
+      let fbrPos = (Number(this.FbrCharges)).toFixed(2);
+      let myTotal = Math.round((Number(order.grandTotal))).toFixed(2);
+
+      let finalTaxBlock = ``;
+      let myBottonHtml =
+        `</tbody>
           <tfoot>
           <tr>
           <td style="text-align: left;border-top: 1px solid #000;">Sub Total:</td>
           <td colspan="5" style="text-align: left;border-top: 1px solid #000;">Rs. ` +
-          mySubTotal +
-          ` </td>
+        mySubTotal +
+        ` </td>
           
           </tr>
           <tr>
           <td >Discount:</td>
           <td colspan="5" style="text-align: left;">Rs. ` +
-          myDiscount +
-          ` </td>
+        myDiscount +
+        ` </td>
           </tr>` ;
-  
-          if (this.showTaxFlag){
-            finalTaxBlock = ` 
+
+      if (this.showTaxFlag) {
+        finalTaxBlock = ` 
               <tr>
                 <td >Tax:</td>
                 <td colspan="5" style="text-align: left;">Rs. ` +
-                  myTax +
-              ` </td>
+          myTax +
+          ` </td>
               </tr>`;
-          }
-  
-          myBottonHtml = myBottonHtml + finalTaxBlock +
-          
-          `<tr> 
+      }
+
+      myBottonHtml = myBottonHtml + finalTaxBlock +
+
+        `<tr> 
             <td ><b>Total: </b></td>
             <td colspan="5" style="text-align: left;"><b>Rs ` +
-            myTotal +
-            `</b> </td>
+        myTotal +
+        `</b> </td>
             </tr>`;
-  
-          
-          
-  
-          myBottonHtml = myBottonHtml  +
-  
-          
-          `</tfoot>
+
+
+
+
+      myBottonHtml = myBottonHtml +
+
+
+        `</tfoot>
           </table>
           <p class="centered" style="margin-left:10px !important;">Invoice#:BL` + order.orderId +
-          `<br>
+        `<br>
           
           
           <p class="centered" style="margin-left:10px !important;"><b> ** Terms And Conditions ** </b><p>
@@ -4212,49 +4441,176 @@ printThermalLastBill(order:Orders, customer:Customer, orderItems:OrderItemProduc
       
     </body>
     </html>`;
-  
-    // <p id="abc" class="centered" style="font-size:small;margin-left:10px !important;">
-    // Copyright© 2024 Z GENERATIONS. </p>
-    // <p id="abc" style="font-size:7px;">
-    // All rights Reserved to Software Developed By <b id="abcc">TechMaci</b>
-    // <br> 
-    // Ph +92 300-3932177 | Cell +92 21 37293088 
-    // </p>
-  
-  
-        let myFinalHtml = myHtml + myBodyOrder + myItems + myBottonHtml;
-  //alert(myFinalHtml);
-  
-        //Initializae payment object after save
-        this.payment = new Payment();
-  
-        popupWin.document.write(myFinalHtml);
-  
-        popupWin.document.close();
-  
-  
-      } //end if
-   
-  
+
+      // <p id="abc" class="centered" style="font-size:small;margin-left:10px !important;">
+      // Copyright© 2024 Z GENERATIONS. </p>
+      // <p id="abc" style="font-size:7px;">
+      // All rights Reserved to Software Developed By <b id="abcc">TechMaci</b>
+      // <br> 
+      // Ph +92 300-3932177 | Cell +92 21 37293088 
+      // </p>
+
+
+      let myFinalHtml = myHtml + myBodyOrder + myItems + myBottonHtml;
+      //alert(myFinalHtml);
+
+      //Initializae payment object after save
+      this.payment = new Payment();
+
+      popupWin.document.write(myFinalHtml);
+
+      popupWin.document.close();
+
+
+    } //end if
+
+
   }
 
-    getPrice(product:any):any{
-      let price = (product.salePrice
+  getPrice(product: any): any {
+    let price=0;
+    if (product.upc==='00448666'){
+      price = product.price;
+    }
+    else{
+      price = (product.salePrice
         ? product.salePrice
         : product.unitPrice);
-
-        return price;
+  
     }
 
-    salesReportExcel(legacyReport:boolean){
-      this.legacyReport = legacyReport;
-      let url = 'reports/' + legacyReport;
-      this.router.navigate([url]);
+    return price;
+  }
 
+  salesReportExcel(legacyReport: boolean) {
+    this.legacyReport = legacyReport;
+    let url = 'reports/' + legacyReport;
+    this.router.navigate([url]);
+
+  }
+
+  /* ******************* NEW METHODS ******************************* */
+
+  priceCalculationPerRow(row: any) {
+
+    if (this.cartDataList.product.length === 0) return;
+
+    let priceWithQty = this.cartDataList.product[row].price * this.cartDataList.product[row].quantity;
+
+    if (this.showTaxFlag) {
+      if (this.cartDataList.product[row].discount===undefined){
+        this.cartDataList.product[row].discount=0;
+      }
+
+      if (this.cartDataList.product[row].discountVal===undefined){
+        this.cartDataList.product[row].discountVal=0;
+      }
+      let priceMinusDiscount = (priceWithQty) - Number(this.cartDataList.product[row].discountVal);
+      this.cartDataList.product[row].totalTax = ((priceMinusDiscount) * this.cartDataList.product[row].tax) / 100;
+      this.cartDataList.product[row].totalPrice = ((Number(priceMinusDiscount) + this.cartDataList.product[row].totalTax).toFixed(2));
+
+    }
+    else {
+      if (this.cartDataList.product[row].discount===undefined){
+        this.cartDataList.product[row].discount=0;
+      }
+
+      if (this.cartDataList.product[row].discountVal===undefined){
+        this.cartDataList.product[row].discountVal=0;
+      }
+      this.cartDataList.product[row].totalPrice = ((Number((priceWithQty) - Number(this.cartDataList.product[row].discountVal))).toFixed(2));
     }
 
 
-/* ************************** THE END ***************************************** */
+
+
+  }
+
+  priceCalculationTotal(): void {
+
+
+
+    this.priceSummary.tax = 0;
+    this.priceSummary.total = 0;
+    this.priceSummary.discount = 0;
+    this.priceSummary.grandTotal = 0;
+    this.priceSummary.totalQty = 0;
+    this.priceSummary.totalWithoutDiscount = 0;
+
+    if (this.cartDataList.product.length === 0) return;
+
+    let finalPrice = 0;
+    //let row = -1;
+
+    if (this.showTaxFlag) {
+
+      for (let row = 0; row < this.cartDataList.product.length; row++) {
+        let totalTax = 0, totalDiscount = 0, total = 0, grandTotal = 0, totalQty = 0, totalPrice = 0;
+
+
+        totalTax = Number(this.cartDataList.product[row].totalTax);
+        this.priceSummary.tax += Number(totalTax);
+
+        if (this.cartDataList.product[row].discountVal===undefined){
+          this.cartDataList.product[row].discountVal=0;
+        }
+
+        totalDiscount = Number(this.cartDataList.product[row].discountVal);
+        this.priceSummary.discount += Number(totalDiscount);
+
+        totalQty = Number(this.cartDataList.product[row].quantity);
+        this.priceSummary.totalQty += Number(totalQty);
+
+        total = Number(this.cartDataList.product[row].price * totalQty) - totalDiscount;
+        this.priceSummary.total += Number(total);
+
+        totalPrice = Number(this.cartDataList.product[row].price);
+        this.priceSummary.totalWithoutDiscount += totalPrice;
+
+
+        this.priceSummary.grandTotal += Number(this.cartDataList.product[row].totalPrice);
+
+
+      }//for loop
+
+
+    }
+    else {
+      for (let row = 0; row < this.cartDataList.product.length; row++) {
+        let totalTax = 0, totalDiscount = 0, total = 0, grandTotal = 0, totalQty = 0, totalPrice = 0;
+
+        if (this.cartDataList.product[row].discountVal===undefined){
+          this.cartDataList.product[row].discountVal=0;
+        }
+
+        totalDiscount = Number(this.cartDataList.product[row].discountVal);
+        this.priceSummary.discount += Number(totalDiscount);
+        let qty = Number(this.cartDataList.product[row].quantity);
+        totalQty = qty;
+        this.priceSummary.totalQty += Number(totalQty);
+        total = Number(this.cartDataList.product[row].totalPrice);
+        this.priceSummary.total += Number(total);
+
+        totalPrice = Number(this.cartDataList.product[row].price);
+        this.priceSummary.totalWithoutDiscount += totalPrice;
+
+
+        this.priceSummary.grandTotal += Number(this.cartDataList.product[row].totalPrice);
+
+
+      }//for loop
+
+
+    }
+
+    this.priceSummary.grandTotal = Number(Math.round((Number(this.priceSummary.grandTotal))).toFixed(2));
+
+
+  }
+
+
+
+  /* ************************** THE END ***************************************** */
 
 
 

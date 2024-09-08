@@ -7,7 +7,8 @@ import { first } from 'rxjs/operators';
 import { LoginService } from '../services/login.service';
 import Swal from 'sweetalert2' ;   // 'sweetalert2/dist/sweetalert2.js';
 import { AdminUser } from '../model/model-classes.model';
-import { CacheService } from '../services/cache.service'
+import { CacheService } from '../services/cache.service';
+import { Observable, delay } from 'rxjs';
 import { get } from 'jquery';
 import { environment } from 'src/environments/environment';
 
@@ -51,6 +52,7 @@ export class LoginComponent implements OnInit {
     versionNumber = environment.versionNumber ;
     appEnv=environment.appEnv;
     logoName = environment.logoName;
+    apiDB = environment.dbEnv;
 
   constructor(
       private formBuilder: FormBuilder,
@@ -62,6 +64,12 @@ export class LoginComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+
+    // let currentUser = sessionStorage.getItem('currentUser');
+    // let token = sessionStorage.getItem('Token');
+    // if ((currentUser!==undefined || currentUser!==null) && (token!==undefined || token!==null)) {
+    //   this.router.navigate(['pos']);
+    // }    
 
 
     this.cache.resetAllData();
@@ -111,9 +119,17 @@ export class LoginComponent implements OnInit {
   /* ******************************************* */
   alertWithSuccess(userId: any){
     Swal.fire('Submit', `You have succesfully registered with ${this.projectName}!`, 'success')
+
+
+
   }
   alertWithSignin(loginId: any){
-    Swal.fire('SignIn-' + loginId, `You have succesfully signed In with ${this.projectName}!`, 'success')
+   
+      //Swal.fire('SignIn-' + loginId, `You have succesfully signed In with ${this.projectName}!`, 'success');
+      Swal.fire({title:'SignIn-' + loginId, timer:1000, text:`You have succesfully signed In with ${this.projectName}!`, icon:'success'});
+      //delay(5000);
+   
+    
   }
   /* ****************************************** */
   onClear(){
@@ -142,26 +158,10 @@ export class LoginComponent implements OnInit {
           sessionStorage.setItem('currentUser', JSON.stringify(data.adminUser));
           sessionStorage.setItem('Token', data.token);
           sessionStorage.setItem('UserLoginResponse', JSON.stringify(data));
+          
+          this.alertWithSignin(data.adminUser?.loginId);
+          this.router.navigate(['pos']);
 
-          console.log(' Authentication Sucessful- forwarding to home:: ');
-
-          //Now check, if user has record in Customer table
-          //If this user already registered in ADMIN_USER table,
-          //NOW check if this loginId exists in CUSTOMER table,
-          //IF YES, then re-direct to Order Page
-          //ELSE Take him to New Registeration Page
-          //Else go to customer entry form
-          /*if (data.newCustomer){
-            Swal.fire('SignIn-' + data.adminUser?.loginId, 'Please complete your registration with Premium Auto Gallery!', 'success')
-            this.router.navigate(['customer']);
-          }
-          else{*/
-            this.alertWithSignin(data.adminUser?.loginId);
-            this.router.navigate(['pos']);
-          //}
-
-
-          //this.registerFlag=false;
         }
 
 

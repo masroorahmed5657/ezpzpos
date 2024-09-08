@@ -5,6 +5,7 @@ import { environment } from 'src/environments/environment';
 import {
    DailyCategorySale, DailyProductSale, DailySale, DailysubCategorySale, MonthlTotalyearning, MonthlyCategorySale, MonthlyProductSale,
    MonthlySale, MonthlysubCategorySale, OrderSaleReportResponse, ProductWrapper,
+   ReportRequest,
    TodayTotalearning, TotalCountOrders, TotalCountProducts, TotalCountSale, TotalCountSignup, WeeklyCategorySale, WeeklyProductSale,
    WeeklySale, WeeklyTotalearning, WeeklysubCategorySale, YearlyCategorySale, YearlyProductSale, YearlySale, YearlysubCategorySale
 } from '../model/model-classes.model';
@@ -167,6 +168,14 @@ export class ReportsService {
       );
    }
 
+  /* ************************************************************* */
+  dailySaleTotalCashCreditCount(): Observable<any> {
+      let myUrl = `${this.myUrl}` + `reports/dailySaleTotalCashCreditCount`;
+         return this.http.get<any>(myUrl).pipe(
+            catchError(this.errors.handleError<any>('dailySaleTotalCashCreditCount'))
+        );
+   }
+   
 
    /* ************************************************************* */
    getDailyProductSale(): Observable<DailyProductSale[]> {
@@ -308,6 +317,16 @@ export class ReportsService {
          catchError(this.errors.handleError<OrderSaleReportResponse>('getDailySaleExcel'))
       );
    }
+   /* ************************************************************* */
+   getDailySaleExcelWithDateRange(orderType:any, reportRequest:ReportRequest): Observable<OrderSaleReportResponse> {
+      let myUrl = `${this.myUrl}` + `reports/dailySaleWithDate` ;
+
+
+      return this.http.post<OrderSaleReportResponse>(myUrl, reportRequest).pipe(
+         catchError(this.errors.handleError<OrderSaleReportResponse>('getDailySaleExcelWithDateRange'))
+      );
+   }
+
 
 
    /* ************************************************************* */

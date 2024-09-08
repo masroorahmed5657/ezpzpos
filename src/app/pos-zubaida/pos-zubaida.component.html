@@ -22,10 +22,10 @@
               <button class="glow-on-hover report-btn" type="button">Sales Report-Chart</button>
             </a>&nbsp;&nbsp; -->
 
-            <button class="glow-on-hover report-btn" style="font-size: small;" (click)="salesReportExcel(true)"
+            <!-- <button class="glow-on-hover report-btn" style="font-size: small;" (click)="salesReportExcel(true)"
               data-bs-toggle="modal" data-bs-target="#myModal"><b>Sales Report(Chart)</b>
             </button>
-            &nbsp;&nbsp;
+            &nbsp;&nbsp; -->
             <button class="glow-on-hover report-btn" style="font-size: small;" (click)="salesReportExcel(false)"
               data-bs-toggle="modal" data-bs-target="#myModal"><b>Sales Report</b>
             </button>
@@ -52,7 +52,7 @@
           </div> <!-- widget .// -->
           <div class="widget-header dropdown">
             <a routerLink="/home" class="ml-3 icontext" data-toggle="dropdown" data-offset="20,10">
-              <img src="assets/images/avatars/bshbsh.png" class="avatar" alt="">
+              <img src="assets/images/avatars/user-avatar.png" class="avatar" alt="">
             </a>
             <div class="dropdown-menu dropdown-menu-right">
               <a class="dropdown-item" href="#"><i class="fa fa-sign-out-alt"></i> Logout</a>
@@ -66,685 +66,762 @@
 
 <!-- ========================= SECTION CONTENT ========================= -->
 
-<!-- <section class="section-content" > -->
-<div class="container-fluid">
-  <!-- Row for Customer Info -->
-  <div class="row" style="margin: 0px;">
-
-    <!-- Input for customer phone -->
-    <div class="col-md-3 col-lg-3 col-sm-12">
-      <input type="tel" id="selectedPhoneInput" [(ngModel)]="customer.phone1"
-        placeholder="03xxxxxxxxx (11 digit mobile number)" (keyup)="customerPhoneKey($event)"
-        style="background-color:white;color: black;width: 100%;border: 1px solid gray;">
+<body>
+  <!-- <section class="section-content" > -->
+  <div class="container-fluid">
+    <div id="spinner" *ngIf="spinnerDataLoad" class="text-center">
+      <label style="font-size: larger;">Loading... &nbsp;&nbsp; </label>
+      <div class="spinner-border text-danger" style="width: 5rem; height: 5rem;" role="status">
+        <span class="visually-hidden"></span>
+      </div>
     </div>
+    <!-- Row for Customer Info -->
+    <div class="row" style="margin: 0px;">
 
-    <div class="col-md-2 col-lg-2 col-sm-12">&nbsp;</div>
-    <!-- Input with Font Awesome icon -->
+      <!-- Input for customer phone -->
+      <div class="col-md-3 col-lg-3 col-sm-12">
+        <input type="tel" id="selectedPhoneInput" [(ngModel)]="customer.phone1"
+          placeholder="03xxxxxxxxx (11 digit mobile number)" (keyup)="customerPhoneKey($event)"
+          style="background-color:white;color: black;width: 100%;border: 1px solid gray;">
+      </div>
 
-    <div class="col-md-3 col-lg-3 col-sm-12 d-flex align-items-center">
-      <fa-icon class="ng-fa-icon" [icon]="faPerson"></fa-icon>
-      <input id="selectAgentInput" name="selectAgentInput" style="width:20%;" (keyup)="agentKey($event)"
-        autocomplete="off">
-      &nbsp;
-      <label> {{selectedAgent?.loginId}}-{{selectedAgent?.firstName}} </label>
+      <div class="col-md-2 col-lg-2 col-sm-12 mt-2">
+        <input class="form-check-input" type="checkbox" [(ngModel)]="taxCouponFlag">
+        <label class="form-check-label" >
+          <b>Coupon</b>
+        </label>
 
-    </div>
+      </div>
+      <!-- Input with Font Awesome icon -->
 
-    <!-- Search inputs -->
-    <div class="col-md-4 col-lg-4 col-sm-12">
-      <input type="search" id="upc-search" name="upc-search" class="form-control" 
-        placeholder="Search By Barcode" (keyup)="upcSearch($event)">
-    </div>
+      <div class="col-md-3 col-lg-3 col-sm-12 d-flex align-items-center">
+        <fa-icon class="ng-fa-icon" [icon]="faPerson"></fa-icon>
+        <input id="selectAgentInput" name="selectAgentInput" style="width:20%;" (keyup)="agentKey($event)"
+          autocomplete="off">
+        &nbsp;
+        <label> {{selectedAgent?.loginId}}-{{selectedAgent?.firstName}} </label>
 
-    <!-- <div class="col-md-3 col-lg-3 col-sm-12">
+      </div>
+
+      <!-- Search inputs -->
+      <div class="col-md-4 col-lg-4 col-sm-12">
+        <input type="search" id="upc-search" name="upc-search" class="form-control" autocomplete="off"
+          placeholder="Search By Barcode" (keyup)="upcSearch($event)">
+      </div>
+
+      <!-- <div class="col-md-3 col-lg-3 col-sm-12">
       <input type="search" class="form-control" placeholder="Search By Name" id="name-search" name="name-search"
         (keyup)="nameSearch($event)">
     </div> -->
-  </div> <!-- Row -->
+    </div> <!-- Row -->
 
 
 
-  <!-- MAIN CART -->
-  <div class="row" style="margin: 0px;border: 2px solid black;width: 100%;">
+    <!-- MAIN CART -->
+    <div class="row" style="margin: 0px;border: 0px solid black;width: 100%;">
 
-    <div class="col-md-12 col-lg-12 col-sm-12 card" style="height:55vh !important;border: none;">
+      <div class="col-md-12 col-lg-12 col-sm-12 card" style="border: none;">
 
-      <!-- <span id="items" style="margin-top: 20px;"> -->
-      <!-- <div class="row"> -->
-      <!-- <div class="col-12"> -->
-      <!-- class="table table-condensed table-bordered table-striped table-responsive items_table" -->
-      <table *ngIf="!mobileshow" style="border: 2px solid black;width: 100%;">
-        <thead class="bg-primary" style="width:100%;">
-          <tr style="background-color:black;border: 3px solid white; color: white;">
-            <th scope="col" width="25%">ITEM NAME</th>
-            <!-- <th scope="col" width="10%">Barcode</th> -->
-            <th scope="col" width="8%">AGENT</th>
-            <th scope="col" width="8%">QUANTITY</th>
-            <th scope="col" width="10%">PRICE</th>
+        <!-- <span id="items" style="margin-top: 20px;"> -->
+        <!-- <div class="row"> -->
+        <!-- <div class="col-12"> -->
+        <!-- class="table table-condensed table-bordered table-striped table-responsive items_table" -->
+        <table *ngIf="!mobileshow">
+          <thead class="bg-primary">
+            <tr style="background-color:black;border: 0px solid white; color: white;">
+              <th scope="col" width="30%">ITEM NAME</th>
+              <th scope="col" width="10%" class="price-css">AGENT</th>
+              <th scope="col" width="10%" class="price-css">QUANTITY</th>
+              <th scope="col" width="10%" class="price-css">PRICE</th>
+              <th scope="col" width="7%" class="price-css">DISC(%)</th>
+              <th scope="col" width="10%" class="price-css">DISC(RS.)</th>
+              <th scope="col" width="10%" class="price-css" *ngIf="showTaxFlag">TAX</th>
+              <th scope="col" width="10%" class="price-css">TOTAL</th>
 
-            <th scope="col" width="10%">DISC(%)</th>
-            <th scope="col" width="10%">DISC(RS.)</th>
-            <th scope="col" width="10%" *ngIf="showTaxFlag">TAX</th>
-            <th scope="col" width="10%">TOTAL</th>
+            </tr>
+          </thead>
 
+          <tbody>
+            <tr *ngFor="let  item of cartDataList.product let i = index" id="product-row_{{i}}">
+
+              <td width="30%"> {{i+1}} <a (click)="removeItem(item.productId, i)" class="btn btn-outline-danger"> <i
+                    class="fa fa-trash"></i></a>&nbsp;
+                <var class="price">{{item.upc}} - {{item.productName}}</var>
+              </td>
+              <!-- <td><var class="price">{{item.upc}}</var></td> -->
+              <td width="10%"><var class="price"> {{item.loginId}} - {{item.firstName}} </var></td>
+              <td width="10%">
+                <div class="controls-container">
+                  <i class="fa fa-add" style="padding-top: 1rem;padding-right:0.5rem; padding-left:0.5rem;"
+                    (click)="qtyAddMinus(i, '+')"></i>
+                  <input type="number" name="Qty_{{i}}" id="Qty_{{i}}" (keyup)="chkNumber1(i)" class="form-control"
+                    value="{{item.quantity}}" (change)="qtyChange(i)"
+                    style="width:60%;height: 10px !important;text-align: center;">
+                  <i class="fa fa-minus" style="padding-top: 1rem;padding-right:0.5rem; padding-left:0.5rem;"
+                    (click)="qtyAddMinus(i, '-')"></i>
+
+                </div>
+              </td>
+              <td width="10%" class="price-css">
+                <var class="price" *ngIf="!(item.upc==='00448666')">{{((item.salePrice )).toFixed(2)}}</var>
+                <input *ngIf="(item.upc==='00448666')" type="price" name="price_{{i}}" id="price_{{i}}"
+                  (keyup)="chkPriceNumber1(i)" class="form-control focus" autocomplete="off" value="{{item.price}}"
+                  (change)="priceChange(i)" style="width:90%;height: 10px !important;text-align: center;">
+
+              </td>
+
+              <td width="7%" class="price-css">
+                <input type="price" name="discount_{{i}}" id="discount_{{i}}" (keyup)="chkDiscountNumber1(i)"
+                  class="form-control focus" autocomplete="off" value="{{item.discount}}" (change)="discountChange(i)"
+                  style="width:90%;height: 10px !important;text-align: center;">
+              </td>
+              <td width="10%">
+                <input type="price" name="discount_val_{{i}}" id="discount_val_{{i}}" class="form-control focus"
+                  autocomplete="off" value="{{(item.discountVal===undefined?0:item.discountVal).toFixed(2)}}" (change)="discountValChange(i)"
+                  style="width:90%;height: 10px !important; text-align: center;">
+              </td>
+              <td width="10%" *ngIf="showTaxFlag" class="price-css"><var class="price">{{ (item.totalTax).toFixed(2) }}
+                  ({{item.tax}}%)</var></td>
+              <!-- <td *ngIf="showTaxFlag"><var class="price">{{ tax(item, i) }}  ({{item.tax}}%)</var></td> -->
+              <!-- <td><var class="price">{{ itemTotal(item, i) }}</var></td> -->
+              <td width="10%" class="price-css"><var class="price">{{ (item.totalPrice) }}</var></td>
+
+            </tr>
+          </tbody>
+          <!-- <tfoot>
+          <tr>
+            <td>
+              <h5 style="text-align: left;">Total(No Disc) Rs:<span style="color: black;">
+                {{((priceSummary.totalWithoutDiscount)).toFixed(2) }}</span></h5>
+            </td>
+            <td>
+              <h5 style="text-align: left;">Sub Total (Rs):<span style="color: black;">
+                {{((priceSummary.total)).toFixed(2) }}</span></h5>
+            </td>
+            <td>
+              <h5 style="text-align: left;">Qty:<span style="color: black;">
+                {{priceSummary.totalQty }}</span></h5>
+            </td>
+            <td>
+              <h5 style="text-align: left;">Tax (Rs):<span style="color: black;">
+                {{(priceSummary.tax).toFixed(2)}}</span></h5>
+            </td>
+            <td>
+              <h4 style="text-align: left;color: black;">
+                <input class="form-control" placeholder="Discount:" [(ngModel)]="totalDiscount"
+                  (input)="calculateFooterBalance()" />
+              </h4>
+            </td>
+            <td>
+              <h4 style="text-align: left;">Total(Rs):<span style="color: black;">
+                {{(priceSummary.grandTotal).toFixed(2)}}
+              </span></h4>
+            </td>
           </tr>
-        </thead>
+        </tfoot> -->
 
-        <tbody>
-          <tr *ngFor="let  item of cartDataList.product let i = index" style="border: 1px solid black;"
-            id="product-row_{{i}}">
+        </table>
 
-            <td> {{i+1}} <a (click)="removeItem(item.productId, i)" class="btn btn-outline-danger"> <i
-                  class="fa fa-trash"></i></a>&nbsp;
-              <var class="price">{{item.upc}} - {{item.productName}}</var>
-            </td>
-            <!-- <td><var class="price">{{item.upc}}</var></td> -->
-            <td><var class="price"> {{item.loginId}} - {{item.firstName}} </var></td>
-            <td>
-              <input type="number" name="Qty_{{i}}" id="Qty_{{i}}" (keyup)="chkNumber1(i)" class="form-control"
-                value="{{item.quantity}}" (change)="qtyChange(i)" style="width:50%;height: 10px !important;">
-            </td>
-            <td>
-              <var class="price">{{((item.salePrice )).toFixed(2)}}</var>
+        <ul class="nav bg radius nav-pills nav-fill mb-3 bg " role="tablist" *ngIf="mobileshow">
+          <li class="nav-item">
+            <label id="rangeValue" style="display: none;"> {{rangeValue}} </label>
+            <select name="selectedCategory" class="form-select" [(ngModel)]="selectedCategory"
+              [ngModelOptions]="{standalone: true}" [disabled]="spinnerDataLoad" (change)="categoryChange()">
+              <option *ngFor="let category of categoryList" [value]="category.categoryId">
+                {{category.subCategory}}</option>
+            </select>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active show" data-toggle="pill" href="#nav-tab-card">
+              <i class="fa fa-tags"></i> Search By Category</a>
+          </li>
+        </ul>
 
-            </td>
+        <!-- </div> -->
+        <!-- </div>  -->
 
-            <td>
-              <input type="price" name="discount_{{i}}" id="discount_{{i}}" (keyup)="chkDiscountNumber1(i)"
-                class="form-control focus" autocomplete="off" value="{{item.discount}}" (change)="discountChange(i)"
-                style="width:50%;height: 10px !important;">
-            </td>
-            <td>
-              <input type="price" name="discount_val_{{i}}" id="discount_val_{{i}}" class="form-control focus"
-                autocomplete="off" value="{{item.discountVal}}" (change)="discountValChange(i)"
-                style="width:50%;height: 10px !important;">
-            </td>
-            <td *ngIf="showTaxFlag"><var class="price">{{ (item.totalTax).toFixed(2) }} ({{item.tax}}%)</var></td>
-            <!-- <td *ngIf="showTaxFlag"><var class="price">{{ tax(item, i) }}  ({{item.tax}}%)</var></td> -->
-            <!-- <td><var class="price">{{ itemTotal(item, i) }}</var></td> -->
-            <td><var class="price">{{ item.totalPrice }}</var></td>
-
-          </tr>
-        </tbody>
-      </table>
-
-      <ul class="nav bg radius nav-pills nav-fill mb-3 bg " role="tablist" *ngIf="mobileshow">
-        <li class="nav-item">
-          <label id="rangeValue" style="display: none;"> {{rangeValue}} </label>
-          <select name="selectedCategory" class="form-select" [(ngModel)]="selectedCategory"
-            [ngModelOptions]="{standalone: true}" [disabled]="spinnerDataLoad" (change)="categoryChange()">
-            <option *ngFor="let category of categoryList" [value]="category.categoryId">
-              {{category.subCategory}}</option>
-          </select>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link active show" data-toggle="pill" href="#nav-tab-card">
-            <i class="fa fa-tags"></i> Search By Category</a>
-        </li>
-      </ul>
-
-      <!-- </div> -->
-      <!-- </div>  -->
-
-      <!-- </span> -->
-    </div>
+        <!-- </span> -->
+      </div>
 
 
-    <span class="mt-3" id="items" *ngIf="mobileshow">
-      <div class="container-fluid mt-5">
-        <div class="row">
-          <div class="col-md-12">
-            <div id="spinner" *ngIf="spinnerDataLoad" class="text-center">
-              <label style="font-size: larger;">Loading... &nbsp;&nbsp; </label>
-              <div class="spinner-border text-danger" style="width: 5rem; height: 5rem;" role="status">
-                <span class="visually-hidden"></span>
+      <span class="mt-3" id="items" *ngIf="mobileshow">
+        <div class="container-fluid mt-5">
+          <div class="row">
+            <div class="col-md-12">
+              <div id="spinner" *ngIf="spinnerDataLoad" class="text-center">
+                <label style="font-size: larger;">Loading... &nbsp;&nbsp; </label>
+                <div class="spinner-border text-danger" style="width: 5rem; height: 5rem;" role="status">
+                  <span class="visually-hidden"></span>
+                </div>
               </div>
-            </div>
-            <div class="row ">
+              <div class="row ">
 
-              <div class="col-md-4" *ngFor="let item of productViewList">
+                <div class="col-md-4" *ngFor="let item of productViewList">
 
-                <figure class="card card-product">
-                  <span class="badge-new"> <i class="fas fa-shopping-cart"></i></span>
-                  <div class="img-wrap"> <img src='data:{{item.imageMimeType}};base64,{{item.productImage}}'>
+                  <figure class="card card-product">
+                    <span class="badge-new"> <i class="fas fa-shopping-cart"></i></span>
+                    <div class="img-wrap"> <img src='data:{{item.imageMimeType}};base64,{{item.productImage}}'>
 
-
-
-                  </div>
-                  <figcaption class="info-wrap">
-                    <a class="title">
-                      {{item.productName}}
-                    </a>
-                    <div class="action-wrap">
-                      <a (click)="addToCart(item)" class="btn btn-primary btn-sm float-right"> <i
-                          class="fa fa-cart-plus"></i>Add to Cart</a>
-                      <div class="price-wrap h5">
-                        <span class="price-new" *ngIf="item.salePrice">{{item.salePrice}}</span>
-                        <del class="price-old" *ngIf="!item.salePrice">{{item.unitPrice}}</del>
-                        <br>
-                        <span style="font-family: 'Roboto Condensed', sans-serif;">
-                          <label class="errorLabel" *ngIf="item.quantity===null || item.quantity<1">Out Of
-                            Stock</label>
-                        </span>
-                      </div>
 
 
                     </div>
-                  </figcaption>
-                </figure>
+                    <figcaption class="info-wrap">
+                      <a class="title">
+                        {{item.productName}}
+                      </a>
+                      <div class="action-wrap">
+                        <a (click)="addToCart(item)" class="btn btn-primary btn-sm float-right"> <i
+                            class="fa fa-cart-plus"></i>Add to Cart</a>
+                        <div class="price-wrap h5">
+                          <span class="price-new" *ngIf="item.salePrice">{{item.salePrice}}</span>
+                          <del class="price-old" *ngIf="!item.salePrice">{{item.unitPrice}}</del>
+                          <br>
+                          <span style="font-family: 'Roboto Condensed', sans-serif;">
+                            <label class="errorLabel" *ngIf="item.quantity===null || item.quantity<1">Out Of
+                              Stock</label>
+                          </span>
+                        </div>
+
+
+                      </div>
+                    </figcaption>
+                  </figure>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </span>
+
+      <!-- Price Check Popup -->
+      <div class="modal mt-5" style="width: 1200px !important;margin:400px auto;margin-top:150px !important;"
+        tabindex="-1" role="dialog" [ngClass]="{'show': priceCheckPopup, 'd-block': priceCheckPopup}">
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content" style=" box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);">
+            <div class="modal-header" style="background-color: #17A2B8;">
+              <h5 class="modal-title">Price Check</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="closeModal()">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+
+
+
+              <div class="form-group">
+                <label for="priceCheck">Barcode</label>
+                <input type="search" class="form-control" id="priceCheck" (keyup)="priceCheckByUpc($event)">
               </div>
 
-            </div>
-          </div>
-        </div>
-      </div>
-    </span>
-
-    <!-- Price Check Popup -->
-    <div class="modal mt-5" style="width: 1200px !important;margin:400px auto;margin-top:150px !important;"
-      tabindex="-1" role="dialog" [ngClass]="{'show': priceCheckPopup, 'd-block': priceCheckPopup}">
-      <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content" style=" box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);">
-          <div class="modal-header" style="background-color: #17A2B8;">
-            <h5 class="modal-title">Price Check</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="closeModal()">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-
-
-
-            <div class="form-group">
-              <label for="priceCheck">Barcode</label>
-              <input type="search" class="form-control" id="priceCheck" (keyup)="priceCheckByUpc($event)">
-            </div>
-
-            <table class="table table-striped">
-              <tr style="width: 100%;">
-                <td style="width: 25% !important;">SNo.</td>
-                <td style="width: 25% !important;">Name</td>
-
-                <td style="width: 25% !important;">Price</td>
-              </tr>
-
-              <tr style="width: 100%;" *ngFor="let product of productcheckList let i=index">
-                <td style="width: 25% !important;">{{i+1}}</td>
-                <td style="width: 25% !important;">{{product.productName}}</td>
-
-                <td style="width: 25% !important;">{{product.salePrice}}</td>
-              </tr>
-            </table>
-          </div>
-          <div class="modal-footer">
-
-            <button type="button" class="btn btn-secondary" (click)="clearFields()">Clear</button>
-
-            <button type="button" class="btn btn-primary" (click)="this.priceCheckPopup = false;">Close</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-
-    <!-- Product Search Popup -->
-    <div class="modal mt-5" style="width: 1500px !important;margin:600px auto;margin-top:100px !important;"
-      tabindex="-1" role="dialog" [ngClass]="{'show': productSearchPopup, 'd-block': productSearchPopup}">
-      <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content" style=" box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);">
-          <div class="modal-header" style="background-color: #17A2B8;">
-            <h5 class="modal-title">Product Search</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"
-              (click)="closeProductSearchPopup()">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-
-            <div class="form-group">
-
-              <input type="search" class="form-control" placeholder="Search By Name" id="name-search" name="name-search"
-                (keyup)="nameSearch($event)">
-
-              <input type="search" class="form-control" placeholder="Search By SKU" id="sku-search" name="sku-search"
-                (keyup)="skuSearch($event)">
-
-              <input type="search" class="form-control" placeholder="Search By Price" id="price-search"
-                name="price-search" (keyup)="priceSearch($event)">
-
-
-
-            </div>
-
-            <table class="table table-striped">
-              <tr style="width: 100%;">
-                <td style="width: 5% !important;">SNo.</td>
-                <td style="width: 25% !important;">Name</td>
-                <td style="width: 15% !important;">Price</td>
-                <td style="width: 25% !important;">Barcode</td>
-              </tr>
-
-              <tr style="cursor: pointer;" *ngFor="let product of productcheckList let i=index"
-                (click)="selectSearchProduct(product)">
-                <td style="width: 5% !important;">{{i+1}}</td>
-                <td style="width: 25% !important;">{{product.productName}}</td>
-                <td style="width: 15% !important;">{{product.salePrice}}</td>
-                <td style="width: 25% !important;">{{product.upc}}</td>
-              </tr>
-            </table>
-          </div>
-          <div class="modal-footer">
-
-            <button type="button" class="btn btn-secondary" (click)="clearProductSearchFields()">Clear</button>
-
-            <button type="button" class="btn btn-primary" (click)="closeProductSearchPopup()">Close</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-
-
-    <!-- Retrieve Sale modal -->
-    <div class="modal  mt-5" style="width: 1200px !important;margin:400px auto;margin-top:150px !important;"
-      tabindex="-1" role="dialog" [ngClass]="{'show': retrieveSalePopup, 'd-block': retrieveSalePopup}">
-      <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content" style=" box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);">
-          <div class="modal-header" style="background-color: #17A2B8;">
-            <h4 class="modal-title">Hold Sales</h4>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"
-              (click)="closeRetrieveSalePopup()">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-
-            <div>
               <table class="table table-striped">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Date</th>
+                <tr style="width: 100%;">
+                  <td style="width: 25% !important;">SNo.</td>
+                  <td style="width: 25% !important;">Name</td>
 
-                    <th>Total Items</th>
+                  <td style="width: 25% !important;">Price</td>
+                </tr>
 
-                    <th>Grand Total</th>
-                  </tr>
-                </thead>
+                <tr style="width: 100%;" *ngFor="let product of productcheckList let i=index">
+                  <td style="width: 25% !important;">{{i+1}}</td>
+                  <td style="width: 25% !important;">{{product.productName}}</td>
 
-                <tbody>
-
-                  <tr style="cursor: pointer;" (click)="showHoldSaleDetails(hold)" *ngFor="let hold of holdSales">
-
-                    <td>{{ hold.transactionId }}</td>
-                    <td>{{ hold.customer.phone1 }}</td>
-
-                    <td>{{ getTodayDate() | date: 'yyyy-MM-dd' }}</td>
-                    <td>{{ hold.product.length }}</td>
-                    <td>{{ hold.total }}</td>
-                  </tr>
-
-                </tbody>
-
+                  <td style="width: 25% !important;">{{product.salePrice}}</td>
+                </tr>
               </table>
             </div>
+            <div class="modal-footer">
 
-          </div>
+              <button type="button" class="btn btn-secondary" (click)="clearFields()">Clear</button>
 
-          <div class="modal-footer">
-
-            <button type="button" class="btn btn-danger" (click)="closeRetrieveSalePopup()">Close</button>
-
+              <button type="button" class="btn btn-primary" (click)="this.priceCheckPopup = false;">Close</button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Cash Popup -->
 
-    <div class="modal  mt-5" style="width: 100% !important;height: 100%;margin:400px auto;margin-top:150px !important;"
-      tabindex="-1" role="dialog" [ngClass]="{'show': cashModal, 'd-block': cashModal}">
-      <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content" style=" box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);">
-          <div class="modal-header" style="background-color: #17A2B8;">
-            <h4 class="modal-title">Checkout</h4>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="closeCashModal()">
-              <span aria-hidden="true">&times;</span>
-            </button>
+      <!-- Product Search Popup -->
+      <div class="modal mt-5" style="width: 1500px !important;margin:600px auto;margin-top:100px !important;"
+        tabindex="-1" role="dialog" [ngClass]="{'show': productSearchPopup, 'd-block': productSearchPopup}">
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content" style=" box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);">
+            <div class="modal-header" style="background-color: #17A2B8;">
+              <h5 class="modal-title">Product Search</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+                (click)="closeProductSearchPopup()">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+
+              <div class="form-group">
+
+                <input type="search" class="form-control" placeholder="Search By Name" id="name-search"
+                  name="name-search" (keyup)="nameSearch($event)">
+
+                <input type="search" class="form-control" placeholder="Search By SKU" id="sku-search" name="sku-search"
+                  (keyup)="skuSearch($event)">
+
+                <input type="search" class="form-control" placeholder="Search By Price" id="price-search"
+                  name="price-search" (keyup)="priceSearch($event)">
+
+
+
+              </div>
+
+              <table class="table table-striped">
+                <tr style="width: 100%;">
+                  <td style="width: 5% !important;">SNo.</td>
+                  <td style="width: 25% !important;">Name</td>
+                  <td style="width: 15% !important;">Price</td>
+                  <td style="width: 25% !important;">Barcode</td>
+                </tr>
+
+                <tr style="cursor: pointer;" *ngFor="let product of productcheckList let i=index"
+                  (click)="selectSearchProduct(product)">
+                  <td style="width: 5% !important;">{{i+1}}</td>
+                  <td style="width: 25% !important;">{{product.productName}}</td>
+                  <td style="width: 15% !important;">{{product.salePrice}}</td>
+                  <td style="width: 25% !important;">{{product.upc}}</td>
+                </tr>
+              </table>
+            </div>
+            <div class="modal-footer">
+
+              <button type="button" class="btn btn-secondary" (click)="clearProductSearchFields()">Clear</button>
+
+              <button type="button" class="btn btn-primary" (click)="closeProductSearchPopup()">Close</button>
+            </div>
           </div>
-          <div class="modal-body">
-
-            <div>
-
-              <div class="container-fluid mt-5" style=" border: 2px solid #ccc; border-radius: 10px;">
-                <div class="row">
-                  <div class="col-6"></div>
-                  <div class="col-6 mt-3"><input autocomplete="off"
-                      style="width: 100%;height: 30%;background-color:white;color:black; border: 2px solid #ccc; border-radius: 10px;"
-                      class="form-control" id="result" name="result" placeholder="Cash Paid" type="text"
-                      [(ngModel)]="result" (input)="calculateBalance()">
-                  </div>
-                  <div class="box col-md-6">
-
-
-                    <div style="background-color:white;"><button disabled="" class="btn ">
-                        <h3 style="text-align: left;color:black;">Paid:<span
-                            style="position: absolute;right: 20px;color:black;">Rs {{ result }}</span></h3>
-                      </button></div>
-                    <div style="background-color:white;"><button disabled="" class="btn ">
-                        <h3 style="text-align: left;color:black;">Total:<span
-                            style="position: absolute;right: 20px;color:black;">Rs {{ priceSummary.grandTotal }}</span>
-                        </h3>
-                      </button></div>
-                    <div style="background-color:white;"><button disabled="" class="btn ">
-                        <h3 style="text-align: left;color:black;">Balance:<span
-                            style="position: absolute;right: 20px;color:black;">Rs {{ customerBalance.toFixed(2)
-                            }}</span></h3>
-                      </button></div>
-
-                  </div>
-
-                  <div class="box col-md-6">
-                    <div class="calculator">
-
-                      <div class="buttons" style="height: 20%;">
-                        <button (click)="appendToResult('9')">9</button>
-                        <button (click)="appendToResult('8')">8</button>
-                        <button (click)="appendToResult('7')">7</button>
-                        <!-- <button (click)="appendToResult('+')">+</button> -->
-                        <!-- <button (click)="clear()">AC</button> -->
-                        <br>
-                        <button (click)="appendToResult('6')">6</button>
-                        <button (click)="appendToResult('5')">5</button>
-                        <button (click)="appendToResult('4')">4</button>
-                        <!-- <button (click)="appendToResult('-')">-</button> -->
-                        <!-- <button (click)="calculate()">=</button> -->
-                        <br>
-                        <button (click)="appendToResult('3')">3</button>
-                        <button (click)="appendToResult('2')">2</button>
-                        <button (click)="appendToResult('1')">1</button>
-                        <!-- <button (click)="appendToResult('*')">X</button> -->
-                        <!-- <button (click)="appendToResult('/')">/</button> -->
-                        <br>
-                        <button (click)="appendToResult('0')">0</button>
-                        <!-- <button (click)="appendToResult('00')">00</button> -->
-                        <button (click)="appendToResult('.')">.</button>
-                        <button (click)="backSpace()">Clear</button>
-                        <!-- <button (click)="appendToResult('%')">%</button> -->
-
-                      </div>
-                    </div>
-                  </div>
+        </div>
+      </div>
 
 
 
-                </div>
+      <!-- Retrieve Sale modal -->
+      <div class="modal  mt-5" style="width: 1200px !important;margin:400px auto;margin-top:150px !important;"
+        tabindex="-1" role="dialog" [ngClass]="{'show': retrieveSalePopup, 'd-block': retrieveSalePopup}">
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content" style=" box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);">
+            <div class="modal-header" style="background-color: #17A2B8;">
+              <h4 class="modal-title">Hold Sales</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+                (click)="closeRetrieveSalePopup()">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+
+              <div>
+                <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Name</th>
+                      <th>Date</th>
+
+                      <th>Total Items</th>
+
+                      <th>Grand Total</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+
+                    <tr style="cursor: pointer;" (click)="showHoldSaleDetails(hold)" *ngFor="let hold of holdSales">
+
+                      <td>{{ hold.transactionId }}</td>
+                      <td>{{ hold.customer.phone1 }}</td>
+
+                      <td>{{ getTodayDate() | date: 'yyyy-MM-dd' }}</td>
+                      <td>{{ hold.product.length }}</td>
+                      <td>{{ hold.total }}</td>
+                    </tr>
+
+                  </tbody>
+
+                </table>
               </div>
 
             </div>
-          </div>
-          <div class="modal-footer">
 
-            <button type="button" class="btn btn-danger" (click)="closeCashModal()">Close</button>
-            <button type="button" class="btn btn-success" (click)="onCustomerSave('CASH')">Checkout</button>
+            <div class="modal-footer">
 
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Card Popup -->
-    <div class="modal  mt-5" style="width: 100% !important;height: 100%;margin:400px auto;margin-top:150px !important;"
-      tabindex="-1" role="dialog" [ngClass]="{'show': cardModal, 'd-block': cardModal }">
-      <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content" style=" box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);">
-          <div class="modal-header" style="background-color: #17A2B8;">
-            <h4 class="modal-title">Checkout</h4>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="closeCardModal()">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-
-            <div>
-
-              <div class="container-fluid mt-5" style=" border: 2px solid #ccc; border-radius: 10px;">
-                <div class="row">
-                  <div class="col-6"></div>
-                  <div class="col-6 mt-3"><input
-                      style="width: 100%;height: 30%;background-color:white;color:black; border: 2px solid #ccc; border-radius: 10px;"
-                      class="form-control" id="resultCard" placeholder="Cash Paid" type="text" [(ngModel)]="result"
-                      (input)="calculateBalance()">
-                  </div>
-                  <div class="box col-md-6">
-
-
-                    <div style="background-color:white;"><button disabled="" class="btn ">
-                        <h3 style="text-align: left;color:black;">Paid:<span
-                            style="position: absolute;right: 20px;color:black;">Rs. {{ result }}</span></h3>
-                      </button>
-                    </div>
-                    <div style="background-color:white;">
-
-                      <h3 style="text-align: left;color:black;">Card Type:</h3>
-
-                    </div>
-
-                    <div style="background-color:white;"><button disabled="" class="btn ">
-                        <h3 style="text-align: left;color:black;">Total:<span
-                            style="position: absolute;right: 20px;color:black;">Rs. {{ priceSummary.grandTotal }}</span>
-                        </h3>
-                      </button></div>
-                    <div style="background-color:white;"><button disabled="" class="btn ">
-                        <h3 style="text-align: left;color:black;">Balance:<span
-                            style="position: absolute;right: 20px;color:black;">Rs. {{ customerBalance.toFixed(2)
-                            }}</span></h3>
-                      </button></div>
-
-                  </div>
-
-                  <div class="box col-md-6">
-                    <div class="calculator">
-
-                      <div class="buttons" style="height: 20%;">
-                        <button (click)="appendToResult('9')">9</button>
-                        <button (click)="appendToResult('8')">8</button>
-                        <button (click)="appendToResult('7')">7</button>
-                        <button (click)="appendToResult('+')">+</button>
-                        <button (click)="clear()">AC</button>
-                        <br>
-                        <button (click)="appendToResult('6')">6</button>
-                        <button (click)="appendToResult('5')">5</button>
-                        <button (click)="appendToResult('4')">4</button>
-                        <button (click)="appendToResult('-')">-</button>
-                        <button (click)="calculate()">=</button>
-                        <br>
-                        <button (click)="appendToResult('3')">3</button>
-                        <button (click)="appendToResult('2')">2</button>
-                        <button (click)="appendToResult('1')">1</button>
-                        <button (click)="appendToResult('*')">X</button>
-                        <button (click)="appendToResult('/')">/</button>
-                        <br>
-                        <button (click)="appendToResult('0')">0</button>
-                        <button (click)="appendToResult('00')">00</button>
-                        <button (click)="appendToResult('.')">.</button>
-                        <button (click)="backSpace()">Clear</button>
-                        <button (click)="appendToResult('%')">%</button>
-
-                      </div>
-                    </div>
-                  </div>
-
-
-
-                </div>
-              </div>
+              <button type="button" class="btn btn-danger" (click)="closeRetrieveSalePopup()">Close</button>
 
             </div>
           </div>
-          <div class="modal-footer">
+        </div>
+      </div>
 
-            <button type="button" class="btn btn-danger" (click)="closeCardModal()">Close</button>
-            <button type="button" class="btn btn-success" (click)="onCustomerSave('CARD')">Checkout</button>
+      <!-- Cash Popup -->
 
+      <div class="modal  mt-5"
+        style="width: 100% !important;height: 100%;margin:400px auto;margin-top:150px !important;" tabindex="-1"
+        role="dialog" [ngClass]="{'show': cashModal, 'd-block': cashModal}">
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content" style=" box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);">
+            <div class="modal-header" style="background-color: #17A2B8;">
+              <h4 class="modal-title">Checkout</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="closeCashModal()">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+
+              <div>
+
+                <div class="container-fluid mt-5" style=" border: 2px solid #ccc; border-radius: 10px;">
+                  <div class="row">
+                    <div class="col-6"></div>
+                    <div class="col-6 mt-3"><input autocomplete="off"
+                        style="width: 100%;height: 30%;background-color:white;color:black; border: 2px solid #ccc; border-radius: 10px;"
+                        class="form-control" id="result" name="result" placeholder="Cash Paid" type="text"
+                        [(ngModel)]="result" (input)="calculateBalance()">
+                    </div>
+                    <div class="box col-md-6">
+
+
+                      <div style="background-color:white;"><button disabled="" class="btn ">
+                          <h3 style="text-align: left;color:black;">Paid:<span
+                              style="position: absolute;right: 20px;color:black;">Rs {{ result }}</span></h3>
+                        </button></div>
+                      <div style="background-color:white;"><button disabled="" class="btn ">
+                          <h3 style="text-align: left;color:black;">Total:<span
+                              style="position: absolute;right: 20px;color:black;">Rs {{ priceSummary.grandTotal
+                              }}</span>
+                          </h3>
+                        </button></div>
+                      <div style="background-color:white;"><button disabled="" class="btn ">
+                          <h3 style="text-align: left;color:black;">Balance:<span
+                              style="position: absolute;right: 20px;color:black;">Rs {{ customerBalance.toFixed(2)
+                              }}</span></h3>
+                        </button></div>
+
+                    </div>
+
+                    <div class="box col-md-6">
+                      <div class="calculator">
+
+                        <div class="buttons" style="height: 20%;">
+                          <button (click)="appendToResult('9')">9</button>
+                          <button (click)="appendToResult('8')">8</button>
+                          <button (click)="appendToResult('7')">7</button>
+                          <!-- <button (click)="appendToResult('+')">+</button> -->
+                          <!-- <button (click)="clear()">AC</button> -->
+                          <br>
+                          <button (click)="appendToResult('6')">6</button>
+                          <button (click)="appendToResult('5')">5</button>
+                          <button (click)="appendToResult('4')">4</button>
+                          <!-- <button (click)="appendToResult('-')">-</button> -->
+                          <!-- <button (click)="calculate()">=</button> -->
+                          <br>
+                          <button (click)="appendToResult('3')">3</button>
+                          <button (click)="appendToResult('2')">2</button>
+                          <button (click)="appendToResult('1')">1</button>
+                          <!-- <button (click)="appendToResult('*')">X</button> -->
+                          <!-- <button (click)="appendToResult('/')">/</button> -->
+                          <br>
+                          <button (click)="appendToResult('0')">0</button>
+                          <!-- <button (click)="appendToResult('00')">00</button> -->
+                          <button (click)="appendToResult('.')">.</button>
+                          <button (click)="backSpace()">Clear</button>
+                          <!-- <button (click)="appendToResult('%')">%</button> -->
+
+                        </div>
+                      </div>
+                    </div>
+
+
+
+                  </div>
+                </div>
+
+              </div>
+            </div>
+            <div class="modal-footer">
+
+              <button type="button" class="btn btn-danger" (click)="closeCashModal()">Close</button>
+              <button type="button" class="btn btn-success" (click)="onCustomerSave('CASH')">Checkout</button>
+
+            </div>
           </div>
         </div>
       </div>
-    </div>
+
+      <!-- Card Popup -->
+      <div class="modal  mt-5"
+        style="width: 100% !important;height: 100%;margin:400px auto;margin-top:150px !important;" tabindex="-1"
+        role="dialog" [ngClass]="{'show': cardModal, 'd-block': cardModal }">
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content" style=" box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);">
+            <div class="modal-header" style="background-color: #17A2B8;">
+              <h4 class="modal-title">Checkout</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="closeCardModal()">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+
+              <div>
+
+                <div class="container-fluid mt-5" style=" border: 2px solid #ccc; border-radius: 10px;">
+                  <div class="row">
+                    <div class="col-6"></div>
+                    <div class="col-6 mt-3"><input
+                        style="width: 100%;height: 30%;background-color:white;color:black; border: 2px solid #ccc; border-radius: 10px;"
+                        class="form-control" id="resultCard" placeholder="Cash Paid" type="text" [(ngModel)]="result"
+                        (input)="calculateBalance()">
+                    </div>
+                    <div class="box col-md-6">
 
 
-    <!-- Search By name modal -->
-    <div class="modal mt-5" style="width: 1200px !important;margin:400px auto;margin-top:150px !important;"
-      tabindex="-1" role="dialog" [ngClass]="{'show': nameSearchModal, 'd-block': nameSearchModal}">
-      <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content" style=" box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);">
-          <div class="modal-header" style="background-color: #17A2B8;">
-            <h5 class="modal-title">Price Check</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"
-              (click)="closeNameSearchModal()">
-              <span aria-hidden="true">&times;</span>
+                      <div style="background-color:white;"><button disabled="" class="btn ">
+                          <h3 style="text-align: left;color:black;">Paid:<span
+                              style="position: absolute;right: 20px;color:black;">Rs. {{ result }}</span></h3>
+                        </button>
+                      </div>
+                      <div style="background-color:white;">
+
+                        <h3 style="text-align: left;color:black;">Card Type:</h3>
+
+                      </div>
+
+                      <div style="background-color:white;"><button disabled="" class="btn ">
+                          <h3 style="text-align: left;color:black;">Total:<span
+                              style="position: absolute;right: 20px;color:black;">Rs. {{ priceSummary.grandTotal
+                              }}</span>
+                          </h3>
+                        </button></div>
+                      <div style="background-color:white;"><button disabled="" class="btn ">
+                          <h3 style="text-align: left;color:black;">Balance:<span
+                              style="position: absolute;right: 20px;color:black;">Rs. {{ customerBalance.toFixed(2)
+                              }}</span></h3>
+                        </button></div>
+
+                    </div>
+
+                    <div class="box col-md-6">
+                      <div class="calculator">
+
+                        <div class="buttons" style="height: 20%;">
+                          <button (click)="appendToResult('9')">9</button>
+                          <button (click)="appendToResult('8')">8</button>
+                          <button (click)="appendToResult('7')">7</button>
+                          <button (click)="appendToResult('+')">+</button>
+                          <button (click)="clear()">AC</button>
+                          <br>
+                          <button (click)="appendToResult('6')">6</button>
+                          <button (click)="appendToResult('5')">5</button>
+                          <button (click)="appendToResult('4')">4</button>
+                          <button (click)="appendToResult('-')">-</button>
+                          <button (click)="calculate()">=</button>
+                          <br>
+                          <button (click)="appendToResult('3')">3</button>
+                          <button (click)="appendToResult('2')">2</button>
+                          <button (click)="appendToResult('1')">1</button>
+                          <button (click)="appendToResult('*')">X</button>
+                          <button (click)="appendToResult('/')">/</button>
+                          <br>
+                          <button (click)="appendToResult('0')">0</button>
+                          <button (click)="appendToResult('00')">00</button>
+                          <button (click)="appendToResult('.')">.</button>
+                          <button (click)="backSpace()">Clear</button>
+                          <button (click)="appendToResult('%')">%</button>
+
+                        </div>
+                      </div>
+                    </div>
+
+
+
+                  </div>
+                </div>
+
+              </div>
+            </div>
+            <div class="modal-footer">
+
+              <button type="button" class="btn btn-danger" (click)="closeCardModal()">Close</button>
+              <button type="button" class="btn btn-success" (click)="onCustomerSave('CARD')">Checkout</button>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Search By name modal -->
+      <div class="modal mt-5" style="width: 1200px !important;margin:400px auto;margin-top:150px !important;"
+        tabindex="-1" role="dialog" [ngClass]="{'show': nameSearchModal, 'd-block': nameSearchModal}">
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content" style=" box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);">
+            <div class="modal-header" style="background-color: #17A2B8;">
+              <h5 class="modal-title">Price Check</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+                (click)="closeNameSearchModal()">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+
+              <table class="table table-striped">
+                <tr style="width: 100%;">
+                  <th style="width: 5% !important;">SNo.</th>
+                  <th style="width: 25% !important;">Name</th>
+
+                  <th style="width: 25% !important;">Price</th>
+                </tr>
+
+                <tr style="width: 100%;cursor: pointer;" *ngFor="let product of searchProducts let i=index"
+                  (click)="addToCart(product)">
+                  <td style="width: 5% !important;">{{i+1}}</td>
+                  <td style="width: 25% !important;">{{product.productName}}</td>
+
+                  <td style="width: 25% !important;">{{product.salePrice}}</td>
+                </tr>
+              </table>
+            </div>
+            <div class="modal-footer">
+
+              <button type="button" class="btn btn-primary" (click)="this.nameSearchModal = false;">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- </div> -->
+
+
+
+
+
+      <!-- Row for All Buttons-->
+      <!-- <div class=" footer row " style="margin: 0px;"> -->
+      <footer>
+        <div class="row">
+          <div class="col-lg-3 col-md-3 col-sm-12">
+            <h5 style="text-align: left;">Total(No Disc) Rs:
+            </h5>
+          </div>
+          <div class="col-lg-2 col-md-2 col-sm-12">
+            <h5 style="text-align: left;">Sub Total (Rs):</h5>
+          </div>
+          <div class="col-lg-1 col-md-1 col-sm-12">
+            <h5 style="text-align: left;">Qty:</h5>
+          </div>
+          <div class="col-lg-2 col-md-2 col-sm-12" *ngIf="showTaxFlag">
+            <h5 style="text-align: left;">Tax (Rs):</h5>
+          </div>
+          <div class="col-lg-2 col-md-2 col-sm-12">
+            <h5 style="text-align: left;color: black;">Discount:
+
+            </h5>
+          </div>
+          <div class="col-lg-2 col-md-2 col-sm-12">
+            <h4 style="text-align: left;">Total(Rs):</h4>
+          </div>
+
+        </div>
+        <div class="row">
+          <div class="col-lg-3 col-md-3 col-sm-12">
+            <h5 style="text-align: left;"><span style="color: black;">
+                {{((priceSummary.totalWithoutDiscount)).toFixed(2) }}</span></h5>
+          </div>
+          <div class="col-lg-2 col-md-2 col-sm-12">
+            <h5 style="text-align: left;"><span style="color: black;">
+                {{((priceSummary.total)).toFixed(2) }}</span></h5>
+          </div>
+          <div class="col-lg-1 col-md-1 col-sm-12">
+            <h5 style="text-align: left;"><span style="color: black;">
+                {{priceSummary.totalQty }}</span></h5>
+          </div>
+          <div class="col-lg-2 col-md-2 col-sm-12" *ngIf="showTaxFlag">
+            <h5 style="text-align: left;"><span style="color: black;">
+                {{(priceSummary.tax).toFixed(2)}}</span></h5>
+          </div>
+          <div class="col-lg-2 col-md-2 col-sm-12">
+            <h4 style="text-align: left;color: black;">
+              <input class="form-control" placeholder="Discount:" [(ngModel)]="totalDiscount"
+                (input)="calculateFooterBalance()" />
+            </h4>
+          </div>
+          <div class="col-lg-2 col-md-2 col-sm-12">
+            <h4 style="text-align: left;"><span style="color: black;">
+                {{(priceSummary.grandTotal).toFixed(2)}}
+              </span></h4>
+          </div>
+
+        </div>
+
+        <div class="row">
+          <div class="col-lg-3 col-md-3 col-sm-12">
+            <button class="btn btn-danger m-1" style="width: 100% !important;height:50px !important;"
+              (click)="checkHoldSale()">Hold
+              Sale (F4)
             </button>
           </div>
-          <div class="modal-body">
-
-            <table class="table table-striped">
-              <tr style="width: 100%;">
-                <th style="width: 5% !important;">SNo.</th>
-                <th style="width: 25% !important;">Name</th>
-
-                <th style="width: 25% !important;">Price</th>
-              </tr>
-
-              <tr style="width: 100%;cursor: pointer;" *ngFor="let product of searchProducts let i=index"
-                (click)="addToCart(product)">
-                <td style="width: 5% !important;">{{i+1}}</td>
-                <td style="width: 25% !important;">{{product.productName}}</td>
-
-                <td style="width: 25% !important;">{{product.salePrice}}</td>
-              </tr>
-            </table>
+          <div class="col-lg-3 col-md-3 col-sm-12 ">
+            <button class="btn "
+              style="width: 100% !important;height:50px !important;color:black; background-color: #ccc;"
+              (click)="openPriceCheckPopup()">Price Check (F6)
+            </button>
           </div>
-          <div class="modal-footer">
 
-            <button type="button" class="btn btn-primary" (click)="this.nameSearchModal = false;">Close</button>
+          <div class="col-lg-2 col-md-2 col-sm-12" *ngIf="retrieveSaleFlag">
+            <button class="btn btn-info m-1" style="width: 100% !important;height:50px !important;"
+              (click)="openRetrieveSalePopup()" data-bs-toggle="modal" data-bs-target="#myModal">Retrieve Sale
+            </button>
           </div>
+
+          <div class="col-md-3 col-lg-3 col-sm-12 ">
+            <button class="btn" id="card-button"
+              style="width: 100% !important;height: 50px !important; color:black; background-color: rgb(132, 160, 214);"
+              (click)="openCardModal()">Card (F5)
+              <fa-icon [icon]="faCreditCard"></fa-icon>
+            </button>
+          </div>
+          <div class="col-md-3 col-lg-3 col-sm-12 ">
+            <button class="btn btn-info" style="width: 100% !important;height: 50px !important;color:black; "
+              (click)="openCashModal()">Cash (F9)
+              <fa-icon [icon]="faCashRegister"></fa-icon>
+            </button>
+          </div>
+
+
+          <div class="col-lg-2 col-md-2 col-sm-12 " *ngIf="cancelSaleFlag">
+            <button class="btn"
+              style="width: 100% !important;height:50px !important;color:black; background-color: #ccc;"
+              (click)="removeCart()">Cancel Sale
+            </button>
+          </div>
+
+
+
+          <!-- <div class="col-lg-6 col-md-6 col-sm-2">
+          <button (click)="hide()" class="btn btn-secondary m-1"
+            style="width: 100% !important;height:50px !important;">Touch
+          </button>
         </div>
-      </div>
-    </div>
-
-
-  </div>
-
-
-
-  <div class="footer" style="border: 2px solid black;width: 100%;">
-
-    <!-- Row for Totals -->
-    <div class="row " style="margin: 0px;">
-      <div class="col-md-3 col-lg-3 col-sm-12 ">
-        <h5 style="text-align: left;">Total(No Disc) Rs:<span style="color: black;">
-            {{((priceSummary.totalWithoutDiscount)).toFixed(2) }}</span></h5>
-      </div>
-
-      <div class="col-md-2 col-lg-2 col-sm-12 ">
-        <h5 style="text-align: left;">Sub Total (Rs):<span style="color: black;">
-            {{((priceSummary.total)).toFixed(2) }}</span></h5>
-      </div>
-      <div class="col-md-1 col-lg-1 col-sm-12 ">
-        <h5 style="text-align: left;">Qty:<span style="color: black;">
-            {{priceSummary.totalQty }}</span></h5>
-      </div>
-
-      <div class="col-md-2 col-lg-2 col-sm-12 " *ngIf="showTaxFlag">
-        <h5 style="text-align: left;">Tax (Rs):<span style="color: black;">
-            {{(priceSummary.tax).toFixed(2)}}</span></h5>
-
-      </div>
-
-      <div class="col-md-2 col-lg-2 col-sm-12 ">
-        <h4 style="text-align: left;color: black;">
-          <input class="form-control" placeholder="Discount:" [(ngModel)]="totalDiscount"
-            (input)="calculateFooterBalance()" />
-        </h4>
-      </div>
-      <!-- <div class="col-md-2 col-lg-2 col-sm-12 ">
-          <h4 style="text-align: left;">Other<span style="color: black;">Rs. {{
-            FbrCharges | number: '1.0-0'}}</span></h4>
-    
+        <div class="col-lg-6 col-md-6 col-sm-2"> 
+          <button (click)="show()" class="btn btn-secondary m-1"
+            style="width: 100% !important;height:50px !important;">General
+          </button>
         </div> -->
-      <div class="col-md-2 col-lg-2 col-sm-12 ">
-        <h3 style="text-align: left;">Total (Rs):<span style="color: black;">
-            {{(priceSummary.grandTotal).toFixed(2)}}
-          </span></h3>
-
-        <!-- <h4>AttemptTotalCount: {{attempTotalCount}}</h4> --> 
-      </div>
-
-    </div>
 
 
-    <!-- Row for All Buttons-->
-    <div class="row " style="margin: 0px;">
-      <div class="col-lg-3 col-md-3 col-sm-12">
-        <button class="btn btn-danger m-1" style="width: 100% !important;height:50px !important;"
-          (click)="checkHoldSale()">Hold
-          Sale (F4)
-        </button>
-      </div>
-      <div class="col-lg-3 col-md-3 col-sm-12 ">
-        <button class="btn " style="width: 100% !important;height:50px !important;color:black; background-color: #ccc;"
-          (click)="openPriceCheckPopup()">Price Check (F6)
-        </button>
-      </div>
+        </div>
 
-      <div class="col-lg-2 col-md-2 col-sm-12" *ngIf="retrieveSaleFlag">
-        <button class="btn btn-info m-1" style="width: 100% !important;height:50px !important;"
-          (click)="openRetrieveSalePopup()" data-bs-toggle="modal" data-bs-target="#myModal">Retrieve Sale
-        </button>
-      </div>
-
-      <div class="col-md-3 col-lg-3 col-sm-12 ">
-        <button class="btn"
-          style="width: 100% !important;height: 50px !important; color:black; background-color: rgb(132, 160, 214);"
-          (click)="openCardModal()">Card (F5)
-          <fa-icon [icon]="faCreditCard"></fa-icon>
-        </button>
-      </div>
-      <div class="col-md-3 col-lg-3 col-sm-12 ">
-        <button class="btn btn-info" style="width: 100% !important;height: 50px !important;color:black; "
-          (click)="openCashModal()">Cash (F9)
-          <fa-icon [icon]="faCashRegister"></fa-icon>
-        </button>
-      </div>
-
-
-      <div class="col-lg-2 col-md-2 col-sm-12 " *ngIf="cancelSaleFlag">
-        <button class="btn" style="width: 100% !important;height:50px !important;color:black; background-color: #ccc;"
-          (click)="removeCart()">Cancel Sale
-        </button>
-      </div>
-
-
-
-      <!-- <div class="col-lg-6 col-md-6 col-sm-2">
-        <button (click)="hide()" class="btn btn-secondary m-1"
-          style="width: 100% !important;height:50px !important;">Touch
-        </button>
-      </div>
-      <div class="col-lg-6 col-md-6 col-sm-2"> 
-        <button (click)="show()" class="btn btn-secondary m-1"
-          style="width: 100% !important;height:50px !important;">General
-        </button>
-      </div> -->
-
+        <!-- </div> -->
+      </footer>
 
     </div>
+
 
   </div>
-
-
-</div>
+</body>
 <!-- </section> -->
 
 <!-- ========================= SECTION CONTENT END// ========================= -->

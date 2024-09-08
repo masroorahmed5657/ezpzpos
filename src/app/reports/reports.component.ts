@@ -1,7 +1,7 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import * as XLSX from 'xlsx';
 import { ReportsService } from '../services/reports.service';
-import { OrderSaleDailyReport, OrderSaleReport, OrderSaleReportResponse  } from '../model/model-classes.model';
+import { OrderSaleDailyReport, OrderSaleReport, OrderSaleReportResponse, PaymentMethodReport, PaymentMethodResponse, ReportRequest  } from '../model/model-classes.model';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { faSignOut } from '@fortawesome/free-solid-svg-icons';
@@ -23,6 +23,8 @@ import {
   ApexTooltip
 } from "ng-apexcharts";
 import { ActivatedRoute, Router } from '@angular/router';
+import { DatePipe } from '@angular/common';
+import { environment } from 'src/environments/environment';
 
 export type ChartOptions = {
   responsive: ApexResponsive[];
@@ -41,12 +43,24 @@ export type ChartOptions = {
 };
 
 
+
+
 @Component({
   selector: 'app-reports',
   templateUrl: './reports.component.html',
   styleUrls: ['./reports.component.scss']
 })
 export class ReportsComponent implements OnInit {
+
+  @ViewChild("chart")
+  public chartPaymentCountOptions: Partial<ChartOptions> | any;
+
+  @ViewChild("chart")
+  public chartPaymentAmountOptions: Partial<ChartOptions> | any;
+
+  @ViewChild("chart")
+  public chartPaymentTaxesOptions: Partial<ChartOptions> | any;
+
 
   faSignOut = faSignOut;
   selectedMonth: any;
@@ -60,6 +74,8 @@ export class ReportsComponent implements OnInit {
 
   startDate: Date = new Date();
   endDate: Date = new Date();
+  startTime: any ;
+  endTime:any;
 
   weekdata = 1;
   dailySaleList: OrderSaleReport[] = [];
@@ -68,17 +84,43 @@ export class ReportsComponent implements OnInit {
   yearlySaleList: OrderSaleReport[] = [];
   orderSaleReport: OrderSaleReport[] = [];
   dailySaleExcelReport: OrderSaleDailyReport[]=[];
+  
   dailySaleCashReport: OrderSaleDailyReport[]=[];
   dailySaleCardReport: OrderSaleDailyReport[]=[];
+ 
+
+  cashCardSaleReport: PaymentMethodResponse = new PaymentMethodResponse;
   totalCashSaleCount=0;
   totalCashTax=0;
   totalCashSaleAmount=0;
   totalCardSaleCount=0;
+  totalCashCardSaleCount=0;
+  totalCashCardSaleAmount=0;
+  totalCashCardTax=0;
   totalCardTax=0;
   totalCardSaleAmount=0;
+///////////////////////////////////////////////////
+  dailySaleExcelReturnReport: OrderSaleDailyReport[]=[];
+  dailyReturnCashReport: OrderSaleDailyReport[]=[];
+  dailyReturnCardReport: OrderSaleDailyReport[]=[];
+
+
+  totalCashReturnCount=0;
+  totalCashReturnTax=0;
+  totalCashReturnAmount=0;
+  totalCardReturnCount=0;
+  totalCashCardReturnCount=0;
+  totalCashCardReturnAmount=0;
+  totalCashCardReturnTax=0;
+  totalCardReturnTax=0;
+  totalCardReturnAmount=0;
+
+
+//////////////////////////////////////////////////
+  paymentMethodReport: PaymentMethodReport= new PaymentMethodReport();
 
   sortOrder: 'asc' | 'desc' = 'asc'; //
-
+  showTaxFlag = environment.showTaxFlag;
 
 
   chart!: ChartComponent;
@@ -93,11 +135,14 @@ export class ReportsComponent implements OnInit {
 
 
   print(){
-    let popupWin:any ;
+    let printWindow:any ;
     if (this.legacyReport){
-      let cashHtml: any = document.getElementById('cash-table');
-      let cardHtml: any = document.getElementById('card-table');
-      popupWin = window.open('', '_blank');
+      const printContentObj = document.getElementById('saleReport');
+      const printContent = printContentObj?.innerHTML;
+      const originalContent = document.body.innerHTML;
+
+
+      printWindow = window.open('', '_blank');
       
       let headHtmlTag = `
       <html> 
@@ -112,11 +157,15 @@ export class ReportsComponent implements OnInit {
             .no-print { display: none; }
             .page-break {page-break-after: always;
 			}
+
+      table { width: 100%; border-collapse: collapse; }
+          th, td { border: 1px solid black; padding: 8px; text-align: left; }
+          thead {border: 2px solid black;background-color:none;}
      </style>
      `;
       
      let bodyHtmlTag  =
-     `<title>Niks Receipt</title>
+     `<title>Daily Sale Report</title>
      </head>    
      <body  onload="window.print();window.close();">`;
 
@@ -127,12 +176,13 @@ export class ReportsComponent implements OnInit {
      </html>
        `;
 
-    let finalHTMLTag =   headHtmlTag +  styleTag + bodyHtmlTag + cashHtml + cardHtml; + footerHtml;
+      let finalHTMLTag =   headHtmlTag +  styleTag + bodyHtmlTag + printContent + footerHtml;
+      printWindow.document.open();
+      printWindow.document.write(finalHTMLTag);
  
-     popupWin.document.write(finalHTMLTag);
- 
-     popupWin.document.close();
-       
+      printWindow.document.close();
+      //printWindow.focus();
+      //printWindow.print();  
   
     }
   }
@@ -230,7 +280,7 @@ export class ReportsComponent implements OnInit {
   monthlyFlag = false;
   weeklyflage = false;
   dailyFlage = true; //default
-
+/* ************************* INIT ********************************************** */
 
   constructor(private route: ActivatedRoute,
     private reportsService: ReportsService,
@@ -248,9 +298,18 @@ export class ReportsComponent implements OnInit {
       this.legacyReport = false;
     }
 
+    let datePipe = new DatePipe('en-US');
+    this.startTime = datePipe.transform(new Date(), 'shortTime');
+    this.endTime = datePipe.transform(new Date(), 'shortTime');
+
     this.getReports();
 
 
+
+  }
+
+  ngAfterViewInit():void{
+    
   }
 
   /* ******************************************************* */
@@ -320,6 +379,10 @@ export class ReportsComponent implements OnInit {
         this.totalCashSaleCount = this.dailySaleCashReport.length;
         this.totalCardSaleCount = this.dailySaleCardReport.length;
 
+        this.totalCashCardSaleCount = this.dailySaleCashReport.length + this.dailySaleCardReport.length;
+        this.totalCashCardTax = this.totalCashTax + this.totalCardTax;
+        this.totalCashCardSaleAmount = this.totalCashSaleAmount + this.totalCardSaleAmount;
+
 
       });
 
@@ -364,9 +427,175 @@ export class ReportsComponent implements OnInit {
         });
   
       }
-  
+      this.reportsService.dailySaleTotalCashCreditCount().subscribe((data: PaymentMethodResponse) => {
+        this.cashCardSaleReport = data;
+        
+        this.paymentMethodReport.cardAmount = data.paymentAmountMap.CARD
+        this.paymentMethodReport.cashAmount = data.paymentAmountMap.CASH
+
+        this.paymentMethodReport.cardTax = data.paymentTaxesMap.CARD
+        this.paymentMethodReport.cashTax = data.paymentTaxesMap.CASH
+
+        this.paymentMethodReport.cardCount = data.paymentCountMap.CARD
+        this.paymentMethodReport.cashCount = data.paymentCountMap.CASH
+
+
+        this.makeChartPayment();
+
+
+      });
 
     }
+
+
+
+  }
+
+  makeChartPayment(){
+
+    let countArray = [];
+
+    let count1:number = Math.round(this.paymentMethodReport.cashCount);
+    let count2:number = Math.round(this.paymentMethodReport.cardCount);
+    
+    countArray.push(count1);
+    countArray.push(count2);
+    /*    {
+      name: "PaymentMethodCount",
+      data: countArray,
+      label: { text: "$" }
+    }*/
+    
+    this.chartPaymentCountOptions = {
+      series: [45,20 ],
+    
+      chart: {
+        width: 380,
+        type: "pie"
+      },
+      title:{
+        text: "Total Payment Count"
+      },
+      labels: ["CASH", "CARD"],
+      dataLabels: {
+        enabled: true, // Show data labels
+        formatter: (val: number, opts: any) => {
+          //return opts.w.config.labels[opts.seriesIndex] + ": " + val + "%";
+          // Round the value to 1 decimal place and append a '%' sign
+          return `${val.toFixed(1)}%`;
+        }
+      },
+      responsive: [
+        {
+          breakpoint: 480,
+          options: {
+            chart: {
+              width: 200
+            },
+            legend: {
+              position: "bottom"
+            }
+          }
+        }
+      ]
+    };
+
+    this.chartPaymentCountOptions.series=countArray;
+    
+    //////////////////////////////////////////////////////
+    let amountArray = [];
+    
+    amountArray.push((this.paymentMethodReport.cashAmount));
+    amountArray.push((this.paymentMethodReport.cardAmount));
+    
+    
+    this.chartPaymentAmountOptions = {
+      // series: [{
+      //   name: "Payment Method Amount",
+      //   data: amountArray,
+      //   label: { text: "$" }
+      // }],
+      series:[
+       12345678.90, 445563.23
+  
+      ],
+      chart: {
+        width: 380,
+        type: "pie"
+      },
+      labels: ["CASH", "CARD"],
+      title:{
+        text: "Total Payment Amount "
+      },
+      dataLabels: {
+        enabled: true, // Show data labels
+        formatter: (val: number, opts: any) => {
+          //return opts.w.config.labels[opts.seriesIndex] + ": " + val + "%";
+          // Round the value to 1 decimal place and append a '%' sign
+          return `${val.toFixed(1)}%`;
+        }
+      },
+      responsive: [
+        {
+          breakpoint: 480,
+          options: {
+            chart: {
+              width: 200
+            },
+            legend: {
+              position: "bottom"
+            }
+          }
+        }
+      ]
+    };
+    this.chartPaymentAmountOptions.series=amountArray;
+    //////////////////////////////////////////////////////
+    let taxesArray = [];
+    
+    taxesArray.push(Math.round(this.paymentMethodReport.cashTax));
+    taxesArray.push(Math.round(this.paymentMethodReport.cardTax));
+    
+    
+    this.chartPaymentTaxesOptions = {
+      series: [4533.89, 2314.65
+      //   {
+      //   name: "Payment Method Taxes",
+      //   data: taxesArray,
+      //   label: { text: "$" }
+      // }
+    ],
+      chart: {
+        width: 380,
+        type: "pie"
+      },
+      labels: ["CASH", "CARD"],
+      title:{
+        text: "Total Taxes Paid"
+      },
+      dataLabels: {
+        enabled: true, // Show data labels
+        formatter: (val: number, opts: any) => {
+          //return opts.w.config.labels[opts.seriesIndex] + ": " + val + "%";
+          // Round the value to 1 decimal place and append a '%' sign
+          return `${val.toFixed(1)}%`;
+        }
+      },
+      responsive: [
+        {
+          breakpoint: 480,
+          options: {
+            chart: {
+              width: 200
+            },
+            legend: {
+              position: "bottom"
+            }
+          }
+        }
+      ]
+    };
+    this.chartPaymentTaxesOptions.series=taxesArray;
 
 
   }
@@ -640,6 +869,109 @@ handleKeyboardEvent(event: KeyboardEvent) {
     }
   }
 
+  startDateChange(){
+
+  }
+
+  endDateChange(){
+
+  }
+  startTimeChange(){
+
+  }
+
+  endTimeChange(){
+
+  }
+
+  dailyReportWithDate(){
+    if (this.legacyReport){
+      let orderType='POS';
+
+      let reportRequest:ReportRequest = new ReportRequest(); 
+      reportRequest.startDate = (this.startDate).toString();
+      reportRequest.startTime = (this.startTime).toString();
+      reportRequest.endDate = (this.endDate).toString();
+      reportRequest.endTime = (this.endTime).toString();
+      reportRequest.reportType='POS';
+      this.dailySaleCashReport.length=0;
+      this.dailySaleCardReport.length=0;
+      this.totalCashSaleAmount=0;
+      this.totalCashTax=0;
+      this.totalCardTax=0;
+      this.totalCardSaleAmount=0;
+
+      this.dailyReturnCashReport.length=0;
+      this.dailyReturnCardReport.length=0;
+      this.totalCashReturnAmount=0;
+      this.totalCashReturnTax=0;
+      this.totalCardReturnTax=0;
+      this.totalCardReturnAmount=0;
+
+
+
+      this.reportsService.getDailySaleExcelWithDateRange(orderType, reportRequest).subscribe((data: OrderSaleReportResponse) => {
+        //this.dailySaleList=data;
+        //this.dailySaleList=data;
+
+        this.dailySaleExcelReport = data.orderSaleDailyReport;
+        this.dailySaleExcelReturnReport = data.orderSaleDailyReturnReport;
+        //Now segregate Cash and Card records
+        for (let i=0; i<this.dailySaleExcelReport.length; i++){
+          if (this.dailySaleExcelReport[i].paymentMethod === 'CASH'){
+            this.totalCashTax += this.dailySaleExcelReport[i].tax;
+            this.totalCashSaleAmount += this.dailySaleExcelReport[i].grandTotal;
+
+            this.dailySaleCashReport.push(this.dailySaleExcelReport[i]);
+          }
+          else if (this.dailySaleExcelReport[i].paymentMethod === 'CARD'){
+            this.totalCardTax += this.dailySaleExcelReport[i].tax;
+            this.totalCardSaleAmount += this.dailySaleExcelReport[i].grandTotal;
+
+            this.dailySaleCardReport.push(this.dailySaleExcelReport[i]);
+          }
+
+        }//for loop
+        this.totalCashSaleCount = this.dailySaleCashReport.length;
+        this.totalCardSaleCount = this.dailySaleCardReport.length;
+
+        this.totalCashCardSaleCount = this.dailySaleCashReport.length + this.dailySaleCardReport.length;
+        this.totalCashCardTax = this.totalCashTax + this.totalCardTax;
+        this.totalCashCardSaleAmount = this.totalCashSaleAmount + this.totalCardSaleAmount;
+
+        ////////////////////////////////////////////////////////////////////////////////////
+        ////// RETURN REPORT //////////////////
+        ///////////////////////////////////////////////////////////////////////////////////
+        for (let i=0; i<this.dailySaleExcelReturnReport.length; i++){
+          if (this.dailySaleExcelReturnReport[i].paymentMethod === 'RETURN'){
+            this.totalCashReturnTax += this.dailySaleExcelReturnReport[i].tax;
+            this.totalCashReturnAmount += this.dailySaleExcelReturnReport[i].grandTotal;
+
+            this.dailyReturnCashReport.push(this.dailySaleExcelReturnReport[i]);
+          }
+          // else if (this.dailySaleExcelReturnReport[i].paymentMethod === 'CARD'){
+          //   this.totalCardReturnTax += this.dailySaleExcelReturnReport[i].tax;
+          //   this.totalCardReturnAmount += this.dailySaleExcelReturnReport[i].grandTotal;
+
+          //   this.dailyReturnCardReport.push(this.dailySaleExcelReturnReport[i]);
+          // }
+
+        }//for loop
+        this.totalCashReturnCount = this.dailyReturnCashReport.length;
+        //this.totalCardReturnCount = this.dailyReturnCardReport.length;
+
+        this.totalCashCardReturnCount = this.dailyReturnCashReport.length ;//+ this.dailyReturnCardReport.length;
+        this.totalCashCardReturnTax = this.totalCashReturnTax ;//+ this.totalCardReturnTax;
+        this.totalCashCardReturnAmount = this.totalCashReturnAmount;// + this.totalCardReturnAmount;
+
+
+      });
+
+    }
+    
+  }
+
+  /* ************************ END ********************* */
 }
 
 
