@@ -13,6 +13,11 @@
 
         <div class="widgets-wrap d-flex justify-content-end">
           <div class="widget-header">
+            <button class="btn btn-default" style="font-size: small;" (click)="openPartialModal()" data-bs-toggle="modal"
+              data-bs-target="#myModal"><b>Partial Payments</b>
+            </button>
+            &nbsp;&nbsp;
+
             <button class="btn btn-default" style="font-size: small;" (click)="lastBillOfSale()" data-bs-toggle="modal"
               data-bs-target="#myModal"><b>Last BillOfSale ({{totalSaleCount}})</b>
             </button>
@@ -79,19 +84,28 @@
     <div class="row" style="margin: 0px;">
 
       <!-- Input for customer phone -->
-      <div class="col-md-3 col-lg-3 col-sm-12">
+      <div class="col-md-2 col-lg-2 col-sm-12">
         <input type="tel" id="selectedPhoneInput" [(ngModel)]="customer.phone1"
           placeholder="03xxxxxxxxx (11 digit mobile number)" (keyup)="customerPhoneKey($event)"
           style="background-color:white;color: black;width: 100%;border: 1px solid gray;">
       </div>
 
-      <div class="col-md-2 col-lg-2 col-sm-12 mt-2">
+      <div class="col-md-1 col-lg-1 col-sm-12 mt-2">
         <input class="form-check-input" type="checkbox" [(ngModel)]="taxCouponFlag">
-        <label class="form-check-label" >
+        <label class="form-check-label">
           <b>Coupon</b>
         </label>
 
       </div>
+      <div class="col-md-2 col-lg-2 col-sm-12 mt-2">
+        <input class="form-check-input" type="checkbox" [(ngModel)]="whatsappFlag" (click)="whatsAppMsg()">
+        <label class="form-check-label">
+          <b>WhatsApp Receipt</b>
+        </label>
+        <!-- <a class="no-print" href="javascript:whatsappInvoice();">Whatsapp this invoice</a> -->
+
+      </div>
+
       <!-- Input with Font Awesome icon -->
 
       <div class="col-md-3 col-lg-3 col-sm-12 d-flex align-items-center">
@@ -177,8 +191,8 @@
               </td>
               <td width="10%">
                 <input type="price" name="discount_val_{{i}}" id="discount_val_{{i}}" class="form-control focus"
-                  autocomplete="off" value="{{(item.discountVal===undefined?0:item.discountVal).toFixed(2)}}" (change)="discountValChange(i)"
-                  style="width:90%;height: 10px !important; text-align: center;">
+                  autocomplete="off" value="{{(item.discountVal===undefined?0:item.discountVal).toFixed(2)}}"
+                  (change)="discountValChange(i)" style="width:90%;height: 10px !important; text-align: center;">
               </td>
               <td width="10%" *ngIf="showTaxFlag" class="price-css"><var class="price">{{ (item.totalTax).toFixed(2) }}
                   ({{item.tax}}%)</var></td>
@@ -692,11 +706,144 @@
       </div>
 
 
-      <!-- </div> -->
+      <!-- Partial Payment Modal -->
+      <div class="modal  mt-5"
+        style="width: 500rem!important;height: 100%;margin:200px auto;margin-top:150px !important;" tabindex="-1"
+        role="dialog" [ngClass]="{'show': partialModal, 'd-block': partialModal}">
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content custom-dialog" style=" box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);">
+            <div class="modal-header" style="background-color: #17A2B8;">
+              <h4 class="modal-title">Partial Payment</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="closePartialModal()">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div>
+                <div class="container-fluid " style=" border: 2px solid #ccc; border-radius: 10px;">
+                  <div class="row" *ngIf="addPartialPaymentFlag">
+                    <div clas="col-md-12">
+                      <b>Payment Amount:</b>
+                      <input type="price" [(ngModel)]="instalmentAmount" class="form-control" style="width:10rem;"
+                        autocomplete="off" placeholder="Enter Instalment Amount">
+                    <!-- </div> -->
+                    <!-- <div class="box col-md-3"> -->
+                      <b>Payment Method:</b>
+                      <select name="selectedPaymentMethod" class="form-select" [(ngModel)]="selectedPaymentMethod" style="width:10rem;">
+                        <option *ngFor="let code of paymentMethodList" [value]="code.code">
+                          {{code.code}}</option>
+                      </select>
+                    <!-- </div> -->
+                    <!-- <div class="box col-md-3"> -->
+                      <button type="button" class="btn btn-success mt-2" style="width:10rem;" (click)="savePartialPayment()">Save</button>
+                    </div>
+                  </div>
 
+                  <div class="row" *ngIf="!addPartialPaymentFlag">
+                    <div class="box col-md-6">
+                      <input type="search" [(ngModel)]="orderSearch" class="form-control" autocomplete="off"
+                        placeholder="Enter Bill of Sale" (keyup)="billOfSaleSearch($event)">
+                    </div>
+                    <div class="box col-md-6">
+                      <input type="search" [(ngModel)]="phoneSearch" class="form-control" autocomplete="off"
+                        placeholder="Enter Customer Phone" (keyup)="custPhoneSearch($event)">
+                    </div>
 
+                  </div>
+                  <div *ngIf="!multiPaymentListFlag">
+                    <div class="row" *ngIf="!addPartialPaymentFlag">
+                      <div class="box col-md-12">
+                        <table class="table-responsive" style="height:18rem;">
+                          <thead>
+                            <tr style="background-color:gray;border: 0px solid white; color: white;">
+                              <th style="width:3rem;">S.No</th>
+                              <th class="price-css">Sale#</th>
+                              <th class="price-css">Total Amount</th>
+                              <th class="price-css">Partial Payment</th>
+                              <th class="price-css">Payment Date</th>
+                              <th class="price-css">Payment Method</th>
+                              <th class="price-css">Remaining Balance</th>
+                              <th class="price-css">Status</th>
+                            </tr>
+                          </thead>
+  
+                          <tbody>
+                            <tr *ngFor="let  item of paymentList let i = index" id="payment-row_{{i}}" (click)="onPaymentSelect(item, i)">
+                              <td style="width:3rem;"> {{i+1}} </td>
+                              <td> BL {{orderCustomerWrapper.orders.invoiceNumber}} </td>
+                              <td> {{item.totalAmount}} </td>
+                              <td> {{item.instalmentAmount}} </td>
+                              <td> {{item.instalmentDate}} </td>
+                              <td> {{item.paymentMethod}} </td>
+                              <td> {{item.remainingBalance}} </td>
+                              <td> {{item.paymentStatus}} </td>
+  
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+  
+                    </div>
+  
+                  </div>
+                  <!-- Multi Payments for selected Customer  -->
+                  <div *ngIf="multiPaymentListFlag">
+                    <div class="row" *ngIf="!addPartialPaymentFlag">
+                      <div class="box col-md-12">
+                        <table class="table-responsive" style="height:18rem;">
+                          <thead>
+                            <tr style="background-color:gray;border: 0px solid white; color: white;">
+                              <th style="width:3rem;">S.No</th>
+                              <th class="price-css">Sale#</th>
+                              <th class="price-css">Total Amount</th>
+                              <th class="price-css">Partial Payment</th>
+                              <th class="price-css">Payment Date</th>
+                              <th class="price-css">Payment Method</th>
+                              <th class="price-css">Remaining Balance</th>
+                              <th class="price-css">Status</th>
+                            </tr>
+                          </thead>
+  
+                          <tbody>
+                            <div *ngFor="let  paymentListItem of paymentMultiList let j=index" id="payment-row_{{j}}">
+                              <hr>
+                              <tr *ngFor="let  item of paymentMultiList[j].payment let i=index" (click)="onPaymentSelect(item, j)">
+                                <td style="width:3rem;"> {{i+1}} </td>
+                                <td> BL{{paymentMultiList[j].orders.invoiceNumber}} </td>
+                                <td> {{item.totalAmount}} </td>
+                                <td> {{item.instalmentAmount}} </td>
+                                <td> {{item.instalmentDate}} </td>
+                                <td> {{item.paymentMethod}} </td>
+                                <td> {{item.remainingBalance}} </td>
+                                <td> {{item.paymentStatus}} </td>
+    
+                              </tr>
+  
 
+                            </div>
+                          </tbody>
+                        </table>
+                      </div>
+  
+                    </div>
 
+                  </div>
+
+                </div>
+
+              </div>
+            </div>
+            <div class="modal-footer" *ngIf="!addPartialPaymentFlag">
+
+              <button type="button" class="btn btn-danger" (click)="closePartialModal()">Close</button>
+              <button type="button" class="btn btn-success" [disabled]="!showPartialPaymentFlag" (click)="addPartialPayment()">Add Partial Payment</button>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- -->
 
       <!-- Row for All Buttons-->
       <!-- <div class=" footer row " style="margin: 0px;"> -->
@@ -821,6 +968,17 @@
 
 
   </div>
+
+  <!--    JAVA Script   -->
+
+
+
+
+
+
+
+
+
 </body>
 <!-- </section> -->
 

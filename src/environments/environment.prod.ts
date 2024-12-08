@@ -3,28 +3,28 @@ export const environment = {
   sessionTimeout: 60,
   enableLog: true,
   scannerFlag: true,
-  versionNumber: '09.06.2024 00029',
+  versionNumber: '12.07.2024 00045',
   currency:'PKR',
   
 
-//   appName: 'ZUBAIDA',
-//   logoName: 'assets/images/logos/zubaida-logo.png',
-// //   apiUrl: 'https://cp.fsglobaltech.com:8443/ZUBAIDA_API/',
-// //  dbEnv:'CLOUDAPI',
-// apiUrl: 'http://localhost:8080/ZUBAIDA_API/',
-// dbEnv:'LOCALAPI',
-//   localHostApi: 'http://localhost:8080/ZUBAIDA_API/',
-//   cloudAPIUrl:    'https://cp.fsglobaltech.com:8443/ZUBAIDA_API/',
-//   showTaxFlag: true,
-//   posCustomerNameFlag:false,
-//   posCustomerEmailFlag:false,
-//   cancelSaleFlag:false,
-//   retrieveSaleFlag:false,
-//   posName: 'POS-01',
-//   branchName:'ZUBAIDA-KHI',
+  appName: 'ZUBAIDA',
+  logoName: 'assets/images/logos/zubaida-logo.png',
+ //  apiUrl: 'https://cp.fsglobaltech.com:8443/ZUBAIDA_API/',
+  //dbEnv:'CLOUDAPI',
+  apiUrl: 'http://localhost:8080/ZUBAIDA_API/',
+  dbEnv:'LOCALAPI',
+  localHostApi: 'http://localhost:8080/ZUBAIDA_API/',
+  cloudAPIUrl:    'https://cp.fsglobaltech.com:8443/ZUBAIDA_API/',
+  showTaxFlag: true,
+  posCustomerNameFlag:false,
+  posCustomerEmailFlag:false,
+  cancelSaleFlag:false,
+  retrieveSaleFlag:false,
+  posName: 'POS-01',
+  branchName:'ZUBAIDA-KHI',
 
 
-
+/*
   appName: 'NIKS',
   logoName: 'assets/images/logos/niks-logo-small.png',
   //apiUrl: 'https://cp.fsglobaltech.com:8443/ZUBAIDA_API/',
@@ -40,7 +40,7 @@ export const environment = {
   retrieveSaleFlag:false,
   posName: 'POS-01',
   branchName:'ZUBAIDA-LHR',
-
+*/
 
 
 //   appName: 'UBT',

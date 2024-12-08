@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 //import {  ProductWrapper, product } from '../data-type';
 import { environment } from 'src/environments/environment';
 import { Observable, catchError } from 'rxjs';
-import { AlertMessage, Payment, ApiResponse } from '../model/model-classes.model';
+import { AlertMessage, Payment, ApiResponse, OrdersCustomerPaymentWrapper } from '../model/model-classes.model';
 import { Errors } from '../errors/errors';
 
 @Injectable({
@@ -31,5 +31,51 @@ savePayment(payment: Payment): Observable<ApiResponse>{
 
 
 }
+/* ************************************************************* */
+
+getPartialPaymentByBOS(billOfSale: string): Observable<OrdersCustomerPaymentWrapper>{
+
+  let retFlag=true;
+  if (billOfSale===undefined) retFlag=false;
+  if (billOfSale.length===0) retFlag=false;
+
+  if (retFlag){
+    let myUrl = `${this.myUrl}` + `payment/pos/findPaymentByBillOfSale/` + billOfSale ;
+
+    return this.http.get<OrdersCustomerPaymentWrapper>(myUrl).pipe(
+        
+      catchError(this.errors.handleError<OrdersCustomerPaymentWrapper>('getProducts'))
+    );
+  
+  }
+  else{
+    return new Observable();
+  }
+
+}
+
+/* ************************************************************* */
+
+getPartialPaymentByCustPhone(phone1: string): Observable<OrdersCustomerPaymentWrapper[]>{
+
+  let retFlag=true;
+  if (phone1===undefined) retFlag=false;
+  if (phone1.length===0) retFlag=false;
+
+  if (retFlag){
+    let myUrl = `${this.myUrl}` + `payment/pos/findPaymentByCustPhone/` + phone1 ;
+
+    return this.http.get<OrdersCustomerPaymentWrapper[]>(myUrl).pipe(
+        
+      catchError(this.errors.handleError<OrdersCustomerPaymentWrapper[]>('getProducts'))
+    );
+  
+  }
+  else{
+    return new Observable();
+  }
+
+}
+
 
 }

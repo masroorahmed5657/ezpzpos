@@ -3,12 +3,12 @@ export const environment = {
   sessionTimeout: 60,
   enableLog: true,
   scannerFlag: true,
-  versionNumber: '08.20.2024 00020',
+  versionNumber: '12.04.2024 00043',
   currency:'PKR',
 
   appName: 'ZUBAIDA',
   logoName: 'assets/images/logos/zubaida-logo.png',
- // apiUrl: 'https://cp.fsglobaltech.com:8443/ZUBAIDA_API/',
+  //apiUrl: 'https://cp.fsglobaltech.com:8443/ZUBAIDA_API/',
  // dbEnv:'CLOUDAPI',
  apiUrl: 'http://localhost:8080/ZUBAIDA_API/',
  dbEnv:'LOCALAPI',
@@ -25,7 +25,7 @@ export const environment = {
 
 //   appName: 'NIKS',
 //   logoName: 'assets/images/logos/niks-logo-small.png',
-//  // apiUrl: 'https://cp.fsglobaltech.com:8443/ZUBAIDA_API/',
+//   //apiUrl: 'https://cp.fsglobaltech.com:8443/ZUBAIDA_API/',
 //  //dbEnv:'CLOUDAPI',
 //  apiUrl: 'http://localhost:8080/ZUBAIDA_API/',
 //  dbEnv:'LOCALAPI',

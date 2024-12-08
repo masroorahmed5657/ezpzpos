@@ -146,8 +146,17 @@
         
     }
 
-      .price-css{
+    .price-css{
         text-align: center;
         align-items: center;
         
       }
+      .custom-dialog { 
+        width: 80rem; 
+        min-height: 50rem; }
+    
+    .paymentRowSelected {
+          animation: blink-animation 1s steps(5, start) infinite;
+          background: rgb(194, 243, 194) !important;
+          color:black;
+        }      

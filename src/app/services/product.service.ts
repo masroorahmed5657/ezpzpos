@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 //import {  ProductWrapper, product } from '../data-type';
 import { environment } from 'src/environments/environment';
 import { Observable, catchError } from 'rxjs';
-import { AlertMessage, CartHold, Category, Customer, ProductView, ProductWrapper, Product, ApiResponse } from '../model/model-classes.model';
+import { AlertMessage, CartHold, Category, Customer, ProductView, ProductWrapper, Product, ApiResponse, Payment, OrdersCustomerPaymentWrapper } from '../model/model-classes.model';
 import { Errors } from '../errors/errors';
 
 

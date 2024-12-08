@@ -299,8 +299,22 @@ export class ReportsComponent implements OnInit {
     }
 
     let datePipe = new DatePipe('en-US');
-    this.startTime = datePipe.transform(new Date(), 'shortTime');
-    this.endTime = datePipe.transform(new Date(), 'shortTime');
+    //this.startTime = datePipe.transform(new Date(), 'shortTime');
+    //this.endTime = datePipe.transform(new Date(), 'shortTime');
+
+
+    this.totalCashSaleCount = 0;
+    this.totalCashTax = 0;
+    this.totalCashSaleAmount = 0;
+    
+    this.totalCardSaleCount = 0;
+    this.totalCardTax = 0;
+    this.totalCardSaleAmount = 0;
+    
+
+    this.totalCashCardSaleCount = this.totalCashSaleCount + this.totalCardSaleCount;
+    this.totalCashCardTax = this.totalCashTax + this.totalCardTax;
+    this.totalCashCardSaleAmount = this.totalCashSaleAmount + this.totalCardSaleAmount;
 
     this.getReports();
 
@@ -360,28 +374,48 @@ export class ReportsComponent implements OnInit {
         //this.dailySaleList=data;
 
         this.dailySaleExcelReport = data.orderSaleDailyReport;
+        
+        this.totalCashSaleCount = data.totalCashSaleCount;
+        this.totalCashTax = data.totalCashTax;
+        this.totalCashSaleAmount = data.totalCashSaleAmount;
+        
+        this.totalCardSaleCount = data.totalCreditSaleCount;
+        this.totalCardTax = data.totalCreditTax;
+        this.totalCardSaleAmount = data.totalCreditSaleAmount
+        
+
+        this.totalCashCardSaleCount = this.totalCashSaleCount + this.totalCardSaleCount;
+        this.totalCashCardTax = this.totalCashTax + this.totalCardTax;
+        this.totalCashCardSaleAmount = this.totalCashSaleAmount + this.totalCardSaleAmount;
+
+
+        
         //Now segregate Cash and Card records
         for (let i=0; i<this.dailySaleExcelReport.length; i++){
           if (this.dailySaleExcelReport[i].paymentMethod === 'CASH'){
-            this.totalCashTax += this.dailySaleExcelReport[i].tax;
-            this.totalCashSaleAmount += this.dailySaleExcelReport[i].grandTotal;
+  //          this.totalCashTax += this.dailySaleExcelReport[i].tax;
+  //          this.totalCashSaleAmount += this.dailySaleExcelReport[i].grandTotal;
 
             this.dailySaleCashReport.push(this.dailySaleExcelReport[i]);
           }
           else if (this.dailySaleExcelReport[i].paymentMethod === 'CARD'){
-            this.totalCardTax += this.dailySaleExcelReport[i].tax;
-            this.totalCardSaleAmount += this.dailySaleExcelReport[i].grandTotal;
+   //         this.totalCardTax += this.dailySaleExcelReport[i].tax;
+     //       this.totalCardSaleAmount += this.dailySaleExcelReport[i].grandTotal;
 
             this.dailySaleCardReport.push(this.dailySaleExcelReport[i]);
           }
 
         }//for loop
+
+/*
         this.totalCashSaleCount = this.dailySaleCashReport.length;
         this.totalCardSaleCount = this.dailySaleCardReport.length;
+
 
         this.totalCashCardSaleCount = this.dailySaleCashReport.length + this.dailySaleCardReport.length;
         this.totalCashCardTax = this.totalCashTax + this.totalCardTax;
         this.totalCashCardSaleAmount = this.totalCashSaleAmount + this.totalCardSaleAmount;
+        */
 
 
       });
@@ -890,9 +924,24 @@ handleKeyboardEvent(event: KeyboardEvent) {
 
       let reportRequest:ReportRequest = new ReportRequest(); 
       reportRequest.startDate = (this.startDate).toString();
-      reportRequest.startTime = (this.startTime).toString();
+
+
+      if (this.startTime===undefined){
+        reportRequest.startTime = "";  
+      }
+      else{
+        reportRequest.startTime = (this.startTime).toString();
+      }
+      
       reportRequest.endDate = (this.endDate).toString();
-      reportRequest.endTime = (this.endTime).toString();
+
+      if (this.endTime === undefined){
+        reportRequest.endTime = "";
+      }
+      else{
+        reportRequest.endTime = (this.endTime).toString();
+      }
+
       reportRequest.reportType='POS';
       this.dailySaleCashReport.length=0;
       this.dailySaleCardReport.length=0;
@@ -916,28 +965,50 @@ handleKeyboardEvent(event: KeyboardEvent) {
 
         this.dailySaleExcelReport = data.orderSaleDailyReport;
         this.dailySaleExcelReturnReport = data.orderSaleDailyReturnReport;
+
+
+        this.totalCashSaleCount = data.totalCashSaleCount;
+        this.totalCashTax = data.totalCashTax;
+        this.totalCashSaleAmount = data.totalCashSaleAmount;
+        
+        this.totalCardSaleCount = data.totalCreditSaleCount;
+        this.totalCardTax = data.totalCreditTax;
+        this.totalCardSaleAmount = data.totalCreditSaleAmount
+        
+
+        this.totalCashCardSaleCount = this.totalCashSaleCount + this.totalCardSaleCount;
+        this.totalCashCardTax = this.totalCashTax + this.totalCardTax;
+        this.totalCashCardSaleAmount = this.totalCashSaleAmount + this.totalCardSaleAmount;
+
+
+        
         //Now segregate Cash and Card records
         for (let i=0; i<this.dailySaleExcelReport.length; i++){
           if (this.dailySaleExcelReport[i].paymentMethod === 'CASH'){
-            this.totalCashTax += this.dailySaleExcelReport[i].tax;
-            this.totalCashSaleAmount += this.dailySaleExcelReport[i].grandTotal;
+            //this.totalCashTax += this.dailySaleExcelReport[i].tax;
+            //this.totalCashSaleAmount += this.dailySaleExcelReport[i].grandTotal;
 
             this.dailySaleCashReport.push(this.dailySaleExcelReport[i]);
           }
           else if (this.dailySaleExcelReport[i].paymentMethod === 'CARD'){
-            this.totalCardTax += this.dailySaleExcelReport[i].tax;
-            this.totalCardSaleAmount += this.dailySaleExcelReport[i].grandTotal;
+            //this.totalCardTax += this.dailySaleExcelReport[i].tax;
+            //this.totalCardSaleAmount += this.dailySaleExcelReport[i].grandTotal;
 
             this.dailySaleCardReport.push(this.dailySaleExcelReport[i]);
           }
 
         }//for loop
+        
+        /*
         this.totalCashSaleCount = this.dailySaleCashReport.length;
         this.totalCardSaleCount = this.dailySaleCardReport.length;
 
         this.totalCashCardSaleCount = this.dailySaleCashReport.length + this.dailySaleCardReport.length;
         this.totalCashCardTax = this.totalCashTax + this.totalCardTax;
         this.totalCashCardSaleAmount = this.totalCashSaleAmount + this.totalCardSaleAmount;
+
+        */
+
 
         ////////////////////////////////////////////////////////////////////////////////////
         ////// RETURN REPORT //////////////////
@@ -970,6 +1041,35 @@ handleKeyboardEvent(event: KeyboardEvent) {
     }
     
   }
+
+  toNumber(amount:any){
+
+    if (amount===undefined){
+      return 0;
+    }
+    else if (amount===0){
+      return 0;
+    }
+    else if (amount>0){
+      let numVal = Number(amount.toFixed(2)).toLocaleString('en');
+    
+      return numVal;
+
+    }
+    else if (amount<0){
+      //Returns
+      let numVal = Number(amount.toFixed(2)).toLocaleString('en');
+    
+      return numVal;
+
+    }
+
+    else{
+      return amount;
+    }
+
+  }
+
 
   /* ************************ END ********************* */
 }

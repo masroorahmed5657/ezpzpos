@@ -605,12 +605,16 @@ export class Payment{
  taxesAmount:any;
  status:any;
  paymentMethod:any;
+ paymentStatus:any;
  discount:any;
  dicountReasoning:any;
  discountType:any;
  updatedBy:any;
  updatedDate:any;
- currency:any
+ currency:any;
+ instalmentAmount:any;
+ instalmentDate:any;
+ remainingBalance:any;
 
 }
 
@@ -695,6 +699,7 @@ export class OrderSaleDailyReport {
   dateStr:any;
   phone1:any;
   invoiceNumber:any;
+  paymentStatus:any;
 }
 
 export class PaymentMethodResponse{
@@ -718,6 +723,13 @@ export class OrderSaleReportResponse{
   orderSaleReport: OrderSaleReport[]=[];
   orderSaleDailyReport: OrderSaleDailyReport[]=[];
   orderSaleDailyReturnReport: OrderSaleDailyReport[]=[];
+  totalCashSaleCount:any;
+  totalCashTax:any;
+  totalCashSaleAmount:any;
+
+  totalCreditSaleCount:any;
+  totalCreditTax:any;
+  totalCreditSaleAmount:any;
 }
 
 export class DailySale{
@@ -935,4 +947,10 @@ export class ReportRequest {
 export class DbUpdate {
   tableName:any;
   updateDate:any;
+}
+
+export class OrdersCustomerPaymentWrapper{
+  orders: Orders = new Orders;
+  customer: Customer = new Customer;
+  payment:Payment[]=[];
 }

@@ -50,6 +50,33 @@
       </div>
 
       <div class="container " id="saleReport">
+        <table id="cardcash-table" class="mt-1" style="width:100%; " >
+          <tfoot style="border-bottom-style: solid;border-width: 0.1px;">
+            <tr>
+              <td colspan="2"  class="no-print totalSale">
+                Total Sale Count: {{totalCashCardSaleCount}}
+              </td>
+              <td colspan="2"  class="no-print totalSale"  *ngIf="showTaxFlag"> Total Tax(MINUS RETURN): {{toNumber(totalCashCardTax + totalCashCardReturnTax)}}</td>
+              <td colspan="2" class="totalSale"> Total Sale (MINUS RETURN): {{toNumber(totalCashCardSaleAmount + totalCashCardReturnAmount)}}</td>
+            </tr>
+          </tfoot>
+        </table>
+
+
+        <table id="cardcash-table" class="mt-1" style="width:100%; " >
+          <tfoot style="border-bottom-style: solid;border-width: 0.1px;">
+            <tr>
+              <td colspan="2" class="no-print totalSaleCombined">
+                Total Sale Count: {{totalCashCardSaleCount}}
+              </td>
+              <td colspan="2" class="no-print totalSaleCombined"  *ngIf="showTaxFlag"> Total Tax(COMBINED): {{toNumber(totalCashCardTax)}}</td>
+              <td colspan="2" class="totalSaleCombined"> Total Sale (COMBINED): {{toNumber(totalCashCardSaleAmount)}}</td>
+            </tr>
+          </tfoot>
+        </table>
+
+
+
         <table id="cash-table" style="width:100%;" >
           <thead style="border: 2px solid black;width: 100%;">
             <tr>
@@ -65,6 +92,7 @@
               <th>Created Time</th>
               <th class="no-print"  *ngIf="showTaxFlag" >Tax</th>
               <th>Amount</th>
+              <th>PaymentStatus</th>
             </tr>
           </thead>
           <tbody style="border-bottom-style: solid;border-width: 0.1px;">
@@ -74,8 +102,9 @@
               <td *ngIf="item.invoiceNumber ===null"> BL{{item.orderId}} </td>
               <td class="no-print"> {{item.phone1}} </td>
               <td> {{item.dateStr}} </td>
-              <td class="no-print"  *ngIf="showTaxFlag"> {{item.tax}} </td>
-              <td> {{item.grandTotal}} </td>
+              <td class="no-print"  *ngIf="showTaxFlag"> {{toNumber(item.tax)}} </td>
+              <td> {{ toNumber(item.grandTotal) }} </td>
+              <td> {{item.paymentStatus}}  </td>
             </tr>
 
           </tbody>
@@ -84,8 +113,8 @@
               <td colspan="2" style="font-weight: bold;" class="no-print">
                 Total #(CASH): {{totalCashSaleCount}}
               </td>
-              <td colspan="2" style="font-weight: bold;" class="no-print"  *ngIf="showTaxFlag"> Total Tax(CASH): {{(totalCashTax).toFixed(2)}}</td>
-              <td colspan="2" style="font-weight: bold;"> Total Sale(CASH) : {{(totalCashSaleAmount).toFixed(2)}}</td>
+              <td colspan="2" style="font-weight: bold;" class="no-print"  *ngIf="showTaxFlag"> Total Tax(CASH): {{toNumber(totalCashTax)}}</td>
+              <td colspan="2" style="font-weight: bold;"> Total Sale(CASH) : {{ toNumber(totalCashSaleAmount)}}</td>
             </tr>
           </tfoot>
 
@@ -106,6 +135,7 @@
               <th>Created Time</th>
               <th class="no-print"  *ngIf="showTaxFlag">Tax</th>
               <th>Amount</th>
+              <th>PaymentStatus</th>
             </tr>
           </thead>
           <tbody style="border-bottom-style: solid;border-width: 0.1px;">
@@ -115,8 +145,9 @@
               <td *ngIf="item.invoiceNumber ===null"> BL{{item.orderId}} </td>
               <td class="no-print"> {{item.phone1}} </td>
               <td> {{item.dateStr}} </td>
-              <td class="no-print"  *ngIf="showTaxFlag"> {{item.tax}} </td>
-              <td> {{item.grandTotal}} </td>
+              <td class="no-print"  *ngIf="showTaxFlag"> {{toNumber(item.tax)}} </td>
+              <td> {{ toNumber(item.grandTotal)  }} </td>
+              <td> {{item.paymentStatus}}  </td>
             </tr>
 
           </tbody>
@@ -125,24 +156,24 @@
               <td colspan="2" style="font-weight: bold;" class="no-print">
                 Total#(CARD): {{totalCardSaleCount}}
               </td>
-              <td colspan="2" style="font-weight: bold;" class="no-print"  *ngIf="showTaxFlag"> Total Tax(CARD): {{(totalCardTax).toFixed(2)}}</td>
-              <td colspan="2" style="font-weight: bold;"> Total(CARD) : {{(totalCardSaleAmount).toFixed(2)}}</td>
+              <td colspan="2" style="font-weight: bold;" class="no-print"  *ngIf="showTaxFlag"> Total Tax(CARD): {{toNumber(totalCardTax)}}</td>
+              <td colspan="2" style="font-weight: bold;"> Total(CARD) : {{toNumber(totalCardSaleAmount)}}</td>
             </tr>
           </tfoot>
 
         </table>
+       
+
         <table id="cardcash-table" class="mt-1" style="width:100%; " >
           <tfoot style="border-bottom-style: solid;border-width: 0.1px;">
             <tr>
-              <td colspan="2" style="font-weight: bold;" class="no-print">
+              <td colspan="2" class="no-print totalSaleCombined">
                 Total Sale Count: {{totalCashCardSaleCount}}
               </td>
-              <td colspan="2" style="font-weight: bold;" class="no-print"  *ngIf="showTaxFlag"> Total Tax(COMBINED): {{(totalCashCardTax).toFixed(2)}}</td>
-              <td colspan="2" style="font-weight: bold;"> Total Sale (COMBINED): {{(totalCashCardSaleAmount).toFixed(2)}}</td>
+              <td colspan="2" class="no-print totalSaleCombined"  *ngIf="showTaxFlag"> Total Tax(COMBINED): {{toNumber(totalCashCardTax)}}</td>
+              <td colspan="2" class="totalSaleCombined"> Total Sale (COMBINED): {{toNumber(totalCashCardSaleAmount)}}</td>
             </tr>
           </tfoot>
-
-
         </table>
 
       </div>
@@ -163,6 +194,7 @@
               <th>Created Time</th>
               <th class="no-print"  *ngIf="showTaxFlag" >Tax</th>
               <th>Amount</th>
+              <th>PaymentStatus</th>
             </tr>
           </thead>
           <tbody style="border-bottom-style: solid;border-width: 0.1px;">
@@ -172,8 +204,9 @@
               <td *ngIf="item.invoiceNumber ===null"> BL{{item.orderId}} </td>
               <td class="no-print"> {{item.phone1}} </td>
               <td> {{item.dateStr}} </td>
-              <td class="no-print"  *ngIf="showTaxFlag"> {{item.tax}} </td>
-              <td> {{item.grandTotal}} </td>
+              <td class="no-print negMoney"  *ngIf="showTaxFlag"> {{toNumber(item.tax)}} </td>
+              <td class="negMoney"> {{ toNumber(item.grandTotal)  }} </td>
+              <td> {{item.paymentStatus}}  </td>
             </tr>
 
           </tbody>
@@ -182,66 +215,37 @@
               <td colspan="2" style="font-weight: bold;" class="no-print">
                 Total #(CASH): {{totalCashReturnCount}}
               </td>
-              <td colspan="2" style="font-weight: bold;" class="no-print"  *ngIf="showTaxFlag"> Total Tax(CASH): {{(totalCashReturnTax).toFixed(2)}}</td>
-              <td colspan="2" style="font-weight: bold;"> Total Sale(CASH) : {{(totalCashReturnAmount).toFixed(2)}}</td>
+              <td colspan="2" style="font-weight: bold;" class="no-print"  *ngIf="showTaxFlag"> Total Tax(CASH): {{toNumber(totalCashReturnTax)}}</td>
+              <td colspan="2" style="font-weight: bold;"> Total Sale(CASH) : {{toNumber(totalCashReturnAmount)}}</td>
             </tr>
           </tfoot>
 
         </table>
 
-        <!-- <table id="card-table" style="width:100%;" >
-          <thead style="border: 2px solid black;width: 100%;">
-            <tr>
-              <td style="margin-top:25px;" colspan="6">
-                <h4 style="text-align:center;">Card Return</h4>
-              </td>
-            </tr>
 
-            <tr style="background-color:transparent; border: 1px solid black; color: black;">
-              <th> S No. </th>
-              <th>Invoice #</th>
-              <th class="no-print">Customer</th>
-              <th>Created Time</th>
-              <th class="no-print"  *ngIf="showTaxFlag">Tax</th>
-              <th>Amount</th>
-            </tr>
-          </thead>
-          <tbody style="border-bottom-style: solid;border-width: 0.1px;">
-            <tr *ngFor="let  item of dailyReturnCardReport let i = index">
-              <td> {{i+1}}</td>
-              <td *ngIf="item.invoiceNumber !==null"> BL{{item.invoiceNumber}} </td>
-              <td *ngIf="item.invoiceNumber ===null"> BL{{item.orderId}} </td>
-              <td class="no-print"> {{item.phone1}} </td>
-              <td> {{item.dateStr}} </td>
-              <td class="no-print"  *ngIf="showTaxFlag"> {{item.tax}} </td>
-              <td> {{item.grandTotal}} </td>
-            </tr>
-
-          </tbody>
-          <tfoot style="border-bottom-style: solid;border-width: 0.1px;" >
-            <tr>
-              <td colspan="2" style="font-weight: bold;" class="no-print">
-                Total#(CARD): {{totalCardReturnCount}}
-              </td>
-              <td colspan="2" style="font-weight: bold;" class="no-print"  *ngIf="showTaxFlag"> Total Tax(CARD): {{(totalCardReturnTax).toFixed(2)}}</td>
-              <td colspan="2" style="font-weight: bold;"> Total(CARD) : {{(totalCardReturnAmount).toFixed(2)}}</td>
-            </tr>
-          </tfoot>
-
-        </table> -->
         <table id="cardcash-table" class="mt-1" style="width:100%; " >
           <tfoot style="border-bottom-style: solid;border-width: 0.1px;">
             <tr>
               <td colspan="2" style="font-weight: bold;" class="no-print">
                 Total Sale Count: {{totalCashCardReturnCount}}
               </td>
-              <td colspan="2" style="font-weight: bold;" class="no-print"  *ngIf="showTaxFlag"> Total Tax(COMBINED): {{(totalCashCardReturnTax).toFixed(2)}}</td>
-              <td colspan="2" style="font-weight: bold;"> Total Sale (COMBINED): {{(totalCashCardReturnAmount).toFixed(2)}}</td>
+              <td colspan="2" style="font-weight: bold;" class="no-print"  *ngIf="showTaxFlag"> Total Tax(COMBINED): {{toNumber(totalCashCardReturnTax)}}</td>
+              <td colspan="2" style="font-weight: bold;"> Total Sale (COMBINED): {{toNumber(totalCashCardReturnAmount)}}</td>
             </tr>
           </tfoot>
-
-
         </table>
+        <table id="cardcash-table" class="mt-1" style="width:100%; " >
+          <tfoot style="border-bottom-style: solid;border-width: 0.1px;">
+            <tr>
+              <td colspan="2"  class="no-print totalSale">
+                Total Sale Count: {{totalCashCardSaleCount}}
+              </td>
+              <td colspan="2"  class="no-print totalSale"  *ngIf="showTaxFlag"> Total Tax(MINUS RETURN): {{toNumber(totalCashCardTax + totalCashCardReturnTax)}}</td>
+              <td colspan="2" class="totalSale"> Total Sale (MINUS RETURN): {{toNumber(totalCashCardSaleAmount + totalCashCardReturnAmount)}}</td>
+            </tr>
+          </tfoot>
+        </table>
+        <br>
 
       </div>
 

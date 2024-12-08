@@ -17,3 +17,21 @@ tbody {
     width:100%;
 }
 */
+
+.enMoney::before {
+    content:"$";
+}
+.negMoney {
+    color:red;
+}
+
+.totalSale{
+    font-size: x-large;
+    font-weight: bold;
+    color: green;
+}
+.totalSaleCombined{
+    font-size: x-large;
+    font-weight: bold;
+    color: brown;
+}
