@@ -6,12 +6,13 @@ import { AuthGaurdService } from './shared/auth-gaurd.service';
 import { PosZubaidaComponent } from './pos-zubaida/pos-zubaida.component';
 import { ReportsComponent } from './reports/reports.component';
 import { DailysalereportComponent } from './dailysalereport/dailysalereport.component';
+import { PosDemoComponent } from './pos-demo/pos-demo.component';
 
 
 const routes: Routes = [
   {
     path: 'pos',
-     component:PosZubaidaComponent,canActivate:[AuthGaurdService]
+     component:PosDemoComponent,canActivate:[AuthGaurdService]
   },
   {
     path: '',

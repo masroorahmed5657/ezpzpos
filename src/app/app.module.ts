@@ -18,6 +18,7 @@ import { PosZubaidaComponent } from './pos-zubaida/pos-zubaida.component';
 import { ReportsComponent } from './reports/reports.component';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { DailysalereportComponent } from './dailysalereport/dailysalereport.component';
+import { PosDemoComponent } from './pos-demo/pos-demo.component';
 
 
 
@@ -28,7 +29,8 @@ import { DailysalereportComponent } from './dailysalereport/dailysalereport.comp
     PosComponent,
     PosZubaidaComponent,
     ReportsComponent,
-    DailysalereportComponent
+    DailysalereportComponent,
+    PosDemoComponent
 
   ],
   imports: [

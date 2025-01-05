@@ -158,9 +158,28 @@ export class LoginComponent implements OnInit {
           sessionStorage.setItem('currentUser', JSON.stringify(data.adminUser));
           sessionStorage.setItem('Token', data.token);
           sessionStorage.setItem('UserLoginResponse', JSON.stringify(data));
+
+          //Code Added on Dec 31, 2024, to check subscription
+          this.loginService.checkSubscription().subscribe(data => {
+            let apiResp = data;
+            if (apiResp!==undefined){
+              if (apiResp.statusCode!<0){
+                  Swal.fire('WARNING', 'Your POS Subscription has expired. Please contact TECHMACI', 'error');
+              }
+              else{
+                this.alertWithSignin(userData.adminUser?.loginId);
+                this.router.navigate(['pos']);
+      
+              }
+            }
+            else{
+              this.alertWithSignin(userData.adminUser?.loginId);
+              this.router.navigate(['pos']);
+            }
+
+           
+          });
           
-          this.alertWithSignin(data.adminUser?.loginId);
-          this.router.navigate(['pos']);
 
         }
 

@@ -1,11 +1,11 @@
 import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import * as XLSX from 'xlsx';
 import { ReportsService } from '../services/reports.service';
-import { OrderSaleDailyReport, OrderSaleReport, OrderSaleReportResponse, PaymentMethodReport, PaymentMethodResponse, ReportRequest  } from '../model/model-classes.model';
+import { OrderSaleDailyReport, OrderSaleReport, OrderSaleReportResponse, PaymentMethodReport, PaymentMethodResponse, ReportRequest } from '../model/model-classes.model';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { faSignOut } from '@fortawesome/free-solid-svg-icons';
-
+import Swal from 'sweetalert2';
 //import { ChartOptions } from './qurbani/qurbani.component';
 import {
   ApexResponsive,
@@ -68,14 +68,14 @@ export class ReportsComponent implements OnInit {
 
   filteredYearlyItems: any;
   selectedYear: any;
-  legacyReport:boolean=false;
+  legacyReport: boolean = false;
 
 
 
   startDate: Date = new Date();
   endDate: Date = new Date();
-  startTime: any ;
-  endTime:any;
+  startTime: any;
+  endTime: any;
 
   weekdata = 1;
   dailySaleList: OrderSaleReport[] = [];
@@ -83,41 +83,41 @@ export class ReportsComponent implements OnInit {
   monthlySaleList: OrderSaleReport[] = [];
   yearlySaleList: OrderSaleReport[] = [];
   orderSaleReport: OrderSaleReport[] = [];
-  dailySaleExcelReport: OrderSaleDailyReport[]=[];
-  
-  dailySaleCashReport: OrderSaleDailyReport[]=[];
-  dailySaleCardReport: OrderSaleDailyReport[]=[];
- 
+  dailySaleExcelReport: OrderSaleDailyReport[] = [];
+
+  dailySaleCashReport: OrderSaleDailyReport[] = [];
+  dailySaleCardReport: OrderSaleDailyReport[] = [];
+
 
   cashCardSaleReport: PaymentMethodResponse = new PaymentMethodResponse;
-  totalCashSaleCount=0;
-  totalCashTax=0;
-  totalCashSaleAmount=0;
-  totalCardSaleCount=0;
-  totalCashCardSaleCount=0;
-  totalCashCardSaleAmount=0;
-  totalCashCardTax=0;
-  totalCardTax=0;
-  totalCardSaleAmount=0;
-///////////////////////////////////////////////////
-  dailySaleExcelReturnReport: OrderSaleDailyReport[]=[];
-  dailyReturnCashReport: OrderSaleDailyReport[]=[];
-  dailyReturnCardReport: OrderSaleDailyReport[]=[];
+  totalCashSaleCount = 0;
+  totalCashTax = 0;
+  totalCashSaleAmount = 0;
+  totalCardSaleCount = 0;
+  totalCashCardSaleCount = 0;
+  totalCashCardSaleAmount = 0;
+  totalCashCardTax = 0;
+  totalCardTax = 0;
+  totalCardSaleAmount = 0;
+  ///////////////////////////////////////////////////
+  dailySaleExcelReturnReport: OrderSaleDailyReport[] = [];
+  dailyReturnCashReport: OrderSaleDailyReport[] = [];
+  dailyReturnCardReport: OrderSaleDailyReport[] = [];
 
 
-  totalCashReturnCount=0;
-  totalCashReturnTax=0;
-  totalCashReturnAmount=0;
-  totalCardReturnCount=0;
-  totalCashCardReturnCount=0;
-  totalCashCardReturnAmount=0;
-  totalCashCardReturnTax=0;
-  totalCardReturnTax=0;
-  totalCardReturnAmount=0;
+  totalCashReturnCount = 0;
+  totalCashReturnTax = 0;
+  totalCashReturnAmount = 0;
+  totalCardReturnCount = 0;
+  totalCashCardReturnCount = 0;
+  totalCashCardReturnAmount = 0;
+  totalCashCardReturnTax = 0;
+  totalCardReturnTax = 0;
+  totalCardReturnAmount = 0;
 
 
-//////////////////////////////////////////////////
-  paymentMethodReport: PaymentMethodReport= new PaymentMethodReport();
+  //////////////////////////////////////////////////
+  paymentMethodReport: PaymentMethodReport = new PaymentMethodReport();
 
   sortOrder: 'asc' | 'desc' = 'asc'; //
   showTaxFlag = environment.showTaxFlag;
@@ -134,16 +134,16 @@ export class ReportsComponent implements OnInit {
 
 
 
-  print(){
-    let printWindow:any ;
-    if (this.legacyReport){
+  print() {
+    let printWindow: any;
+    if (this.legacyReport) {
       const printContentObj = document.getElementById('saleReport');
       const printContent = printContentObj?.innerHTML;
       const originalContent = document.body.innerHTML;
 
 
       printWindow = window.open('', '_blank');
-      
+
       let headHtmlTag = `
       <html> 
     <head>
@@ -151,7 +151,7 @@ export class ReportsComponent implements OnInit {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge"> `;
 
-    let styleTag=`
+      let styleTag = `
      <style>
      @media print {
             .no-print { display: none; }
@@ -163,34 +163,34 @@ export class ReportsComponent implements OnInit {
           thead {border: 2px solid black;background-color:none;}
      </style>
      `;
-      
-     let bodyHtmlTag  =
-     `<title>Daily Sale Report</title>
+
+      let bodyHtmlTag =
+        `<title>Daily Sale Report</title>
      </head>    
      <body  onload="window.print();window.close();">`;
 
 
 
-      let footerHtml=
-     `</body>
+      let footerHtml =
+        `</body>
      </html>
        `;
 
-      let finalHTMLTag =   headHtmlTag +  styleTag + bodyHtmlTag + printContent + footerHtml;
+      let finalHTMLTag = headHtmlTag + styleTag + bodyHtmlTag + printContent + footerHtml;
       printWindow.document.open();
       printWindow.document.write(finalHTMLTag);
- 
+
       printWindow.document.close();
       //printWindow.focus();
       //printWindow.print();  
-  
+
     }
   }
 
 
   openPDF(): void {
 
-    if (this.legacyReport){
+    if (this.legacyReport) {
       let DATA: any = document.getElementById('cash-table');
       html2canvas(DATA).then((canvas) => {
         let fileWidth = 208;
@@ -212,9 +212,20 @@ export class ReportsComponent implements OnInit {
         PDF.addImage(FILEURI, 'PNG', 0, position, fileWidth, fileHeight);
         PDF.save('card-sale.pdf');
       });
-  
+      //return-table
+      let DATA3: any = document.getElementById('return-table');
+      html2canvas(DATA3).then((canvas) => {
+        let fileWidth = 208;
+        let fileHeight = (canvas.height * fileWidth) / canvas.width;
+        const FILEURI = canvas.toDataURL('image/png');
+        let PDF = new jsPDF('p', 'mm', 'a4');
+        let position = 0;
+        PDF.addImage(FILEURI, 'PNG', 0, position, fileWidth, fileHeight);
+        PDF.save('return-sale.pdf');
+      });
+
     }
-    else{
+    else {
       let DATA: any = document.getElementById('excel-table');
       html2canvas(DATA).then((canvas) => {
         let fileWidth = 208;
@@ -224,9 +235,9 @@ export class ReportsComponent implements OnInit {
         let position = 0;
         PDF.addImage(FILEURI, 'PNG', 0, position, fileWidth, fileHeight);
         PDF.save('daily-sale.pdf');
-        
+
       });
-  
+
 
     }
 
@@ -234,7 +245,7 @@ export class ReportsComponent implements OnInit {
   }
 
   exportexcel(): void {
-    if (this.legacyReport){
+    if (this.legacyReport) {
       /* pass here the table id */
       let element = document.getElementById('cash-table');
       const ws: XLSX.WorkSheet = XLSX.utils.table_to_sheet(element);
@@ -244,31 +255,42 @@ export class ReportsComponent implements OnInit {
       XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
 
       /* save to file */
-      XLSX.writeFile(wb, this.fileName);
+      XLSX.writeFile(wb, 'DailyCashSale.xlsx');
 
-        /* pass here the table id */
-        let element2 = document.getElementById('card-table');
-        const ws2: XLSX.WorkSheet = XLSX.utils.table_to_sheet(element2);
-    
-        /* generate workbook and add the worksheet */
-        const wb2: XLSX.WorkBook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb2, ws2, 'Sheet1');
-    
-        /* save to file */
-        XLSX.writeFile(wb2, this.fileName);
-    
+      /* pass here the table id */
+      let element2 = document.getElementById('card-table');
+      const ws2: XLSX.WorkSheet = XLSX.utils.table_to_sheet(element2);
+
+      /* generate workbook and add the worksheet */
+      const wb2: XLSX.WorkBook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb2, ws2, 'Sheet1');
+
+      /* save to file */
+      XLSX.writeFile(wb2, 'DailyCardSale.xlsx');
+
+      /* pass here the table id */
+      let elementRet = document.getElementById('return-table');
+      const wsRet: XLSX.WorkSheet = XLSX.utils.table_to_sheet(elementRet);
+
+      /* generate workbook and add the worksheet */
+      const wbRet: XLSX.WorkBook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wbRet, wsRet, 'Sheet1');
+
+      /* save to file */
+      XLSX.writeFile(wbRet, 'DailyReturnSale.xlsx');
+
     }
-    else{
-    /* pass here the table id */
-    let element = document.getElementById('excel-table');
-    const ws: XLSX.WorkSheet = XLSX.utils.table_to_sheet(element);
+    else {
+      /* pass here the table id */
+      let element = document.getElementById('excel-table');
+      const ws: XLSX.WorkSheet = XLSX.utils.table_to_sheet(element);
 
-    /* generate workbook and add the worksheet */
-    const wb: XLSX.WorkBook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+      /* generate workbook and add the worksheet */
+      const wb: XLSX.WorkBook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
 
-    /* save to file */
-    XLSX.writeFile(wb, this.fileName);
+      /* save to file */
+      XLSX.writeFile(wb, this.fileName);
 
 
     }
@@ -280,7 +302,7 @@ export class ReportsComponent implements OnInit {
   monthlyFlag = false;
   weeklyflage = false;
   dailyFlage = true; //default
-/* ************************* INIT ********************************************** */
+  /* ************************* INIT ********************************************** */
 
   constructor(private route: ActivatedRoute,
     private reportsService: ReportsService,
@@ -288,13 +310,13 @@ export class ReportsComponent implements OnInit {
 
   ngOnInit(): void {
 
-    
+
     let reportType = this.route.snapshot.paramMap.get('reportType');
 
-    if (reportType==='false'){
+    if (reportType === 'false') {
       this.legacyReport = true;
     }
-    else{
+    else {
       this.legacyReport = false;
     }
 
@@ -306,11 +328,11 @@ export class ReportsComponent implements OnInit {
     this.totalCashSaleCount = 0;
     this.totalCashTax = 0;
     this.totalCashSaleAmount = 0;
-    
+
     this.totalCardSaleCount = 0;
     this.totalCardTax = 0;
     this.totalCardSaleAmount = 0;
-    
+
 
     this.totalCashCardSaleCount = this.totalCashSaleCount + this.totalCardSaleCount;
     this.totalCashCardTax = this.totalCashTax + this.totalCardTax;
@@ -322,8 +344,8 @@ export class ReportsComponent implements OnInit {
 
   }
 
-  ngAfterViewInit():void{
-    
+  ngAfterViewInit(): void {
+
   }
 
   /* ******************************************************* */
@@ -368,89 +390,99 @@ export class ReportsComponent implements OnInit {
   }
   /* ****************************************************** */
   getReports() {
-    if (this.legacyReport){
-      let orderType='POS';
+    if (this.legacyReport) {
+      let orderType = 'POS';
       this.reportsService.getDailySaleExcel(orderType).subscribe((data: OrderSaleReportResponse) => {
-        //this.dailySaleList=data;
-
         this.dailySaleExcelReport = data.orderSaleDailyReport;
-        
+        this.dailySaleExcelReturnReport = data.orderSaleDailyReturnReport;
+
+
         this.totalCashSaleCount = data.totalCashSaleCount;
         this.totalCashTax = data.totalCashTax;
         this.totalCashSaleAmount = data.totalCashSaleAmount;
-        
+
         this.totalCardSaleCount = data.totalCreditSaleCount;
         this.totalCardTax = data.totalCreditTax;
         this.totalCardSaleAmount = data.totalCreditSaleAmount
-        
+
 
         this.totalCashCardSaleCount = this.totalCashSaleCount + this.totalCardSaleCount;
         this.totalCashCardTax = this.totalCashTax + this.totalCardTax;
         this.totalCashCardSaleAmount = this.totalCashSaleAmount + this.totalCardSaleAmount;
 
 
-        
+
         //Now segregate Cash and Card records
-        for (let i=0; i<this.dailySaleExcelReport.length; i++){
-          if (this.dailySaleExcelReport[i].paymentMethod === 'CASH'){
-  //          this.totalCashTax += this.dailySaleExcelReport[i].tax;
-  //          this.totalCashSaleAmount += this.dailySaleExcelReport[i].grandTotal;
+        for (let i = 0; i < this.dailySaleExcelReport.length; i++) {
+          if (this.dailySaleExcelReport[i].paymentMethod === 'CASH') {
+            //this.totalCashTax += this.dailySaleExcelReport[i].tax;
+            //this.totalCashSaleAmount += this.dailySaleExcelReport[i].grandTotal;
 
             this.dailySaleCashReport.push(this.dailySaleExcelReport[i]);
           }
-          else if (this.dailySaleExcelReport[i].paymentMethod === 'CARD'){
-   //         this.totalCardTax += this.dailySaleExcelReport[i].tax;
-     //       this.totalCardSaleAmount += this.dailySaleExcelReport[i].grandTotal;
+          else if (this.dailySaleExcelReport[i].paymentMethod === 'CARD') {
+            //this.totalCardTax += this.dailySaleExcelReport[i].tax;
+            //this.totalCardSaleAmount += this.dailySaleExcelReport[i].grandTotal;
 
             this.dailySaleCardReport.push(this.dailySaleExcelReport[i]);
           }
 
         }//for loop
 
-/*
-        this.totalCashSaleCount = this.dailySaleCashReport.length;
-        this.totalCardSaleCount = this.dailySaleCardReport.length;
 
+        ////////////////////////////////////////////////////////////////////////////////////
+        ////// RETURN REPORT //////////////////
+        ///////////////////////////////////////////////////////////////////////////////////
+        for (let i = 0; i < this.dailySaleExcelReturnReport.length; i++) {
+          if (this.dailySaleExcelReturnReport[i].paymentMethod === 'RETURN') {
+            this.totalCashReturnTax += this.dailySaleExcelReturnReport[i].tax;
+            this.totalCashReturnAmount += this.dailySaleExcelReturnReport[i].grandTotal;
 
-        this.totalCashCardSaleCount = this.dailySaleCashReport.length + this.dailySaleCardReport.length;
-        this.totalCashCardTax = this.totalCashTax + this.totalCardTax;
-        this.totalCashCardSaleAmount = this.totalCashSaleAmount + this.totalCardSaleAmount;
-        */
+            this.dailyReturnCashReport.push(this.dailySaleExcelReturnReport[i]);
+          }
+
+        }//for loop
+        this.totalCashReturnCount = this.dailyReturnCashReport.length;
+        //this.totalCardReturnCount = this.dailyReturnCardReport.length;
+
+        this.totalCashCardReturnCount = this.dailyReturnCashReport.length;//+ this.dailyReturnCardReport.length;
+        this.totalCashCardReturnTax = this.totalCashReturnTax;//+ this.totalCardReturnTax;
+        this.totalCashCardReturnAmount = this.totalCashReturnAmount;// + this.totalCardReturnAmount;
 
 
       });
 
     }
-    else{
+    else {
       if (this.dailyFlage) {
         //get Daily Sales
         this.reportsService.getDailySale().subscribe((data: OrderSaleReportResponse) => {
           //this.dailySaleList=data;
-  
+
           this.dailySaleList = data.orderSaleReport;
-  
+
           this.makeChartDaily();
-  
+
         });
       }
       if (this.weeklyflage) {
         //get weekly Sales
         this.reportsService.weeklySaleTotal().subscribe((data: OrderSaleReportResponse) => {
           this.weeklySaleList = data.orderSaleReport;
-  
+
           this.makeChartWeekly();
-  
+
         });
       }
       if (this.monthlyFlag) {
         //get monthly Sales
         this.reportsService.getMonthlySale().subscribe((data: OrderSaleReportResponse) => {
           this.monthlySaleList = data.orderSaleReport;
-  
+
           this.makeChartMonthly();
-  
-  
-  
+
+
+
         });
       }
       if (this.yearlyFlag) {
@@ -459,11 +491,11 @@ export class ReportsComponent implements OnInit {
           this.yearlySaleList = data.orderSaleReport;
           this.makeChartYearly();
         });
-  
+
       }
       this.reportsService.dailySaleTotalCashCreditCount().subscribe((data: PaymentMethodResponse) => {
         this.cashCardSaleReport = data;
-        
+
         this.paymentMethodReport.cardAmount = data.paymentAmountMap.CARD
         this.paymentMethodReport.cashAmount = data.paymentAmountMap.CASH
 
@@ -485,13 +517,13 @@ export class ReportsComponent implements OnInit {
 
   }
 
-  makeChartPayment(){
+  makeChartPayment() {
 
     let countArray = [];
 
-    let count1:number = Math.round(this.paymentMethodReport.cashCount);
-    let count2:number = Math.round(this.paymentMethodReport.cardCount);
-    
+    let count1: number = Math.round(this.paymentMethodReport.cashCount);
+    let count2: number = Math.round(this.paymentMethodReport.cardCount);
+
     countArray.push(count1);
     countArray.push(count2);
     /*    {
@@ -499,15 +531,15 @@ export class ReportsComponent implements OnInit {
       data: countArray,
       label: { text: "$" }
     }*/
-    
+
     this.chartPaymentCountOptions = {
-      series: [45,20 ],
-    
+      series: [45, 20],
+
       chart: {
         width: 380,
         type: "pie"
       },
-      title:{
+      title: {
         text: "Total Payment Count"
       },
       labels: ["CASH", "CARD"],
@@ -534,31 +566,31 @@ export class ReportsComponent implements OnInit {
       ]
     };
 
-    this.chartPaymentCountOptions.series=countArray;
-    
+    this.chartPaymentCountOptions.series = countArray;
+
     //////////////////////////////////////////////////////
     let amountArray = [];
-    
+
     amountArray.push((this.paymentMethodReport.cashAmount));
     amountArray.push((this.paymentMethodReport.cardAmount));
-    
-    
+
+
     this.chartPaymentAmountOptions = {
       // series: [{
       //   name: "Payment Method Amount",
       //   data: amountArray,
       //   label: { text: "$" }
       // }],
-      series:[
-       12345678.90, 445563.23
-  
+      series: [
+        12345678.90, 445563.23
+
       ],
       chart: {
         width: 380,
         type: "pie"
       },
       labels: ["CASH", "CARD"],
-      title:{
+      title: {
         text: "Total Payment Amount "
       },
       dataLabels: {
@@ -583,28 +615,28 @@ export class ReportsComponent implements OnInit {
         }
       ]
     };
-    this.chartPaymentAmountOptions.series=amountArray;
+    this.chartPaymentAmountOptions.series = amountArray;
     //////////////////////////////////////////////////////
     let taxesArray = [];
-    
+
     taxesArray.push(Math.round(this.paymentMethodReport.cashTax));
     taxesArray.push(Math.round(this.paymentMethodReport.cardTax));
-    
-    
+
+
     this.chartPaymentTaxesOptions = {
       series: [4533.89, 2314.65
-      //   {
-      //   name: "Payment Method Taxes",
-      //   data: taxesArray,
-      //   label: { text: "$" }
-      // }
-    ],
+        //   {
+        //   name: "Payment Method Taxes",
+        //   data: taxesArray,
+        //   label: { text: "$" }
+        // }
+      ],
       chart: {
         width: 380,
         type: "pie"
       },
       labels: ["CASH", "CARD"],
-      title:{
+      title: {
         text: "Total Taxes Paid"
       },
       dataLabels: {
@@ -629,64 +661,24 @@ export class ReportsComponent implements OnInit {
         }
       ]
     };
-    this.chartPaymentTaxesOptions.series=taxesArray;
+    this.chartPaymentTaxesOptions.series = taxesArray;
 
 
   }
 
-    /* ************************************************************ */
-    makeChartDaily() {
-      /* ******* 1- No of Orders Chart ********** */
-  
-      //this.series.
-      let saleArray = [];
-      for (let i = 0; i < this.dailySaleList.length; i++) {
-        saleArray.push((this.dailySaleList[i].totalSale).toFixed(2));
-      }
-  
-      let x_axis = [];
-      for (let i = 0; i < this.dailySaleList.length; i++) {
-        let xLabel = this.dailySaleList[i].orderType ;
-        x_axis.push(xLabel);
-      }
-  
-  
-      this.chart1Options = {
-        series: [
-          {
-            name: "SALE",
-            data: saleArray,
-            label: { text: "$" }
-          }
-        ],
-        chart: {
-          height: 350,
-          type: "bar"
-        },
-        title: {
-          text: "Sale ($) Chart"
-        },
-        xaxis: {
-          categories: x_axis 
-  
-        }
-      };
-  
-  
-    }
   /* ************************************************************ */
-  makeChartWeekly() {
+  makeChartDaily() {
     /* ******* 1- No of Orders Chart ********** */
 
     //this.series.
     let saleArray = [];
-    for (let i = 0; i < this.weeklySaleList.length; i++) {
-      saleArray.push((this.weeklySaleList[i].totalSale).toFixed(2));
+    for (let i = 0; i < this.dailySaleList.length; i++) {
+      saleArray.push((this.dailySaleList[i].totalSale).toFixed(2));
     }
 
     let x_axis = [];
-    for (let i = 0; i < this.weeklySaleList.length; i++) {
-      let xLabel = this.weeklySaleList[i].dayStr ;
+    for (let i = 0; i < this.dailySaleList.length; i++) {
+      let xLabel = this.dailySaleList[i].orderType;
       x_axis.push(xLabel);
     }
 
@@ -707,7 +699,47 @@ export class ReportsComponent implements OnInit {
         text: "Sale ($) Chart"
       },
       xaxis: {
-        categories: x_axis 
+        categories: x_axis
+
+      }
+    };
+
+
+  }
+  /* ************************************************************ */
+  makeChartWeekly() {
+    /* ******* 1- No of Orders Chart ********** */
+
+    //this.series.
+    let saleArray = [];
+    for (let i = 0; i < this.weeklySaleList.length; i++) {
+      saleArray.push((this.weeklySaleList[i].totalSale).toFixed(2));
+    }
+
+    let x_axis = [];
+    for (let i = 0; i < this.weeklySaleList.length; i++) {
+      let xLabel = this.weeklySaleList[i].dayStr;
+      x_axis.push(xLabel);
+    }
+
+
+    this.chart1Options = {
+      series: [
+        {
+          name: "SALE",
+          data: saleArray,
+          label: { text: "$" }
+        }
+      ],
+      chart: {
+        height: 350,
+        type: "bar"
+      },
+      title: {
+        text: "Sale ($) Chart"
+      },
+      xaxis: {
+        categories: x_axis
 
       }
     };
@@ -768,7 +800,7 @@ export class ReportsComponent implements OnInit {
 
     let yearArray = [];
     for (let i = 0; i < this.yearlySaleList.length; i++) {
-      let xLabel = this.yearlySaleList[i].year ;
+      let xLabel = this.yearlySaleList[i].year;
       yearArray.push(xLabel);
     }
 
@@ -789,7 +821,7 @@ export class ReportsComponent implements OnInit {
         text: "Sale ($) Chart"
       },
       xaxis: {
-        categories: yearArray 
+        categories: yearArray
 
       }
     };
@@ -872,90 +904,100 @@ export class ReportsComponent implements OnInit {
     //   .sort((a, b) => a.date.getTime() - b.date.getTime());
   }
 
-/* ************************************************************** */
-signOut() {
-  //this.cache.set('currentUser', null);
-  sessionStorage.removeItem('currentUser');
-  sessionStorage.removeItem('token');
-  sessionStorage.removeItem('username');
+  /* ************************************************************** */
+  signOut() {
+    //this.cache.set('currentUser', null);
+    sessionStorage.removeItem('currentUser');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('username');
 
-  sessionStorage.clear();
+    sessionStorage.clear();
 
-  //this.cache.resetAllData();
+    //this.cache.resetAllData();
 
-  //this.isLoggedIn = false;
-  // if (this.isLoggedIn) {
-  //   //this.loginService.logOutUser();
-  //   //this.serverLogout();
-  // }
-  this.router.navigate(['login']);
-}
+    //this.isLoggedIn = false;
+    // if (this.isLoggedIn) {
+    //   //this.loginService.logOutUser();
+    //   //this.serverLogout();
+    // }
+    this.router.navigate(['login']);
+  }
 
 
-@HostListener('document:keydown', ['$event'])
-handleKeyboardEvent(event: KeyboardEvent) {
-  let t1=0;
-  switch (event.key) {
-    case 'Escape':
-      this.router.navigate(['pos']);
-      break;
+  @HostListener('document:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    let t1 = 0;
+    switch (event.key) {
+      case 'Escape':
+        this.router.navigate(['pos']);
+        break;
 
     }
   }
 
-  startDateChange(){
+  startDateChange() {
+    this.startDate;
+    if ((this.startDate).toString() < (this.endDate).toString()) {
+      Swal.fire('WARNING', 'End Date must be greater or equal to Start Date', 'warning');
+      this.startDate = new Date();
+    }
+
 
   }
 
-  endDateChange(){
+  endDateChange() {
+    this.endDate;
+    if ((this.startDate).toString() > (this.endDate).toString()) {
+      Swal.fire('WARNING', 'End Date must be greater or equal to Start Date', 'warning');
+      this.endDate = new Date();
+    }
+  }
+  startTimeChange() {
 
   }
-  startTimeChange(){
+
+  endTimeChange() {
 
   }
 
-  endTimeChange(){
+  dailyReportWithDate() {
+    if (this.legacyReport) {
+      let orderType = 'POS';
 
-  }
-
-  dailyReportWithDate(){
-    if (this.legacyReport){
-      let orderType='POS';
-
-      let reportRequest:ReportRequest = new ReportRequest(); 
+      let reportRequest: ReportRequest = new ReportRequest();
       reportRequest.startDate = (this.startDate).toString();
 
 
-      if (this.startTime===undefined){
-        reportRequest.startTime = "";  
+      if (this.startTime === undefined) {
+        reportRequest.startTime = "";
       }
-      else{
+      else {
         reportRequest.startTime = (this.startTime).toString();
       }
-      
+
       reportRequest.endDate = (this.endDate).toString();
 
-      if (this.endTime === undefined){
+      if (this.endTime === undefined) {
         reportRequest.endTime = "";
       }
-      else{
+      else {
         reportRequest.endTime = (this.endTime).toString();
       }
 
-      reportRequest.reportType='POS';
-      this.dailySaleCashReport.length=0;
-      this.dailySaleCardReport.length=0;
-      this.totalCashSaleAmount=0;
-      this.totalCashTax=0;
-      this.totalCardTax=0;
-      this.totalCardSaleAmount=0;
+      reportRequest.reportType = 'POS';
+      this.dailySaleCashReport.length = 0;
+      this.dailySaleCardReport.length = 0;
+      this.totalCashSaleAmount = 0;
+      this.totalCashTax = 0;
+      this.totalCardTax = 0;
+      this.totalCardSaleAmount = 0;
 
-      this.dailyReturnCashReport.length=0;
-      this.dailyReturnCardReport.length=0;
-      this.totalCashReturnAmount=0;
-      this.totalCashReturnTax=0;
-      this.totalCardReturnTax=0;
-      this.totalCardReturnAmount=0;
+      this.dailyReturnCashReport.length = 0;
+      this.dailyReturnCardReport.length = 0;
+      this.totalCashReturnAmount = 0;
+      this.totalCashReturnTax = 0;
+      this.totalCardReturnTax = 0;
+      this.totalCardReturnAmount = 0;
 
 
 
@@ -970,27 +1012,27 @@ handleKeyboardEvent(event: KeyboardEvent) {
         this.totalCashSaleCount = data.totalCashSaleCount;
         this.totalCashTax = data.totalCashTax;
         this.totalCashSaleAmount = data.totalCashSaleAmount;
-        
+
         this.totalCardSaleCount = data.totalCreditSaleCount;
         this.totalCardTax = data.totalCreditTax;
         this.totalCardSaleAmount = data.totalCreditSaleAmount
-        
+
 
         this.totalCashCardSaleCount = this.totalCashSaleCount + this.totalCardSaleCount;
         this.totalCashCardTax = this.totalCashTax + this.totalCardTax;
         this.totalCashCardSaleAmount = this.totalCashSaleAmount + this.totalCardSaleAmount;
 
 
-        
+
         //Now segregate Cash and Card records
-        for (let i=0; i<this.dailySaleExcelReport.length; i++){
-          if (this.dailySaleExcelReport[i].paymentMethod === 'CASH'){
+        for (let i = 0; i < this.dailySaleExcelReport.length; i++) {
+          if (this.dailySaleExcelReport[i].paymentMethod === 'CASH') {
             //this.totalCashTax += this.dailySaleExcelReport[i].tax;
             //this.totalCashSaleAmount += this.dailySaleExcelReport[i].grandTotal;
 
             this.dailySaleCashReport.push(this.dailySaleExcelReport[i]);
           }
-          else if (this.dailySaleExcelReport[i].paymentMethod === 'CARD'){
+          else if (this.dailySaleExcelReport[i].paymentMethod === 'CARD') {
             //this.totalCardTax += this.dailySaleExcelReport[i].tax;
             //this.totalCardSaleAmount += this.dailySaleExcelReport[i].grandTotal;
 
@@ -998,7 +1040,7 @@ handleKeyboardEvent(event: KeyboardEvent) {
           }
 
         }//for loop
-        
+
         /*
         this.totalCashSaleCount = this.dailySaleCashReport.length;
         this.totalCardSaleCount = this.dailySaleCardReport.length;
@@ -1013,8 +1055,8 @@ handleKeyboardEvent(event: KeyboardEvent) {
         ////////////////////////////////////////////////////////////////////////////////////
         ////// RETURN REPORT //////////////////
         ///////////////////////////////////////////////////////////////////////////////////
-        for (let i=0; i<this.dailySaleExcelReturnReport.length; i++){
-          if (this.dailySaleExcelReturnReport[i].paymentMethod === 'RETURN'){
+        for (let i = 0; i < this.dailySaleExcelReturnReport.length; i++) {
+          if (this.dailySaleExcelReturnReport[i].paymentMethod === 'RETURN') {
             this.totalCashReturnTax += this.dailySaleExcelReturnReport[i].tax;
             this.totalCashReturnAmount += this.dailySaleExcelReturnReport[i].grandTotal;
 
@@ -1031,40 +1073,40 @@ handleKeyboardEvent(event: KeyboardEvent) {
         this.totalCashReturnCount = this.dailyReturnCashReport.length;
         //this.totalCardReturnCount = this.dailyReturnCardReport.length;
 
-        this.totalCashCardReturnCount = this.dailyReturnCashReport.length ;//+ this.dailyReturnCardReport.length;
-        this.totalCashCardReturnTax = this.totalCashReturnTax ;//+ this.totalCardReturnTax;
+        this.totalCashCardReturnCount = this.dailyReturnCashReport.length;//+ this.dailyReturnCardReport.length;
+        this.totalCashCardReturnTax = this.totalCashReturnTax;//+ this.totalCardReturnTax;
         this.totalCashCardReturnAmount = this.totalCashReturnAmount;// + this.totalCardReturnAmount;
 
 
       });
 
     }
-    
+
   }
 
-  toNumber(amount:any){
+  toNumber(amount: any) {
 
-    if (amount===undefined){
+    if (amount === undefined) {
       return 0;
     }
-    else if (amount===0){
+    else if (amount === 0) {
       return 0;
     }
-    else if (amount>0){
+    else if (amount > 0) {
       let numVal = Number(amount.toFixed(2)).toLocaleString('en');
-    
+
       return numVal;
 
     }
-    else if (amount<0){
+    else if (amount < 0) {
       //Returns
       let numVal = Number(amount.toFixed(2)).toLocaleString('en');
-    
+
       return numVal;
 
     }
 
-    else{
+    else {
       return amount;
     }
 

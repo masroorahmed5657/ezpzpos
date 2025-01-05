@@ -7,7 +7,7 @@ import { environment } from '../../environments/environment';
 
 import { Errors } from '../errors/errors'
 
-import { AdminUser, UserLoginResponse } from '../model/model-classes.model';
+import { AdminUser, ApiResponse, UserLoginResponse } from '../model/model-classes.model';
 
 @Injectable({
   providedIn: 'root'
@@ -95,6 +95,12 @@ let endpoint = environment.apiUrl + `authenticate`;
     );
   }
 
-
+  checkSubscription(): Observable<ApiResponse>{
+    let remoteUrl = environment.subscriptionApiUrl ;
+ 
+    return this.http.get<ApiResponse>(remoteUrl).pipe(
+      catchError(this.errors.handleError<ApiResponse>('checkSubscription'))
+    );
+  }
 
 }
