@@ -3,8 +3,9 @@ import { Errors } from '../errors/errors';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import {
+   CategorySaleResponse,
    DailyCategorySale, DailyProductSale, DailySale, DailysubCategorySale, MonthlTotalyearning, MonthlyCategorySale, MonthlyProductSale,
-   MonthlySale, MonthlysubCategorySale, OrderSaleReportResponse, ProductWrapper,
+   MonthlySale, MonthlysubCategorySale, OrderSaleReportResponse, ProductSaleResponse, ProductWrapper,
    ReportRequest,
    TodayTotalearning, TotalCountOrders, TotalCountProducts, TotalCountSale, TotalCountSignup, WeeklyCategorySale, WeeklyProductSale,
    WeeklySale, WeeklyTotalearning, WeeklysubCategorySale, YearlyCategorySale, YearlyProductSale, YearlySale, YearlysubCategorySale
@@ -122,6 +123,15 @@ export class ReportsService {
          catchError(this.errors.handleError<OrderSaleReportResponse>('getDailySale'))
       );
    }
+
+   /* ************************************************************* */
+   getDailySaleByType(): Observable<OrderSaleReportResponse> {
+      let myUrl = `${this.myUrl}` + `reports/z/dailySaleTotalGroupOrderType`;
+      return this.http.get<OrderSaleReportResponse>(myUrl).pipe(
+         catchError(this.errors.handleError<OrderSaleReportResponse>('dailySaleTotalGroupOrderType'))
+      );
+   }
+
    /* ************************************************************* */
 
 
@@ -319,6 +329,16 @@ export class ReportsService {
    }
    /* ************************************************************* */
    getDailySaleExcelWithDateRange(orderType:any, reportRequest:ReportRequest): Observable<OrderSaleReportResponse> {
+      let myUrl = `${this.myUrl}` + `reports/z/dailySaleWithDate` ;
+
+
+      return this.http.post<OrderSaleReportResponse>(myUrl, reportRequest).pipe(
+         catchError(this.errors.handleError<OrderSaleReportResponse>('getDailySaleExcelWithDateRange'))
+      );
+   }
+
+   /* ************************************************************* */
+   getDailySaleDetailWithDateRange(orderType:any, reportRequest:ReportRequest): Observable<OrderSaleReportResponse> {
       let myUrl = `${this.myUrl}` + `reports/dailySaleWithDate` ;
 
 
@@ -327,7 +347,40 @@ export class ReportsService {
       );
    }
 
+    /* ************************************************************* */
+   // getSaleByCategoryReport(): Observable<OrderSaleReportResponse> {
+   //    let myUrl = `${this.myUrl}` + `reports/getSaleReport` ;
+   //    let reportRequest:ReportRequest = new ReportRequest();
 
+
+   //    return this.http.post<OrderSaleReportResponse>(myUrl, reportRequest).pipe(
+   //       catchError(this.errors.handleError<OrderSaleReportResponse>('getDailySaleExcelWithDateRange'))
+   //    );
+
+   // }
+    /* ************************************************************* */
+   productTotalSale(): Observable<ProductSaleResponse> {
+      let myUrl = `${this.myUrl}` + `reports/productTotalSale` ;
+      let reportRequest:ReportRequest = new ReportRequest();
+
+
+      return this.http.get<ProductSaleResponse>(myUrl ).pipe(
+         catchError(this.errors.handleError<ProductSaleResponse>('categoryTotalSale'))
+      );
+   }
+
+
+    /* ************************************************************* */
+   categoryTotalSale(): Observable<CategorySaleResponse> {
+      let myUrl = `${this.myUrl}` + `reports/categoryTotalSale` ;
+      let reportRequest:ReportRequest = new ReportRequest();
+
+
+      return this.http.get<CategorySaleResponse>(myUrl ).pipe(
+         catchError(this.errors.handleError<CategorySaleResponse>('categoryTotalSale'))
+      );
+   }
+  
 
    /* ************************************************************* */
    // getCurrentMonthSale(): Observable<OrderSaleReportResponse> {
@@ -337,6 +390,15 @@ export class ReportsService {
    //    );
    // }
 
+   /* ************************************************************* */
+   printToken(items:any[], printerIp:string){
+
+   this.http.post('/api/print', {
+      items: items,
+      printerIp: printerIp
+   }).subscribe();
+
+   }
 
 
 }

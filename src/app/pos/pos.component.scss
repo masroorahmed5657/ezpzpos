@@ -1,4 +1,10 @@
 /* CSS styles for the provided HTML */
+.blink {
+  animation: blink-animation 1s steps(5, start) infinite;
+  background: green !important;
+  color: black;
+}
+
 
 .container-fluid.full-height {
   height: 100vh;
@@ -6,8 +12,10 @@
 }
 
 .section-content {
-  height: calc(100vh - 80px); /* Adjust height according to your header height */
-  overflow-y: auto; /* Add vertical scrolling if necessary */
+  height: calc(100vh - 80px);
+  /* Adjust height according to your header height */
+  overflow-y: auto;
+  /* Add vertical scrolling if necessary */
 }
 
 .header-main {
@@ -17,6 +25,16 @@
 /* Adjustments for buttons and input fields */
 .btn-error {
   color: #ef5f5f;
+}
+
+footer-button {
+  width: 100% !important;
+  height: 50px !important;
+  color: #ef5f5f;
+
+  // hover {
+  //     background-color: #bbbaba;
+  //   }
 }
 
 .avatar {
@@ -54,21 +72,452 @@
   background-color: #bbbaba;
 }
 
+.btn-checkout{
+    grid-column: span 3;
+    font-size: larger;
+}
 
 .modal-backdrop {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
-  backdrop-filter: blur(5px); /* Apply blur effect */
-  z-index: 1040; /* Adjust z-index to ensure it's behind the modal */
+  width: 80%;
+  height: 80%;
+  background-color: rgba(0, 0, 0, 0.5);
+  /* Semi-transparent black */
+  backdrop-filter: blur(5px);
+  /* Apply blur effect */
+  z-index: 1040;
+  /* Adjust z-index to ensure it's behind the modal */
 }
 
-body{
+body {
   margin: 0px;
   padding: 0px;
 }
 
 
+
+// .logo img{
+//     margin-left: -115px !important;
+
+// }
+
+.card {
+  border: 0px !important;
+}
+/*
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead,
+tbody {
+  display: block;
+}
+
+thead {
+  background: #f2f2f2;
+  width: 100%;
+}
+
+tbody {
+  height: 520px;
+  
+  overflow-y: auto;
+  width: 100%;
+  display: block;
+  font-size: small;
+}
+
+tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+  
+}
+
+th,
+td {
+  padding: 8px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+*/
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  //position: relative;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+footer {
+  background: #ebe8e8;
+  color: black;
+  //padding: 1rem;
+  text-align: center;
+  //position: absolute;
+  //bottom: 0;
+  //left: 0;
+  //width: 100%;
+  padding-bottom: 1rem;
+  padding-top: 1rem;
+}
+
+.controls-container {
+  display: flex;
+  gap: 5px;
+  /* Adjust gap between controls as needed */
+
+}
+
+.price-css {
+  text-align: center;
+  align-items: center;
+  font-size: large;
+
+}
+
+.item-css{
+  text-align: center;
+  align-items: center;
+  font-size: large;
+
+}
+
+// .custom-dialog {
+//   width: 80rem;
+//   min-height: 50rem;
+// }
+
+.paymentRowSelected {
+  animation: blink-animation 1s steps(5, start) infinite;
+  background: rgb(194, 243, 194) !important;
+  color: black;
+}
+
+
+.pos {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+
+  // gap: 10px;
+  // margin: 20px 0;
+}
+
+// .pos div {
+//     // height: 100px;
+//     // width: 200px;
+//     // display: flex;
+//     // align-items: center;
+//     //justify-content: center;
+//     // color: white;
+//     //font-weight: bold;
+//     // border-radius: 5px;
+// }    
+
+.totalBox{
+  border: 1px solid;
+  padding: 10px;
+  box-shadow: 5px 10px #888888;
+}
+.headerLabels{
+  text-align: center;
+  color:white;
+}
+
+.headerItemLabels{
+  text-align: left;
+  width: 30%;
+}
+.qtyLabels{
+  text-align: center;
+  width: 50%;
+  margin-right: 5px;
+  margin-left: 5px;
+}
+
+.btn-hold{
+  background-color: #ddd;
+  color:black;
+}
+
+.btn-one{
+  background-color: #ddd;
+}
+
+.btn-other{
+  background-color: #bbbaba;
+}
+
+.pos-logo {
+  max-height: 60px;
+}
+
+.qty-input {
+  width: 60px;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  table {
+    font-size: 0.85rem;
+  }
+
+  .modal-dialog {
+    margin: 0.5rem;
+  }
+}
+.pos-table-header th {
+  background-color: #000 !important;   /* black */
+  color: #fff !important;              /* white text */
+  font-weight: 700;
+  text-transform: uppercase;
+  border-color: #444;
+}
+
+.custom-dialog {
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+}
+
+/* Improve touch usability */
+.table td, .table th {
+  white-space: nowrap;
+}
+
+/* Mobile tweaks */
+@media (max-width: 768px) {
+  .modal-dialog {
+    margin: 0.5rem;
+  }
+
+  .modal-body {
+    padding: 0.75rem;
+  }
+}
+
+
+.product-list {
+  width: 100%;
+}
+
+.product-card {
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.product-card .row {
+  margin-bottom: 6px;
+}
+
+.product-card .label {
+  font-weight: bold;
+  color: #555;
+}
+
+.product-card .value {
+  font-weight: bolder;
+  text-align: right;
+}
+
+/* Desktop fallback (optional) */
+@media (min-width: 768px) {
+  .product-card {
+    display: grid;
+    grid-template-columns: 1fr 3fr 1fr;
+    align-items: center;
+  }
+
+  .product-card .row {
+    display: contents;
+  }
+
+  .product-card .label {
+    display: none;
+  }
+
+  .product-card .value {
+    text-align: center;
+  }
+}
+
+.summary-box {
+  background: #f8f9fa;
+  padding: 12px;
+  margin-top: 8px;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+}
+
+.summary-box.balance {
+  background: #e6ffe6;
+  color: #0a7d00;
+}
+
+.calculator-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.calculator-grid button {
+  padding: 18px;
+  font-size: 1.4rem;
+  font-weight: bold;
+  border-radius: 10px;
+}
+
+.calculator-grid .btn-clear {
+  grid-column: span 3;
+  background: #dc3545;
+  color: white;
+}
+
+@media (max-width: 576px) {
+  .summary-box {
+    font-size: 1rem;
+  }
+}
+
+.summary-box {
+  background: #f8f9fa;
+  padding: 12px;
+  margin-top: 8px;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+}
+
+.summary-box.balance {
+  background: #e6ffe6;
+  color: #0a7d00;
+}
+
+.calculator-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.calculator-grid button {
+  padding: 18px;
+  font-size: 1.4rem;
+  font-weight: bold;
+  border-radius: 10px;
+}
+
+.calculator-grid .btn-clear {
+  grid-column: span 3;
+  background: #dc3545;
+  color: white;
+}
+
+@media (max-width: 576px) {
+  .summary-box {
+    font-size: 1rem;
+  }
+}
+
+
+.product-card {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  cursor: pointer;
+}
+
+.product-card:active {
+  background: #e9ecef;
+}
+
+.product-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-top: 5px;
+}
+
+.price {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #198754;
+}
+
+.red-hr {
+    border: 2px solid red;
+    margin: 10px 0; /* optional spacing */
+  }
+  
+.pos-header {
+  flex-wrap: nowrap;
+}
+
+// .pos-logo {
+//   max-height: 40px;
+// }
+
+.pos-search {
+  font-size: 14px;
+  padding: 1px 1px;
+}
+
+.waiter-input {
+  width: 10rem;
+}
+
+@media (max-width: 768px) {
+  .pos-header {
+    flex-wrap: wrap;
+  }
+
+  .waiter-input {
+    width: 70px;
+  }
+}
+.pos-closed-banner {
+  width: 100%;
+  text-align: center;
+  font-size: 32px;
+  font-weight: bold;
+  color: white;
+  background-color: red;
+  padding: 15px;
+  animation: blinkPOS 1s infinite;
+}
+
+@keyframes blinkPOS {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.pos-timer{
+  font-size:18px;
+  font-weight:600;
+  color:#0d6efd;
+}

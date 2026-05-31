@@ -31,6 +31,18 @@ export class CustomerService {
   
   }
   /* ****************************************************************** */
+  saveDeliveryCustomer(customer: CustomerRequest): Observable<CustomerResponse>{
+
+    let myUrl = `${this.url}` + `customer/saveDeliveryCustomer`  ;
+    
+    return this.http.post<CustomerResponse>(myUrl, customer).pipe(
+        //tap( error ==> this.log('Save orders') ),
+      catchError(this.errors.handleError<CustomerResponse>('saveCustomer'))
+    );
+  
+  }
+
+  /* ****************************************************************** */
   updateCustomer(customer: CustomerRequest): Observable<number>{
 
     let myUrl = `${this.url}` + `customer/update`  ;
@@ -148,5 +160,27 @@ export class CustomerService {
 
   }
 
+  /* ****************************************************************** */
+  getByCustName(custName: string): Observable<Customer>{
+
+    let myUrl = `${this.url}` + `customer/findByCustName/${custName}`  ;
+  
+  
+    return this.http.get<Customer>(myUrl).pipe(
+        //tap( error ==> this.log('Fetched orders') ),
+      catchError(this.errors.handleError<Customer>('getByCustName'))
+    );
+  }
+  /* ****************************************************************** */
+  searchByPhone(custPhone: string): Observable<Customer[]>{
+
+    let myUrl = `${this.url}` + `customer/findByCustPhone/${custPhone}`  ;
+  
+  
+    return this.http.get<Customer[]>(myUrl).pipe(
+        //tap( error ==> this.log('Fetched orders') ),
+      catchError(this.errors.handleError<Customer[]>('getByCustPhone'))
+    );
+  }
 
 }

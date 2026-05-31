@@ -1,0 +1,614 @@
+<div class="container-fluid mt-2">
+    <div class="row align-items-center g-2 ">
+
+        <!-- LOGO -->
+        <div class="col-auto">
+            <img class="img-fluid pos-logo" [src]="logoName">
+        </div>
+
+        <div class="col-auto pos-timer">
+            ⏱ {{ posTime }}
+        </div>
+        <div class="col-3 d-none d-md-block pos-closed-banner" *ngIf="disablePOSFlag">
+            EZPZ POS CLOSED
+        </div>
+
+        <div class="col-auto">
+            <button class="btn btn-sm btn-outline-primary" (click)="toggleCustomer()">
+                👤 Customer
+            </button>
+        </div>
+
+
+
+        <!-- ACTION BUTTONS -->
+
+        <div class="col-auto" >
+            <button class="btn btn-success " style="font-size: small;" (click)="home()">
+                Home
+            </button>
+        </div>        
+        <!-- -- SEARCH -- -->
+        <div class="col-3 d-none d-md-block" *ngIf="!disablePOSFlag">
+            <!-- <label class="fw-bold">Name</label> -->
+            Name:
+            <input type="search" class="form-control" placeholder="Search By Name" (keyup)="onNameSearch($event)"
+                [(ngModel)]="searchText" autocomplete="off" /> 
+
+            <ul class="list-group position-absolute w-100" *ngIf="showNameSearchDropdown && productNameSearchList.length > 0"
+                style="z-index: 1000; max-height: 250px; overflow-y: auto;">
+                <li class="list-group-item list-group-item-action" *ngFor="let product of productNameSearchList"
+                    (click)="addItemsToCart(product)">
+                    {{ product.productName }}
+                    <small class="text-muted d-block">
+                        {{(product.salePrice===null?product.unitPrice:product.salePrice) |
+                        number:'1.2-2'}}
+                    </small>
+                </li>
+            </ul>
+        </div>
+
+
+        <!-- <div class="col-auto">
+            <button class="btn btn-danger " (click)="lastBillOfSale()" style="font-size: small;">
+                Last BOS ({{totalSaleCount}})
+            </button>
+        </div>
+        <div class="col-auto" *ngIf="showOpenBalanceFlag">
+            <button class="btn btn-primary " (click)="closeBalance()" style="font-size: small;">
+                CloseBalance <fa-icon [icon]="faClose"></fa-icon>
+            </button>
+        </div>
+
+        <div class="col-auto">
+            <button class="btn btn-primary " (click)="zReport()" style="font-size: small;">
+                XReport <fa-icon [icon]="faPrint"></fa-icon>
+            </button>
+        </div>
+
+        <div class="col-auto" *ngIf="!disablePOSFlag">
+            <button class="btn btn-info " (click)="openRetrieveSalePopup()" style="font-size: small;">
+                Hold List <fa-icon [icon]="faList"></fa-icon>
+            </button>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-secondary " style="font-size: small;" (click)="dineIn()">
+                DINE-IN
+            </button>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-secondary " style="font-size: small;" (click)="pickup()">
+                PICK-UP
+            </button>
+        </div>
+        <div class="col-auto" *ngIf="showDeliveryFlag">
+            <button class="btn btn-success " style="font-size: small;" (click)="deliveryDashboard()">
+                Delivery Dashboard
+            </button>
+        </div> -->
+
+
+        <!-- SIGN OUT -->
+        <div class="col-auto ">
+            <button class="btn btn-outline-danger w-100 fw-bold" (click)="signOut()" style="font-size: small;">
+                Sign Out <fa-icon [icon]="faSignOut"></fa-icon>
+            </button>
+        </div>
+
+
+    </div>
+
+
+    <div *ngIf="showCustomerPanel" class="card p-3 mt-2 shadow-sm">
+
+        <div class="row g-2">
+
+            <!-- Phone (SEARCH FIELD) -->
+            <div class="col-12 col-md-3">
+                <input class="form-control" placeholder="Phone" [(ngModel)]="customer.phone1"
+                    (ngModelChange)="onPhoneChange($event)">
+
+                <!-- Search Results -->
+                <ul class="list-group position-absolute w-100" *ngIf="customerSearchList.length > 0"
+                    style="z-index:1000; max-height:200px; overflow-y:auto;">
+
+                    <li class="list-group-item list-group-item-action" *ngFor="let c of customerSearchList"
+                        (click)="selectCustomer(c)">
+
+                        {{c.custName}} - {{c.phone1}}
+
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Name -->
+            <div class="col-12 col-md-3">
+                <input class="form-control" placeholder="Customer Name" [(ngModel)]="customer.custName">
+            </div>
+            <div class="col-12 col-md-3">
+                <input class="form-control" placeholder="Customer Email" [(ngModel)]="customer.email">
+            </div>
+            <!-- City -->
+            <div class="col-12 col-md-3">
+                <input class="form-control" placeholder="City" [(ngModel)]="customer.city">
+            </div>
+
+            <!-- State -->
+            <div class="col-12 col-md-3">
+                <input class="form-control" placeholder="Province" [(ngModel)]="customer.stateProvince">
+            </div>
+
+            <!-- Address -->
+            <div class="col-12 col-md-6">
+                <textarea class="form-control" placeholder="Delivery Address" [(ngModel)]="customer.address"></textarea>
+            </div>
+            <div class="col-12 col-md-1">
+                <button class="btn btn-info" (click)="saveCustomer(customer)">Save</button>
+            </div>
+
+
+            <!-- Delivery Fee -->
+            <!-- <div class="col-12">
+          <input type="number"
+                 class="form-control"
+                 placeholder="Delivery Fee"
+                 [(ngModel)]="delivery.deliveryFee">
+        </div> -->
+
+        </div>
+
+
+    </div>
+
+    <div class="row g-2">
+        <!-- ITEM SEARCH BAR -->
+        <!-- <div class="mb-2">
+            <input type="search" class="form-control form-control-lg pos-search w-25"
+                placeholder="🔍 Search item or scan barcode" [(ngModel)]="itemSearchText" (input)="filterItems()"
+                autofocus>
+        </div> -->
+        <hr>
+
+        <!-- LEFT: ITEMS GRID (8 COLS) -->
+        <div class="col-12 col-md-8 product-scroll">
+
+            <!-- CATEGORY FILTER -->
+            <div class="d-flex gap-2 mb-2 flex-wrap">
+                <!-- Optional: Show All -->
+                <button class="btn btn-sm btn-secondary" (click)="filterByCategory(null)">
+                    All
+                </button>
+
+                <button class="btn btn-sm" *ngFor="let cat of categoryList" (click)="filterByCategory(cat.categoryId!)"
+                    [ngClass]="selectedCategoryId === cat.categoryId
+                    ? 'btn-primary'
+                    : 'btn-outline-primary'">
+
+                    {{cat.subCategory}}
+
+                </button>
+            </div>
+
+            <!-- ITEMS GRID -->
+            <div class="row g-2">
+
+                <div class="col-6 col-md-3 col-lg-2" *ngFor="let product of productViewList"
+                    (click)="addItemsToCart(product)">
+
+
+                    <div class="card item-card h-100 text-center">
+                        <div class="card-body p-2">
+                            <img class="card-img-top prod-image"
+                                src='data:{{product.imageMimeType}};base64,{{product.productImage}}'
+                                alt="{{product.productName}}">
+                            <div class="fw-bold item-name">
+                                {{ product.productName }}
+                            </div>
+
+                            <div class="text-success fw-bold">
+                                {{currencyName}}: {{ product.salePrice | number:'1.0-0' }}
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- RIGHT: CART (4 COLS) -->
+        <div class="col-12 col-md-4">
+
+            <div class="card h-100">
+                <div class="card-header bg-dark text-white fw-bold">
+                    Cart
+                </div>
+
+                <div class="card-body p-2 cart-scroll">
+
+                    <div *ngFor="let item of deliveryCart.product; let i=index" class="cart-item card shadow-sm mb-2 p-2" [class.border-warning]="item.notes">
+
+                        <div class="d-flex justify-content-between">
+
+
+                            <strong class="fs-6 text-truncate" style="max-width: 60%;">
+                                {{i+1}} &nbsp; {{ item.productName }}
+                            </strong>
+                            <div class="ms-auto d-flex gap-1">
+
+                                <!-- Add/Edit Note -->
+                                <button class="btn btn-sm btn-outline-secondary"
+                                    (click)="item.showNotes = !item.showNotes">
+                                    📝 {{ item.notes ? 'Edit Note' : 'Add Note' }}
+                                </button>
+
+                                <!-- Delete -->
+                                <button class="btn btn-sm btn-outline-danger" (click)="removeItem(item.productId, i)">
+                                    ✕
+                                </button>
+                            </div>                            
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-1">
+                            <div class="qty-controls">
+                                <button class="btn btn-sm btn-outline-secondary" (click)="qtyAddMinus(i,'-')">−</button>
+
+                                <!-- <span class="mx-2 fw-bold">{{ item.quantity }}</span> -->
+                                <input class="form-control d-inline-block qty-input" type="number"
+                                    class="fw-bold price-css" name="Qty_{{i}}" id="Qty_{{i}}" (keyup)="chkNumber1(i)"
+                                    [value]="item.quantity" (change)="qtyChange(i)">
+
+
+                                <button class="btn btn-sm btn-outline-secondary" (click)="qtyAddMinus(i,'+')">+</button>
+                            </div>
+                                <!-- <input type="number" class="form-control form-control-sm text-center" style="width:70px"
+                                placeholder="Disc" [(ngModel)]="item.discount" name="discount_{{i}}"
+                                (ngModelChange)="discountChange(i)" (keydown.enter)="discountChange(i)" /> -->
+
+                            <div class="fw-bold text-success">
+                                {{ item.totalPrice | number:'1.0-0' }}
+                            </div>
+                        </div>
+                                                <!-- Notes Input -->
+                        <div *ngIf="item.showNotes" class="mt-2">
+                            <textarea class="form-control form-control-sm" rows="2"
+                                placeholder="Special instructions..." [(ngModel)]="item.notes" (ngModelChange)="notesChange(i, $event)">
+                            </textarea>
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+                <!-- CART TOTAL -->
+                <div class="card-footer">
+                    <div class="row">
+                        <div class=" fw-bold">
+                            <label class="d-flex fw-bold">Special Instructions: </label>
+                            <span class="text-success">
+                                <textarea class=" w-100" placeholder="Special Instructions" rows="2"
+                                    [(ngModel)]="orderNotes">
+
+                                </textarea>
+                            </span>
+                        </div>
+                    </div>
+
+  <div class="row align-items-center mb-2">
+    <div class="col-4 fw-bold">Sub Total:</div>
+    <div class="col-3 fw-bold">
+        {{deliveryCart.subTotal | number:'1.0-0'}}
+    </div>
+  </div>
+
+
+  <!-- DISCOUNT -->
+  <div class="row align-items-center mb-2">
+    <div class="col-4 fw-bold">Discount %</div>
+
+    <div class="col-3">
+      <input class="form-control form-control-sm text-end"
+             [(ngModel)]="totalDiscountPercentage"
+             (input)="calculateDiscountTotal(totalDiscountPercentage)" />
+    </div>
+
+    <div class="col-5 text-start fw-bold text-danger">
+      Rs. {{totalDiscount | number:'1.0-0'}}
+    </div>
+  </div>
+
+  <div class="row align-items-center mb-2">
+    <div class="col-4 fw-bold">Total After Discount:</div>
+
+    <div class="col-3 fw-bold">
+        Rs. {{(deliveryCart.subTotal - totalDiscount) | number:'1.0-0'}}
+    </div>
+
+
+  </div>
+
+  
+  <!-- TAX -->
+  <div class="row align-items-center mb-2">
+    <div class="col-4 fw-bold">Tax %</div>
+
+    <div class="col-3">
+      <input class="form-control form-control-sm text-end"
+             [(ngModel)]="totalTax"
+             (input)="calculateTaxTotal(totalTax)" />
+    </div>
+
+    <div class="col-5 text-start fw-bold text-primary">
+      Rs. {{totalTaxValue | number:'1.0-0'}}
+    </div>
+  </div>
+
+  <!-- TOTAL -->
+  <div class="row align-items-center mt-3 border-top pt-2">
+    <div class="col-7 fw-bold">
+      Items: {{deliveryCart.totalItems}} |
+      Qty: {{deliveryCart.totalQty}}
+    </div>
+
+    <div class="col-5 text-start fw-bold text-success fs-5">
+      {{currencyName}} {{ deliveryCart.total | number:'1.0-0' }}
+    </div>
+  </div>
+
+
+
+                    <!-- <div class="row mt-3">
+                            <div class="col-auto fw-bold">
+                                Discount%:  
+                                <input class="" placeholder="DiscountPercentage"
+                                    [(ngModel)]="totalDiscountPercentage" (input)="calculateDiscountTotal(totalDiscountPercentage)" />
+                            </div>
+                            <div class="col-auto fw-bold">    
+                                Discount Value (Rs.):{{totalDiscount | number:'1.0-0'}}
+                            </div>
+                    </div> -->
+                    <!-- <div class="row mt-3">
+                            <div class="col-auto fw-bold ">
+                                Tax: 
+                                <input class="" placeholder="Tax"
+                                    [(ngModel)]="totalTax" (input)="calculateTaxTotal(totalTax)" />
+                            </div>        
+                            <div class="col-auto fw-bold">        
+                                Tax Value (Rs.):{{totalTaxValue | number:'1.0-0'}}
+                            </div>
+                    </div> -->
+                    <!-- <div class="d-flex justify-content-between fw-bold total-css mt-3">
+                        <span>Total: (Items: {{deliveryCart.totalItems}} Quantity: {{deliveryCart.totalQty}})</span>
+                        <span class="text-success">
+                            {{currencyName}}: {{ deliveryCart.total | number:'1.0-0' }}
+                        </span>
+                    </div> -->
+
+                    <div class="row mt-2 d-flex">
+
+                        <div class="col-md-12 py-2">
+                            <button class="btn btn-warning btn-sm w-100" (click)="createOrder()">
+                                Create Order
+                            </button>
+                        </div>
+
+
+
+                    </div>
+
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+<!-- $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ -->
+
+
+
+<!-- $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ -->
+<!-- Search By Name Modal -->
+<div class="modal fade" tabindex="-1" role="dialog" [ngClass]="{'show d-block': nameSearchModal}">
+
+    <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down modal-xl">
+        <div class="modal-content shadow-lg">
+
+            <!-- Header -->
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">Price Check</h5>
+                <button type="button" class="btn-close" (click)="closeNameSearchModal()"></button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body p-0">
+
+                <!-- DESKTOP TABLE -->
+                <div class="d-none d-md-block">
+                    <table class="table table-striped mb-0 text-center align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th style="width:10%">S.No</th>
+                                <th>Name</th>
+                                <th style="width:20%">Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let product of searchProducts; let i=index" style="cursor:pointer"
+                                (click)="addItemsToCart(product)">
+                                <td>{{ i + 1 }}</td>
+                                <td class="fw-bold">{{ product.productName }}</td>
+                                <td class="fw-bold">{{ product.salePrice }}</td>
+                            </tr>
+
+                            <tr *ngIf="searchProducts.length === 0">
+                                <td colspan="3" class="text-muted py-4">
+                                    No products found
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- MOBILE LIST VIEW -->
+                <div class="d-md-none p-3">
+                    <div class="product-card" *ngFor="let product of searchProducts; let i=index"
+                        (click)="addItemsToCart(product)">
+
+                        <div class="d-flex justify-content-between">
+                            <span class="badge bg-secondary">#{{ i + 1 }}</span>
+                            <span class="price">{{ product.salePrice }}</span>
+                        </div>
+
+                        <div class="product-name">
+                            {{ product.productName }}
+                        </div>
+                    </div>
+
+                    <div *ngIf="searchProducts.length === 0" class="text-center text-muted mt-4">
+                        No products found
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footer -->
+            <div class="modal-footer">
+                <button class="btn btn-primary w-100" (click)="closeNameSearchModal()">
+                    Close
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ -->
+<!-- Retrieve/Hold Sale Modal -->
+<div class="modal fade" tabindex="-1" role="dialog" [ngClass]="{'show d-block': retrieveSalePopup}">
+
+    <div class="modal-dialog modal-dialog-centered modal-xl modal-fullscreen-sm-down" role="document">
+
+        <div class="modal-content shadow-lg">
+
+            <!-- Header -->
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">Hold Sales</h5>
+                <button type="button" class="btn-close" (click)="closeRetrieveSalePopup()"></button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body">
+
+                <!-- Desktop Table -->
+                <div class="table-responsive d-none d-md-block">
+                    <table class="table table-striped table-bordered text-center align-middle">
+                        <thead class="pos-table-header text-center ">
+                            <tr>
+                                <th>ID</th>
+                                <th>Customer</th>
+                                <th>Date</th>
+                                <th>Total Items</th>
+                                <th>Grand Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let hold of holdSales" style="cursor:pointer;"
+                                (click)="showHoldSaleDetails(hold)">
+                                <td>{{ hold.transactionId }}</td>
+                                <td>{{ hold.customer.phone1 }}</td>
+                                <td>{{ getTodayDate() | date:'yyyy-MM-dd' }}</td>
+                                <td>{{ hold.product.length }}</td>
+                                <td class="fw-bold">{{ hold.total }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Mobile Card View -->
+                <div class="d-block d-md-none">
+                    <div class="card mb-2 shadow-sm" *ngFor="let hold of holdSales" (click)="showHoldSaleDetails(hold)"
+                        style="cursor:pointer;">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <span class="fw-bold">ID:</span>
+                                <span>{{ hold.transactionId }}</span>
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <span class="fw-bold">Customer:</span>
+                                <span>{{ hold.customer.phone1 }}</span>
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <span class="fw-bold">Date:</span>
+                                <span>{{ getTodayDate() | date:'yyyy-MM-dd' }}</span>
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <span class="fw-bold">Items:</span>
+                                <span>{{ hold.product.length }}</span>
+                            </div>
+
+                            <hr class="my-2">
+
+                            <div class="text-end fw-bold text-success fs-5">
+                                Total: {{ hold.total }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div *ngIf="holdSales.length === 0" class="text-center text-muted fw-bold mt-3">
+                        No Hold Sales Found
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footer -->
+            <div class="modal-footer">
+                <button class="btn btn-danger w-100" (click)="closeRetrieveSalePopup()">
+                    Close
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ -->
+<!-- Close Balance Modal -->
+<div class="modal fade" tabindex="-1" role="dialog" [ngClass]="{'show d-block': closeBalanceFlag}">
+
+    <div class="modal-dialog modal-dialog-centered modal-xl modal-fullscreen-sm-down" role="document">
+
+        <div class="modal-content shadow-lg">
+
+            <!-- Header -->
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">Close Balance </h5>
+                <button type="button" class="btn-close" (click)="closeBalancePopup()"></button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body">
+
+                <label>Closing Balance:</label>
+                <input type="text" class="form-control form-control-lg" [(ngModel)]="cashierShift.closingBalance"
+                    placeholder="Enter Opening Balance" [ngModelOptions]="{standalone: true}">
+
+            </div>
+
+            <!-- Footer -->
+            <div class="modal-footer">
+                <button class="btn btn-danger w-100" (click)="closeBalancePopup()">
+                    Close
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>

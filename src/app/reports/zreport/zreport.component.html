@@ -1,0 +1,532 @@
+<div class="container-fluid ">
+  <div class="row " style="margin-top: 4rem;">
+    <h1>Z Report / Daily Sale Report </h1>
+  </div>
+  <div class="row">
+    <div class="container-fluid mt-5">
+
+
+      <!-- Action Buttons -->
+      <div class="d-flex flex-wrap gap-2 mb-3">
+
+
+        <!-- <a [routerLink]="posUrl" class="btn btn-outline-dark">POS</a> -->
+        <button class="btn btn-success " style="font-size: small;" (click)="home()" *ngIf="restaurantFlag">
+          Home
+        </button>
+        <button class="btn btn-outline-dark " style="font-size: small;" (click)="posHome()" *ngIf="!restaurantFlag">
+          POS
+        </button>
+
+        <!-- <a [routerLink]="posUrl" class="btn btn-outline-dark" *ngIf="!restaurantFlag">POS</a> -->
+
+
+        <button (click)="print()" class="btn btn-primary">Print</button>
+        <button (click)="exportexcel()" class="btn btn-info">Export Excel</button>
+        <button (click)="openPDF()" class="btn btn-info">Export PDF</button>
+        <button (click)="toggleReports()" class="btn btn-warning">Toggle Reports ({{summaryReportFlag}})</button>
+        <button (click)="printDailyCloseSale()" class="btn btn-danger">Closing Sale</button>
+
+        <button (click)="signOut()" class="btn btn-info ms-auto">
+          Signout <fa-icon [icon]="faSignOut"></fa-icon>
+        </button>
+      </div>
+
+      <!-- Date/Time Filters -->
+      <!-- <div class="row g-2 mb-3 align-items-center">
+        <div class="col-12 col-md-auto d-flex flex-wrap gap-2 align-items-center">
+          <label class="fw-bold mb-0">Start Date:</label>
+          <input type="date" id="startDate" class="form-control" [(ngModel)]="startDate" (change)="startDateChange()">
+
+          <label class="fw-bold mb-0 ms-2">Start Time:</label>
+          <input type="time" id="startTime" class="form-control" [(ngModel)]="startTime" (change)="startTimeChange()">
+
+          <label class="fw-bold mb-0 ms-2">End Date:</label>
+          <input type="date" id="endDate" class="form-control" [(ngModel)]="endDate" (change)="endDateChange()">
+
+          <label class="fw-bold mb-0 ms-2">End Time:</label>
+          <input type="time" id="endTime" class="form-control" [(ngModel)]="endTime" (change)="endTimeChange()">
+
+          <button class="btn btn-success fw-bold ms-2" (click)="dailyReportWithDate()">Search</button>
+        </div>
+      </div> -->
+
+      <div class="d-flex flex-wrap flex-sm-nowrap align-items-center gap-2 mb-3">
+        <div class="d-flex align-items-center gap-1 flex-grow-1">
+          <label class="fw-bold mb-0">Start Date:</label>
+          <input type="date" class="form-control form-control-sm flex-grow-1" [(ngModel)]="startDate"
+            (change)="startDateChange()">
+        </div>
+
+        <div class="d-flex align-items-center gap-1 flex-grow-1">
+          <label class="fw-bold mb-0">Start Time:</label>
+          <input type="time" class="form-control form-control-sm flex-grow-1" [(ngModel)]="startTime"
+            (change)="startTimeChange()">
+        </div>
+
+        <div class="d-flex align-items-center gap-1 flex-grow-1">
+          <label class="fw-bold mb-0">End Date:</label>
+          <input type="date" class="form-control form-control-sm flex-grow-1" [(ngModel)]="endDate"
+            (change)="endDateChange()">
+        </div>
+
+        <div class="d-flex align-items-center gap-1 flex-grow-1">
+          <label class="fw-bold mb-0">End Time:</label>
+          <input type="time" class="form-control form-control-sm flex-grow-1" [(ngModel)]="endTime"
+            (change)="endTimeChange()">
+        </div>
+        <div class="d-flex align-items-center" *ngIf="restaurantFlag">
+
+          <div class="form-check">
+            <input class="form-check-input" type="radio" value="PICKUP" [(ngModel)]="orderType">
+
+            <label class="form-check-label fw-bold text-success" for="cash">
+              Pickup
+            </label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" value="DINEIN" [(ngModel)]="orderType">
+
+            <label class="form-check-label fw-bold text-success" for="cash">
+              DINEIN
+            </label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" value="DELIVERY" [(ngModel)]="orderType">
+
+            <label class="form-check-label fw-bold text-success" for="cash">
+              Delivery
+            </label>
+          </div>
+
+
+        </div>
+
+
+
+
+        <div class="d-flex align-items-center">
+          <button class="btn btn-success fw-bold" (click)="searchReportWithDate()">Search</button>
+        </div>
+
+        <!-- <div class="d-flex align-items-center">
+          <button class="btn btn-warning fw-bold" (click)="dailySaleReportWithDate(true)">Detail</button>
+        </div> -->
+
+      </div>
+
+      <!-- Sale Reports -->
+      <div class="table-responsive mb-3" id="saleReport" *ngIf="summaryReportFlag">
+        <h3>Summary Sale Report</h3>
+        <table class="table table-bordered table-hover align-middle text-center">
+
+          <thead class="table-light">
+            <tr>
+              <th class="text-start">Order Type</th>
+              <th>Orders</th>
+              <th>Sales ({{currency}})</th>
+              <th>Discount ({{currency}})</th>
+              <th>Tax ({{currency}})</th>
+              <th>Net Sales ({{currency}})</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let dailySale of dailySaleExcelReport">
+              <td class="text-start fw-semibold"> {{dailySale.orderType}} </td>
+              <td> {{dailySale.orderCount}} </td>
+              <td> {{dailySale.orderAmount| number:'1.2-2'}} </td>
+              <td> {{dailySale.discount | number:'1.2-2'}} </td>
+              <td> {{dailySale.tax | number:'1.2-2'}} </td>
+              <td class="fw-bold text-success"> {{(dailySale.grandTotal ) | number:'1.2-2'}} </td>
+            </tr>
+
+          </tbody>
+
+          <tfoot class="table-light fw-bold">
+            <tr>
+              <td class="text-start totalSale">Total</td>
+              <td class="totalSale"> {{totalSaleCount}}</td>
+              <td class="totalSale"> {{currency}} {{totalSaleAmount | number:'1.2-2'}} </td>
+              <td class="totalSale"> {{currency}} {{totalDiscount | number:'1.2-2'}} </td>
+              <td class="totalSale"> {{currency}} {{totalTax | number:'1.2-2'}} </td>
+              <td class="totalSale"> {{currency}} {{totalNetSale | number:'1.2-2'}} </td>
+            </tr>
+          </tfoot>
+
+        </table>
+
+        <div class="row mt-3 g-3">
+          <div class="col-12 col-md-4">
+            <apx-chart *ngIf="chart1Options" [series]="chart1Options.series!" [chart]="chart1Options.chart"
+              [xaxis]="chart1Options.xaxis" [title]="chart1Options.title" [labels]="chart1Options.labels"
+              [plotOptions]="chart1Options.plotOptions" [dataLabels]="chart1Options.dataLabels">
+            </apx-chart>
+          </div>
+        </div>
+      </div>
+
+      <!-- ************************************************************************************************************* -->
+      <!--************** DETAIL REPORT  ******************-->
+      <div class="table-responsive mb-3" id="detailSaleReport" *ngIf="!summaryReportFlag">
+
+        <!-- Sale Reports -->
+        <!-- <div class="table-responsive mb-3" id="saleReport"> -->
+        <!-- TOTALS TABLE -->
+
+        <h3>Detail Sale Report</h3>
+        <table class="table table-bordered" id="cardcash-table">
+          <tfoot class="price">
+            <tr>
+              <td colspan="2">Total Sale Count: {{totalCashCardSaleCount | number:'1.2-2'}}</td>
+              <td colspan="2" *ngIf="showTaxFlag">Total Tax(MINUS RETURN): {{(totalCashCardTax +
+                totalCashCardReturnTax) | number:'1.2-2'}}</td>
+              <td colspan="2">Total Sale (MINUS RETURN): {{(totalCashCardSaleAmount +
+                totalCashCardReturnAmount) | number:'1.2-2'}}</td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <!-- CASH SALES TABLE -->
+        <table class="table table-striped table-bordered" id="cash-table">
+          <thead class="pos-table-header text-center ">
+            <tr>
+              <th>S No.</th>
+              <th>Order Type</th>
+              <th>Invoice #</th>
+              <th class="d-none d-md-table-cell">Customer</th>
+              <th>Created Time</th>
+              <th class="d-none d-md-table-cell" *ngIf="showTaxFlag">Tax</th>
+              <th>Amount</th>
+              <th>PaymentStatus</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of dailySaleCashReport; let i=index">
+              <td>{{i+1}}</td>
+              <td> {{item.orderType}} </td>
+              <td>{{item.invoiceNumber ? 'BL' + item.invoiceNumber : 'BL' + item.orderId}}</td>
+              <td class="d-none d-md-table-cell">{{item.phone1}}</td>
+              <td>{{item.dateStr}}</td>
+              <td class="d-none d-md-table-cell" *ngIf="showTaxFlag">{{(item.tax) | number:'1.2-2'}}</td>
+              <td>{{(item.grandTotal) | number:'1.2-2'}}</td>
+              <td>{{item.paymentStatus}}</td>
+            </tr>
+          </tbody>
+          <tfoot class="price-card-cash">
+            <tr>
+              <td colspan="2">Total #(CASH): {{totalCashSaleCount | number:'1.2-2'}}</td>
+              <td colspan="2" *ngIf="showTaxFlag">Total Tax(CASH): {{(totalCashTax) | number:'1.2-2'}}</td>
+              <td colspan="2">Total Sale(CASH): {{(totalCashSaleAmount) | number:'1.2-2'}}</td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <!-- CARD SALES TABLE -->
+        <table class="table table-striped table-bordered" id="card-table">
+          <thead class="pos-table-header text-center ">
+            <tr>
+              <th>S No.</th>
+              <th>Order Type</th>
+              <th>Invoice #</th>
+              <th class="d-none d-md-table-cell">Customer</th>
+              <th>Created Time</th>
+              <th class="d-none d-md-table-cell" *ngIf="showTaxFlag">Tax</th>
+              <th>Amount</th>
+              <th>PaymentStatus</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of dailySaleCardReport; let i=index">
+              <td>{{i+1}}</td>
+              <td> {{item.orderType}} </td>
+              <td>{{item.invoiceNumber ? 'BL' + item.invoiceNumber : 'BL' + item.orderId}}</td>
+              <td class="d-none d-md-table-cell">{{item.phone1}}</td>
+              <td>{{item.dateStr}}</td>
+              <td class="d-none d-md-table-cell" *ngIf="showTaxFlag">{{(item.tax) | number:'1.2-2'}}</td>
+              <td>{{(item.grandTotal) | number:'1.2-2'}}</td>
+              <td>{{item.paymentStatus}}</td>
+            </tr>
+          </tbody>
+          <tfoot class="price-card-cash">
+            <tr>
+              <td colspan="2">Total#(CARD): {{totalCardSaleCount | number:'1.2-2'}}</td>
+              <td colspan="2" *ngIf="showTaxFlag">Total Tax(CARD): {{(totalCardTax) | number:'1.2-2'}}</td>
+              <td colspan="2">Total(CARD): {{(totalCardSaleAmount) | number:'1.2-2'}}</td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <!-- COMBINED TOTAL -->
+        <table class="table table-bordered mt-2" id="cardcash-table">
+          <tfoot class="price">
+            <tr>
+              <td colspan="2">Total Sale Count: {{totalCashCardSaleCount | number:'1.2-2'}}</td>
+              <td colspan="2" *ngIf="showTaxFlag">Total Tax(COMBINED): {{(totalCashCardTax) | number:'1.2-2'}}
+              </td>
+              <td colspan="2">Total Sale (COMBINED): {{(totalCashCardSaleAmount) | number:'1.2-2'}}</td>
+            </tr>
+          </tfoot>
+        </table>
+
+
+
+      </div>
+
+
+
+    </div>
+  </div>
+
+  <div *ngIf="showCloseSale">
+
+    <div class="container-fluid p-3 p-md-4">
+
+      <h3 class="mb-4">📊 Sales Reports</h3>
+
+      <!-- ================= DAILY REPORT ================= -->
+      <div class="mb-5">
+        <h5 class="section-title">Daily Sales Report</h5>
+
+        <div class="row g-3">
+
+          <div class="col-6 col-md-4 col-lg-2">
+            <div class="report-card">
+              <div class="report-title">Orders</div>
+              <div class="report-value">{{totalSaleCount}}</div>
+            </div>
+          </div>
+
+          <div class="col-6 col-md-4 col-lg-2">
+            <div class="report-card">
+              <div class="report-title">Discount</div>
+              <div class="report-value text-danger">
+                {{totalDiscount | number:'1.0-0'}}
+              </div>
+            </div>
+          </div>
+
+          <div class="col-6 col-md-4 col-lg-2">
+            <div class="report-card">
+              <div class="report-title">Tax</div>
+              <div class="report-value text-primary">
+                {{totalTax | number:'1.0-0'}}
+              </div>
+            </div>
+          </div>
+
+          <div class="col-6 col-md-4 col-lg-2">
+            <div class="report-card">
+              <div class="report-title">Sale</div>
+              <div class="report-value text-success">
+                {{totalSaleAmount | number:'1.0-0'}}
+              </div>
+            </div>
+          </div>
+
+          <div class="col-6 col-md-4 col-lg-2">
+            <div class="report-card bg-dark text-white">
+              <div class="report-title text-light">Net Sale</div>
+              <div class="report-value text-white">
+                {{totalNetSale | number:'1.0-0'}}
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="row">
+          <p> Daily Sale at Closing </p>
+          <table class="table table-bordered table-hover align-middle text-center">
+
+            <thead class="table-light">
+              <tr>
+                <th class="text-start">Types</th>
+                <th>Count</th>
+                <th>Sales ({{currency}})</th>
+                <th>Tax ({{currency}})</th>
+                <th>Disc ({{currency}})</th>
+                <th>Net ({{currency}})</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr *ngFor="let dailySale of dailySaleReport">
+                <td class="text-start fw-semibold"> {{dailySale.orderType}} </td>
+                <td> {{dailySale.orderCount}} </td>
+                <td> {{(dailySale.grandTotal.toFixed(2)) }} </td>
+                <td> {{dailySale.tax.toFixed(2)}} </td>
+                <td> {{dailySale.discount}} </td>
+                <td class="fw-bold text-success"> {{(dailySale.grandTotal + dailySale.tax).toFixed(2)}} </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+
+      <!-- ================= CATEGORY REPORT ================= -->
+      <div>
+        <h5 class="section-title">Category Sales Report</h5>
+
+        <div class="row g-3">
+
+          <div class="col-6 col-md-4 col-lg-2">
+            <div class="report-card">
+              <div class="report-title">Orders</div>
+              <div class="report-value">{{totalSaleCountCat}}</div>
+            </div>
+          </div>
+
+          <div class="col-6 col-md-4 col-lg-2">
+            <div class="report-card">
+              <div class="report-title">Discount</div>
+              <div class="report-value text-danger">
+                {{totalDiscountCat | number:'1.0-0'}}
+              </div>
+            </div>
+          </div>
+
+          <div class="col-6 col-md-4 col-lg-2">
+            <div class="report-card">
+              <div class="report-title">Tax</div>
+              <div class="report-value text-primary">
+                {{totalTaxCat | number:'1.0-0'}}
+              </div>
+            </div>
+          </div>
+
+          <div class="col-6 col-md-4 col-lg-2">
+            <div class="report-card">
+              <div class="report-title">Sale</div>
+              <div class="report-value text-success">
+                {{totalSaleAmountCat | number:'1.0-0'}}
+              </div>
+            </div>
+          </div>
+
+          <div class="col-6 col-md-4 col-lg-2">
+            <div class="report-card bg-dark text-white">
+              <div class="report-title text-light">Net Sale</div>
+              <div class="report-value text-white">
+                {{totalNetSaleCat | number:'1.0-0'}}
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="row">
+          <p> Daily Sale at Closing By Category </p>
+          <table class="table table-bordered table-hover align-middle text-center">
+
+          <thead class="table-light">
+            <tr>
+              <th class="text-start">Caetgory</th>
+              <th>Count</th>
+              <th>Sales ({{currency}})</th>
+              <th>Disc ({{currency}})</th>
+              <th>Tax ({{currency}})</th>
+              <th>Net ({{currency}})</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let dailySale of saleByCategoryTotalReport">
+                <td class="text-start fw-semibold"> {{dailySale.categoryName}} </td>
+                <td> {{dailySale.noOfOrders}} </td>
+                <td> {{dailySale.salePrice.toFixed(2)}} </td>
+                <td> {{dailySale.totalDiscount.toFixed(2)}} </td>
+                <td> {{dailySale.totalTax.toFixed(2)}} </td>
+                <td class="fw-bold text-success"> {{(dailySale.salePrice + dailySale.totalTax).toFixed(2)}} </td>
+            </tr>
+          </tbody>
+          </table>  
+
+        </div>
+      </div> <!-- Category Div -->
+
+
+      <!-- ================= PRODUCT REPORT ================= -->
+      <div>
+        <h5 class="section-title">Product Sales Report</h5>
+
+        <div class="row g-3">
+
+          <div class="col-6 col-md-4 col-lg-2">
+            <div class="report-card">
+              <div class="report-title">Orders</div>
+              <div class="report-value">{{totalSaleCountProd}}</div>
+            </div>
+          </div>
+
+          <div class="col-6 col-md-4 col-lg-2">
+            <div class="report-card">
+              <div class="report-title">Discount</div>
+              <div class="report-value text-danger">
+                {{totalDiscountProd | number:'1.0-0'}}
+              </div>
+            </div>
+          </div>
+
+          <div class="col-6 col-md-4 col-lg-2">
+            <div class="report-card">
+              <div class="report-title">Tax</div>
+              <div class="report-value text-primary">
+                {{totalTaxProd | number:'1.0-0'}}
+              </div>
+            </div>
+          </div>
+
+          <div class="col-6 col-md-4 col-lg-2">
+            <div class="report-card">
+              <div class="report-title">Sale</div>
+              <div class="report-value text-success">
+                {{totalSaleAmountProd | number:'1.0-0'}}
+              </div>
+            </div>
+          </div>
+
+          <div class="col-6 col-md-4 col-lg-2">
+            <div class="report-card bg-dark text-white">
+              <div class="report-title text-light">Net Sale</div>
+              <div class="report-value text-white">
+                {{totalNetSaleProd | number:'1.0-0'}}
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="row">
+          <p> Daily Sale at Closing By Product </p>
+          <table class="table table-bordered table-hover align-middle text-center">
+
+          <thead class="table-light">
+            <tr>
+              <th class="text-start">Product</th>
+              <th>Count</th>
+              <th>Sales ({{currency}})</th>
+              <th>Disc ({{currency}})</th>
+              <th>Tax ({{currency}})</th>
+              <th>Net ({{currency}})</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let dailySale of saleByProductTotalReport">
+                <td class="text-start fw-semibold"> {{dailySale.productName}} </td>
+                <td> {{dailySale.noOfOrders}} </td>
+                <td> {{dailySale.salePrice.toFixed(2)}} </td>
+                <td> {{dailySale.totalDiscount.toFixed(2)}} </td>
+                <td> {{dailySale.totalTax.toFixed(2)}} </td>
+                <td class="fw-bold text-success"> {{(dailySale.salePrice + dailySale.totalTax).toFixed(2)}} </td>
+            </tr>
+          </tbody>
+          </table>  
+
+        </div>
+      </div> <!-- Product Div -->
+
+
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,189 @@
+<div class="container-fluid mt-2">
+    <div class="row align-items-center g-2 ">
+
+        <!-- LOGO -->
+        <div class="col-auto">
+            <img class="img-fluid pos-logo" [src]="logoName">
+        </div>
+
+        <div class="col-auto pos-timer">
+            ⏱ {{ posTime }}
+        </div>
+
+        <div class="col-3 d-none d-md-block pos-closed-banner" *ngIf="disablePOSFlag">
+            EZPZ POS CLOSED
+        </div>
+
+
+        <!-- WAITER -->
+        <div class="col-2 d-flex align-items-center gap-2">Waiter:
+            <fa-icon [icon]="faPerson"></fa-icon>
+            <!-- DROPDOWN -->
+            <select id="agentSelect" [(ngModel)]="selectedAgent" 
+           (change)="onAgentChange(selectedAgent)"
+            class="form-select waiter-input">
+                <option *ngFor="let agent of salesAgentList" [value]="agent.userId">
+                    <strong>{{ agent.loginId }}</strong> – {{ agent.firstName }}
+                </option>
+            </select>
+        </div>
+        <!-- SIGN OUT -->
+        <div class="col-auto ">
+            <button class="btn btn-outline-danger w-100 fw-bold" (click)="signOut()" style="font-size: small;">
+                Sign Out <fa-icon [icon]="faSignOut"></fa-icon>
+            </button>
+        </div>
+    </div>
+    <div class="container-fluid text-center mt-3">
+
+        <!-- HEADER -->
+        <div class="row mb-4">
+            <h2 class="fw-bold">EZPZ POS</h2>
+            <small class="text-muted">Quick Actions</small>
+        </div>
+
+        <!-- MAIN SALES ACTIONS -->
+        <div class="row g-3">
+
+            <div class="col-6 col-md-3" *ngIf="showDineInFlag">
+                <button class="btn  w-100 pickup-btn" (click)="pickup()">
+                    🛍️<br>Pick Up
+                </button>
+            </div>
+
+            <div class="col-6 col-md-3" *ngIf="showDineInFlag">
+                <button class="btn  w-100 dinein-btn" (click)="dineIn()">
+                    🍽️<br>Dine-In
+                </button>
+            </div>
+
+            <div class="col-6 col-md-3" *ngIf="showDeliveryFlag">
+                <button class="btn  w-100 delivery-btn" (click)="delivery()">
+                    🚚<br>Delivery
+                </button>
+            </div>
+
+            <div class="col-6 col-md-3" *ngIf="showDeliveryFlag">
+                <button class="btn btn-success w-100 pos-btn" (click)="deliveryDashboard()">
+                    📊<br>Dashboard
+                </button>
+            </div>
+
+        </div>
+
+        <!-- DIVIDER -->
+        <hr class="my-4">
+
+        <!-- REPORTS / UTILITIES -->
+        <div class="row g-3">
+
+            <!-- <div class="col-6 col-md-3">
+                <button class="btn btn-danger w-100 pos-btn" (click)="lastBillOfSale()">
+                    🧾<br>Last BOS <br>
+                    <small>({{totalSaleCount}})</small>
+                </button>
+            </div> -->
+
+            <div class="col-6 col-md-3" *ngIf="showOpenBalanceFlag">
+                <button class="btn btn-primary w-100 pos-btn" (click)="closeBalance()">
+                    🔒<br>Close Balance
+                </button>
+            </div>
+
+            <div class="col-6 col-md-3">
+                <button class="btn btn-warning w-100 pos-btn" (click)="zReport()">
+                    🖨️<br>X Report
+                </button>
+            </div>
+
+        </div>
+
+        <div class="row g-3 mt-3">
+
+            <div class="col-6 col-md-3 col-lg-2" *ngFor="let table of tablesList">
+
+                <button class="btn w-100 pos-btn table-btn" [ngClass]="{
+                    'btn-success': table.status === 'AVAILABLE',
+                    'btn-info': table.status === 'OCCUPIED' || table.status === 'CLOSED',
+                    'btn-warning': table.status === 'PREPARING',
+                    'btn-danger': table.status === 'SERVED',
+                    'btn-dark': table.status === 'BILL_REQUESTED'
+                }" (click)="selectTable(table)">
+
+                    🍽️<br>
+                    {{table.tableType}} {{table.tableNo}}<br>    
+                    
+                    <label class="agent-text">{{table.agentName}}</label>
+                        <br>
+
+                    <small class="status-text">
+                        {{table.status}}
+                    </small>
+
+                </button>
+
+            </div>
+
+        </div>
+        <div class="row g-3 mt-3">
+
+            <div class="col-6 col-md-3 col-lg-2" *ngFor="let table of carList">
+
+                <button class="btn w-100 pos-btn btn-car" [ngClass]="{
+                    'btn-success': table.status === 'AVAILABLE',
+                    'btn-danger': table.status === 'OCCUPIED' || table.status === 'CLOSED',
+                    'btn-warning': table.status === 'PREPARING',
+                    'btn-info': table.status === 'SERVED',
+                    'btn-dark': table.status === 'BILL_REQUESTED'
+                }" (click)="selectTable(table)">
+
+                    🍽️<br>
+                    Car {{table.tableNo}}<br>
+                    <label class="agent-text">{{table.agentName}}</label>
+                        <br>
+
+
+                    <small class="status-text">
+                        {{table.status}}
+                    </small>
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Close Balance Modal -->
+    <div class="modal fade" tabindex="-1" role="dialog" [ngClass]="{'show d-block': closeBalanceFlag}">
+
+        <div class="modal-dialog modal-dialog-centered modal-xl modal-fullscreen-sm-down" role="document">
+
+            <div class="modal-content shadow-lg">
+
+                <!-- Header -->
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title">Close Balance </h5>
+                    <button type="button" class="btn-close" (click)="closeBalancePopup()"></button>
+                </div>
+
+                <!-- Body -->
+                <div class="modal-body">
+
+                    <label>Closing Balance:</label>
+                    <input type="text" class="form-control form-control-lg" [(ngModel)]="cashierShift.closingBalance"
+                        placeholder="Enter Closing Balance" [ngModelOptions]="{standalone: true}">
+
+                </div>
+
+                <!-- Footer -->
+                <div class="modal-footer">
+                    <button class="btn btn-danger w-100" (click)="closeBalancePopup()">
+                        Close
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>

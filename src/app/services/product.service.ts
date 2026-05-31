@@ -1,4 +1,4 @@
-import { Injectable,EventEmitter } from '@angular/core';
+import { Injectable, EventEmitter } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 //import {  ProductWrapper, product } from '../data-type';
@@ -13,24 +13,24 @@ import { Errors } from '../errors/errors';
 })
 export class ProductService {
 
-  private myUrl = environment.apiUrl  ; 
+  private myUrl = environment.apiUrl;
   private cloudApiUrl = environment.cloudAPIUrl;
 
   //cartData= new EventEmitter<Product[] | []>();
 
 
-  constructor(private http:HttpClient) { }
+  constructor(private http: HttpClient) { }
 
   errors: Errors = new Errors();
 
-  addProduct(data:Product){
+  addProduct(data: Product) {
 
     //let myUrl = `${this.myUrl}` + `products/${id}`  ;
 
     return this.http.post('http:localhost:3000/product', data)
   }
   getProduct(id: any) {
-    let myUrl = `${this.myUrl}` + `products/${id}`  ;
+    let myUrl = `${this.myUrl}` + `products/${id}`;
 
     return this.http.get<Product>(myUrl);
 
@@ -52,237 +52,270 @@ export class ProductService {
 
   clearCart() {
     //local cart sy data get kary gy
-     let localCart = localStorage.getItem('localCart');
-     //check kary gy data hai
-     if (localCart) {
-     //srings data ku convert kary gy objects mai
-     let cartData = JSON.parse(localCart);
-    //object ky ander products ku blank kardygy
+    let localCart = localStorage.getItem('localCart');
+    //check kary gy data hai
+    if (localCart) {
+      //srings data ku convert kary gy objects mai
+      let cartData = JSON.parse(localCart);
+      //object ky ander products ku blank kardygy
       cartData.product = [];
       //localcart ku phir sy update karydy gy
-       localStorage.setItem('localCart', JSON.stringify(cartData));
-     } else {
-     //if data nai hai toh builten blank set karydy
-       //localStorage.setItem('localCart', JSON.stringify(''));
-     }
-   }
+      localStorage.setItem('localCart', JSON.stringify(cartData));
+    } else {
+      //if data nai hai toh builten blank set karydy
+      //localStorage.setItem('localCart', JSON.stringify(''));
+    }
+  }
 
   /************************************** */
 
-/* ******************************************************** */
-  localAddToCart(data:CartHold){
-      localStorage.setItem('localCart',JSON.stringify(data));
+  /* ******************************************************** */
+  localAddToCart(data: CartHold) {
+    localStorage.setItem('localCart', JSON.stringify(data));
 
+  }
+  /* ******************************************************** */
+  pickupAddToCart(data: CartHold) {
+    localStorage.setItem('pickupCart', JSON.stringify(data));
+
+  }
+  //localStorage.setItem('cartsByTable', JSON.stringify(this.cartsByTable));
+  /* ******************************************************** */
+  dineinAddToCart(data: CartHold) {
+    localStorage.setItem('cartsByTable', JSON.stringify(data));
+
+  }
+
+
+
+  /* ******************************************************** */
+  deliveryAddToCart(data: CartHold) {
+    localStorage.setItem('deliveryCart', JSON.stringify(data));
+
+  }
+
+
+  /* ******************************************************** */
+  localAddToCarts(data: Product) {
+    let cartData = [];
+    let localCart = localStorage.getItem('localCart');
+    if (!localCart) {
+      localStorage.setItem('localCart', JSON.stringify([data]));
+    }
+    else {
+      cartData = JSON.parse(localCart);
+      cartData.push(data)
+      localStorage.setItem('localCart', JSON.stringify(cartData));
     }
 
-    localAddToCarts(data:Product){
-      let cartData = [];
-      let localCart = localStorage.getItem('localCart');
-      if (!localCart){
-        localStorage.setItem('localCart',JSON.stringify([data]));
-      }
-      else{
-        cartData=JSON.parse(localCart);
-        cartData.push(data)
-        localStorage.setItem('localCart', JSON.stringify(cartData));
-      }
-
+  }
+  /* ******************************************************** */
+  removeItemFromCart(productId: number) {
+    let cartData = localStorage.getItem('localCart');
+    if (cartData) {
+      let items: Product[] = JSON.parse(cartData);
+      items = items.filter((item: Product) => productId !== item.productId);
+      localStorage.setItem('localCart', JSON.stringify(items));
+      //this.cartData.emit(items);
     }
-/* ******************************************************** */
-    removeItemFromCart(productId: number) {
-      let cartData = localStorage.getItem('localCart');
-      if (cartData) {
-        let items: Product[] = JSON.parse(cartData);
-        items = items.filter((item: Product) => productId !== item.productId);
-        localStorage.setItem('localCart', JSON.stringify(items));
-        //this.cartData.emit(items);
-      }
-    }
-/* ******************************************************** */
-    getCategoryList(): Observable<Category[]>{
+  }
+  /* ******************************************************** */
+  getCategoryList(): Observable<Category[]> {
 
-      let myUrl = `${this.myUrl}` + `category/findAll`  ;
-
-      return this.http.get<Category[]>(myUrl).pipe(
-          //tap( error ==> this.log('Fetched orders') ),
-        catchError(this.errors.handleError<Category[]>('getCategoryList'))
-      );
-
-    }
-/* ******************************************************** */
-  getCategoryByNameList(catName:any): Observable<Category[]>{
-
-    let myUrl = `${this.myUrl}` + `category/findAllByCategoryName/` +  catName ;
+    let myUrl = `${this.myUrl}` + `category/findAll`;
 
     return this.http.get<Category[]>(myUrl).pipe(
-        //tap( error ==> this.log('Fetched orders') ),
+      //tap( error ==> this.log('Fetched orders') ),
+      catchError(this.errors.handleError<Category[]>('getCategoryList'))
+    );
+
+  }
+  /* ******************************************************** */
+  getCategoryByNameList(catName: any): Observable<Category[]> {
+
+    let myUrl = `${this.myUrl}` + `category/findAllByCategoryName/` + catName;
+
+    return this.http.get<Category[]>(myUrl).pipe(
+      //tap( error ==> this.log('Fetched orders') ),
       catchError(this.errors.handleError<Category[]>('getCategoryByNameList'))
     );
 
   }
-/* ************************************************************* */
-getProducts(categoryId: any): Observable<ProductWrapper>{
+  /* ************************************************************* */
+  getProducts(categoryId: any): Observable<ProductWrapper> {
 
-  let myUrl = `${this.myUrl}` + `products/pos/findProductsByCategory/` + categoryId ;
+    let myUrl = `${this.myUrl}` + `products/pos/findProductsByCategory/` + categoryId;
 
-  return this.http.get<ProductWrapper>(myUrl).pipe(
+    return this.http.get<ProductWrapper>(myUrl).pipe(
       //tap( error ==> this.log('Fetched Product') ),
-    catchError(this.errors.handleError<ProductWrapper>('getProducts'))
-  );
-}
-/* ************************************************************* */
-popularProducts(): Observable<ProductWrapper>{
+      catchError(this.errors.handleError<ProductWrapper>('getProducts'))
+    );
+  }
+  /* ************************************************************* */
+  popularProducts(): Observable<ProductWrapper> {
 
-  let myUrl = `${this.myUrl}` + `products/pos/findPopularProducts`  ;
+    let myUrl = `${this.myUrl}` + `products/pos/findPopularProducts`;
 
-  return this.http.get<ProductWrapper>(myUrl).pipe(
+    return this.http.get<ProductWrapper>(myUrl).pipe(
       //tap( error ==> this.log('Fetched Product') ),
-    catchError(this.errors.handleError<ProductWrapper>('popularProducts'))
-  );
-}
-/* ************************************************************* */
-popularMeatProducts(): Observable<ProductWrapper>{
+      catchError(this.errors.handleError<ProductWrapper>('popularProducts'))
+    );
+  }
+  /* ************************************************************* */
+  popularMeatProducts(): Observable<ProductWrapper> {
 
-  let myUrl = `${this.myUrl}` + `products/pos/findPopularMeatProducts`  ;
+    let myUrl = `${this.myUrl}` + `products/pos/findPopularMeatProducts`;
 
-  return this.http.get<ProductWrapper>(myUrl).pipe(
+    return this.http.get<ProductWrapper>(myUrl).pipe(
       //tap( error ==> this.log('Fetched Product') ),
-    catchError(this.errors.handleError<ProductWrapper>('popularMeatProducts'))
-  );
-}
-/* ************************************************************* */
-foodProducts(categoryId: number): Observable<ProductWrapper>{
+      catchError(this.errors.handleError<ProductWrapper>('popularMeatProducts'))
+    );
+  }
+  /* ************************************************************* */
+  foodProducts(categoryId: number): Observable<ProductWrapper> {
 
-  let myUrl = `${this.myUrl}` + `products/pos/findFoodProducts/` + categoryId  ;
+    let myUrl = `${this.myUrl}` + `products/pos/findFoodProducts/` + categoryId;
 
-  return this.http.get<ProductWrapper>(myUrl).pipe(
+    return this.http.get<ProductWrapper>(myUrl).pipe(
       //tap( error ==> this.log('Fetched Product') ),
-    catchError(this.errors.handleError<ProductWrapper>('foodProducts'))
-  );
-}
-/* ************************************************************* */
-getSearchProducts(search: any): Observable<ProductWrapper>{
+      catchError(this.errors.handleError<ProductWrapper>('foodProducts'))
+    );
+  }
+  /* ************************************************************* */
 
-  let myUrl = `${this.myUrl}` + `products/pos/searchProducts/` + search ;
 
-  return this.http.get<ProductWrapper>(myUrl).pipe(
+  getSearchProducts(search: any): Observable<ProductView[]> {
+
+    let myUrl = `${this.myUrl}` + `products/pos/searchProducts/` + search;
+
+    return this.http.get<ProductView[]>(myUrl).pipe(
       //tap( error ==> this.log('Fetched Product') ),
-    catchError(this.errors.handleError<ProductWrapper>('getSearchProducts'))
-  );
-}
+      catchError(this.errors.handleError<ProductView[]>('getSearchProducts'))
+    );
+  }
 
-/* ************************************************************* */
-sendSms(alert: AlertMessage): Observable<any>{
-let myUrl = `${this.myUrl}` + `alert/sms` ;
+  /* ************************************************************* */
+  sendSms(alert: AlertMessage): Observable<any> {
+    let myUrl = `${this.myUrl}` + `alert/sms`;
 
     return this.http.post<any>(myUrl, alert).pipe(
       //tap( error ==> this.log('Save saveOrders') ),
-    catchError(this.errors.handleError<any>('sendSms'))
-  );
-
-}
-
-/* ************************************************************* */
-
-getProductsByUPC(upc: string): Observable<ProductView>{
-
-  let retFlag=true;
-  if (upc===undefined) retFlag=false;
-  if (upc.length===0) retFlag=false;
-
-  if (retFlag){
-    let myUrl = `${this.myUrl}` + `products/pos/findProductsByUpc/` + upc ;
-
-    return this.http.get<ProductView>(myUrl).pipe(
-        //tap( error ==> this.log('Fetched Product') ),
-      catchError(this.errors.handleError<ProductView>('getProducts'))
+      catchError(this.errors.handleError<any>('sendSms'))
     );
-  
-  }
-  else{
-    return new Observable();
+
   }
 
-}
-/* ************************************************************* */
+  /* ************************************************************* */
 
-getProductsBySKU(sku: string): Observable<ProductView[]>{
+  getProductsByUPC(upc: string): Observable<ProductView> {
 
-  let myUrl = `${this.myUrl}` + `products/pos/findProductsBySku/` + sku ;
+    let retFlag = true;
+    if (upc === undefined) retFlag = false;
+    if (upc.length === 0) retFlag = false;
 
-  return this.http.get<ProductView[]>(myUrl).pipe(
+    if (retFlag) {
+      let myUrl = `${this.myUrl}` + `products/pos/findProductsByUpc/` + upc;
+
+      return this.http.get<ProductView>(myUrl).pipe(
+        //tap( error ==> this.log('Fetched Product') ),
+        catchError(this.errors.handleError<ProductView>('getProducts'))
+      );
+
+    }
+    else {
+      return new Observable();
+    }
+
+  }
+  /* ************************************************************* */
+
+  getProductsBySKU(sku: string): Observable<ProductView[]> {
+
+    let myUrl = `${this.myUrl}` + `products/pos/findProductsBySku/` + sku;
+
+    return this.http.get<ProductView[]>(myUrl).pipe(
       //tap( error ==> this.log('Fetched Product') ),
-    catchError(this.errors.handleError<ProductView[]>('getProducts'))
-  );
+      catchError(this.errors.handleError<ProductView[]>('getProducts'))
+    );
 
-}
-/* ************************************************************* */
+  }
+  /* ************************************************************* */
 
-getProductsByPrice(price: any): Observable<ProductWrapper>{
+  getProductsByPrice(price: any): Observable<ProductWrapper> {
 
-  let myUrl = `${this.myUrl}` + `products/pos/searchProductsByPrice/` + price ;
+    let myUrl = `${this.myUrl}` + `products/pos/searchProductsByPrice/` + price;
 
-  return this.http.get<ProductWrapper>(myUrl).pipe(
+    return this.http.get<ProductWrapper>(myUrl).pipe(
       //tap( error ==> this.log('Fetched Product') ),
-    catchError(this.errors.handleError<ProductWrapper>('getProducts'))
-  );
+      catchError(this.errors.handleError<ProductWrapper>('getProducts'))
+    );
 
-}
+  }
 
-/* ************************************************************* */
-getMaxProductId(): Observable<number>{
+  /* ************************************************************* */
+  getMaxProductId(): Observable<number> {
 
-  let myUrl = `${this.myUrl}` + `products/getMaxProductId`  ;
+    let myUrl = `${this.myUrl}` + `products/getMaxProductId`;
 
-  return this.http.get<number>(myUrl).pipe(
+    return this.http.get<number>(myUrl).pipe(
       //tap( error ==> this.log('Fetched Product') ),
-    catchError(this.errors.handleError<number>('getMaxProductId'))
-  );
+      catchError(this.errors.handleError<number>('getMaxProductId'))
+    );
 
-}
+  }
 
-/* ************************************************************* */
-getProductMissingLocal(productId:number): Observable<ProductWrapper>{
-  let remoteUrl = `${this.cloudApiUrl}` + `products/pos/getProductMissingLocal/` + productId ;
-  //let remoteUrl = `${this.myUrl}` + `products/getProductMissingLocal/` + productId ;
+  /* ************************************************************* */
+  getProductMissingLocal(productId: number): Observable<ProductWrapper> {
+    let remoteUrl = `${this.cloudApiUrl}` + `products/pos/getProductMissingLocal/` + productId;
+    //let remoteUrl = `${this.myUrl}` + `products/getProductMissingLocal/` + productId ;
 
-  return this.http.get<ProductWrapper>(remoteUrl).pipe(
-    catchError(this.errors.handleError<ProductWrapper>('getProductMissingLocal'))
-  );
-}
+    return this.http.get<ProductWrapper>(remoteUrl).pipe(
+      catchError(this.errors.handleError<ProductWrapper>('getProductMissingLocal'))
+    );
+  }
 
-/* ************************************************************* */
-saveProductListToLocalDB(productList: ProductView): Observable<ApiResponse>{
-  let myUrl = `${this.myUrl}` + `products/pos/saveMissingProducts`  ;
+  /* ************************************************************* */
+  saveProductListToLocalDB(productList: ProductView): Observable<ApiResponse> {
+    let myUrl = `${this.myUrl}` + `products/pos/saveMissingProducts`;
 
-  return this.http.post<ApiResponse>(myUrl, productList).pipe(
-    catchError(this.errors.handleError<ApiResponse>('getProducts'))
-  );
+    return this.http.post<ApiResponse>(myUrl, productList).pipe(
+      catchError(this.errors.handleError<ApiResponse>('getProducts'))
+    );
 
 
-}
-/* ************************************************************* */
-getLastUpdateDate(): Observable<any>{
+  }
+  /* ************************************************************* */
+  getLastUpdateDate(): Observable<any> {
 
-  let myUrl = `${this.myUrl}` + `products/getLastUpdateDate`  ;
+    let myUrl = `${this.myUrl}` + `products/getLastUpdateDate`;
 
-  return this.http.get<any>(myUrl).pipe(
+    return this.http.get<any>(myUrl).pipe(
       //tap( error ==> this.log('Fetched Product') ),
-    catchError(this.errors.handleError<any>('getLastUpdateDate'))
-  );
+      catchError(this.errors.handleError<any>('getLastUpdateDate'))
+    );
 
-}
-/* ************************************************************* */
-getProductsUpdatedInCloud(lastUpdateDate:any): Observable<ProductWrapper>{
-  let remoteUrl = `${this.cloudApiUrl}` + `products/pos/getProductsUpdatedInCloud`  ;
-  //let remoteUrl = `${this.myUrl}` + `products/pos/getProductsUpdatedInCloud`  ;
+  }
+  /* ************************************************************* */
+  getProductsUpdatedInCloud(lastUpdateDate: any): Observable<ProductWrapper> {
+    let remoteUrl = `${this.cloudApiUrl}` + `products/pos/getProductsUpdatedInCloud`;
+    //let remoteUrl = `${this.myUrl}` + `products/pos/getProductsUpdatedInCloud`  ;
 
-  return this.http.post<ProductWrapper>(remoteUrl, lastUpdateDate).pipe(
-    catchError(this.errors.handleError<ProductWrapper>('getProductsUpdatedInCloud'))
-  );
-}
+    return this.http.post<ProductWrapper>(remoteUrl, lastUpdateDate).pipe(
+      catchError(this.errors.handleError<ProductWrapper>('getProductsUpdatedInCloud'))
+    );
+  }
+
+  /* ************************************************************* */
+  findAllActiveProducts(pageSize: any, pageNo: any): Observable<ProductView[]> {
+
+    // let myUrl = `${this.myUrl}` + `products/withoutimage/findFirstLatestProducts/` + pageSize + '/' + pageNo;
+
+    return this.http.get<ProductView[]>(`${this.myUrl}` + `products/pos/findAllActiveProducts/` + pageSize + '/' + pageNo)
+  }
+
+  /* ************************************************************* */
 
 
 
-/* ************************ END OF SERVICE ************************* */
+  /* ************************ END OF SERVICE ************************* */
 }

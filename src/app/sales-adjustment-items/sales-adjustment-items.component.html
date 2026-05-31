@@ -1,0 +1,53 @@
+<div class="card shadow-sm">
+  <div class="card-header bg-light py-2">
+    <strong>Items</strong>
+  </div>
+
+  <div class="card-body p-2">
+
+    <div *ngFor="let item of items; let i = index"
+         class="border rounded p-2 mb-2">
+
+      <div class="row g-2 align-items-center">
+
+        <div class="col-12">
+          <strong>{{ item.productName }}</strong>
+        </div>
+
+        <div class="col-4">
+          <select class="form-select form-select-sm"
+                  [(ngModel)]="item.itemType"
+                  (change)="recalculate()">
+            <option value="RETURN">Return</option>
+            <option value="ISSUE">Issue</option>
+          </select>
+        </div>
+
+        <div class="col-4">
+          <input type="number" class="form-control form-control-sm"
+                 [(ngModel)]="item.qty"
+                 (input)="recalculate()"
+                 placeholder="Qty">
+        </div>
+
+        <div class="col-4 text-end">
+          <strong>{{ item.totalAmount | number:'1.2-2' }}</strong>
+        </div>
+
+        <div class="col-12 text-end">
+          <button class="btn btn-sm btn-outline-danger"
+                  (click)="removeItem(i)">
+            Remove
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <button class="btn btn-outline-primary w-100"
+            (click)="addItem()">
+      + Add Item
+    </button>
+
+  </div>
+</div>

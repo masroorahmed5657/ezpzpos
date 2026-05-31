@@ -1,0 +1,894 @@
+@media (max-width: 1440px) {
+.form-left-art h3 {
+    font-size: 22px;
+}
+.form-left-art h3 {
+    font-size: 22px;
+}
+.form-left-art h4 {
+    font-size: 76px;
+}
+.sup2 {
+    left: 248px !important;
+}
+.form-right-art h2 {
+    font-size: 30px;
+}
+.ftr-frm button {
+    font-size: 15px;
+}
+.form-left-art h2 {
+    font-size: 45px;
+}
+.form-left-art h4::after {
+    right: -44px;
+}
+.mob_bg_position {
+    background-position: center !important;
+}
+}
+@media (max-width: 1199px) {
+ul.navbar .nav-item .nav-link {
+    font-size: 12px;
+}
+ul.navbar .nav-item {
+    padding-left: 19px;
+}
+.menuInfo ul li a {
+    font-size: 13px;
+}
+.menuInfo ul li a i {
+    font-size: 13px;
+}
+.menuInfo {
+    padding-bottom: 11px;
+}
+.footer_menu {
+    padding-left: 0px;
+}
+.home_banner_content h2 {
+    font-size: 55px;
+    line-height: 58px;
+}
+.home_banner_content #banner_typewriter {
+    font-size: 27px;
+    margin-top: 22px;
+}
+.default_btn {
+    font-size: 15px;
+    padding: 15px 32px 15px 22px;
+    margin-top: 30px;
+}
+.intro_img_bg {
+    height: 500px;
+    width: 450px;
+    right: 6px;
+    top: 9px;
+}
+.intro_content h2 {
+    font-size: 37px;
+    margin-bottom: 16px;
+}
+.intro_content h3 {
+    font-size: 16px;
+}
+.intro_content h3::before {
+    bottom: -10px;
+}
+.intro_content p {
+    margin-top: 37px;
+    font-size: 16px;
+    line-height: 1.567;
+    margin-bottom: 40px;
+}
+.get_started_btn {
+    font-size: 14px;
+}
+.cta_title h3 {
+    font-size: 45px;
+}
+.cta_title h3 span {
+    font-size: 28px;
+}
+.cta_info ul li.cta_detail {
+    padding: 6px 35px 10px;
+}
+.cta_info ul li.cta_btn {
+    padding-left: 34px;
+}
+.process_box_wrap:before {
+    display: none;
+}
+.process_circle::before {
+    display: none;
+}
+.process_circle {
+    height: 146px;
+}
+.why_img {
+    width: 440px;
+}
+.why_img_bg {
+    height: 407px;
+    width: 440px;
+}
+.why_choose_title h2 {
+    font-size: 38px;
+}
+.why_choose_title p {
+    font-size: 14px;
+}
+.why_tab_para p {
+    font-size: 12px;
+}
+.why_choose_title {
+    margin-bottom: 26px;
+}
+.nav_tab_hd {
+    padding: 11px 0;
+}
+.nav_tab_hd p {
+    font-size: 10px;
+    margin-top: 10px;
+}
+.cta_info ul li.cta_detail a i {
+    margin-top: 23px;
+    font-size: 12px;
+    margin-right: 10px;
+}
+.cta_info ul li.cta_detail a h4 {
+    font-size: 15px;
+}
+.cta_info ul li.cta_detail {
+    padding: 6px 35px 10px;
+}
+.cta_info ul li.cta_btn {
+    padding-left: 30px;
+}
+.get_started_btn {
+    font-size: 13px;
+}
+.inner_banner_content h4 {
+    font-size: 20px;
+}
+.inner_banner_content h2 {
+    font-size: 55px;
+}
+.inner_banner_content strong {
+    font-size: 55px;
+}
+.cta_hd_style2 span {
+    font-size: 43px;
+}
+.about_service {
+    background-position: center;
+    padding: 60px 0;
+    height: auto;
+}
+.service_title_sec h2 {
+    font-size: 37px;
+}
+.service_title_sec h3 {
+    font-size: 24px;
+    line-height: 50px;
+}
+.service_title_sec h3 strong {
+    font-size: 42px;
+}
+.service_title_sec h2 {
+    font-size: 30px;
+}
+.sec_btn a.chat.chat_icon {
+    margin-left: 57px;
+}
+.sec_btn .chat_icon h5 {
+    font-size: 11px;
+}
+.sec_btn .chat_icon h5 i {
+    font-size: 14px;
+    margin-left: 2px;
+}
+.sec_btn .chat_icon h4 {
+    font-size: 18px;
+}
+.logo_portfolio .sec_title p br{
+    display: none;
+}
+.form-left-art h2 {
+    font-size: 36px;
+}
+.form-left-art h2 {
+    font-size: 36px;
+}
+.form-left-art h4 {
+    line-height: unset;
+}
+.form-left-art h4::after {
+    height: 114px;
+}
+.form-right-art h2 {
+    font-size: 26px;
+}
+.ftr-frm button {
+    font-size: 13px;
+    padding: 13px 30px !important;
+}
+.cta_icon {
+    padding-left: 0;
+}
+.cta_icon::before {
+    display: none;
+}
+.mob_tabs_desc h3 {
+    font-size: 37px;
+}
+.mob_tabs_desc p {
+    font-size: 15px;
+}
+.mob_nav_area .nav-tabs .nav-link {
+    width: auto;
+}
+.combo_pkg_price h4 {
+    font-size: 16px;
+}
+.combo_pkg_price h3 {
+    font-size: 38px;
+}
+.combo_btn {
+    padding: 11px 34px;
+    width: auto;
+}
+.anim_service_title h3 {
+    font-size: 13px;
+}
+.logo_icon {
+    width: 40% !important;
+}
+.brand_icon_box p {
+    font-size: 12px;
+}
+.cta_center_img2::before {
+    display: none;
+}
+}
+@media (max-width: 991px) {
+.menuInfo {
+    display: none;
+}
+.menu-wrap .navbar-collapse {
+    background-color: #fff;
+}
+.nav-item {
+    width: 100%;
+    border-bottom: 1px solid #01acf1;
+    text-align: center;
+    padding-right: 0;
+}
+ul.navbar .nav-item .nav-link {
+    font-size: 15px;
+    padding: 7px 15px;
+    color: #313131;
+}
+ul.navbar .nav-item {
+    padding-left: 0;
+}
+.menu-wrap .navbar-light .navbar-toggler {
+    border: none;
+}
+.experties_box {
+    background-size: cover;
+    height: 333px;
+    text-align: center;
+}
+.experties_box h3 {
+    font-size: 24px;
+    margin-bottom: 6px;
+    padding-top: 143px;
+}
+.experties_btn {
+    font-size: 13px;
+    padding: 5px 18px;
+}
+.sec_padding {
+    padding: 70px 0;
+}
+.sec_title h3 {
+    font-size: 42px;
+}
+.sec_title p {
+    font-size: 17px;
+    margin-top: 10px;
+}
+.process_box_wrap {
+    margin-top: 0;
+}
+.mob_process_none {
+    display: none;
+}
+.mob_process {
+    display: block;
+}
+.process_box_wrap {
+    max-width: inherit;
+    flex: inherit;
+    padding: inherit;
+    position: inherit;
+}
+.process_circle img {
+    width: 69px !important;
+}
+.process_circle {
+    height: 220px;
+}
+.process_title h2 {
+    margin-left: 40px;
+}
+.process_area_wrap .owl-theme .owl-dots .owl-dot.active span, .owl-theme .owl-dots .owl-dot:hover span {
+    background: #d3071a;
+}
+.why_tab_img {
+    display: none;
+}
+.why_choose_title h2 br {
+    display: none;
+}
+.why_choose_title h2 {
+    font-size: 38px;
+}
+.why_choose_title h2 {
+    font-size: 38px;
+}
+.why_tab_para p {
+    font-size: 15px;
+}
+.nav_tab_hd p {
+    font-size: 13px;
+    margin-top: 13px;
+}
+.nav_tab_hd {
+    padding: 20px 0;
+}
+.copyright {
+    text-align: center;
+}
+ul.privacy {
+    margin-top: 15px;
+}
+.cta_info ul li.cta_detail:nth-child(3) {
+    padding-right: 0px;
+    border:none;
+}
+.cta_info ul li.cta_btn {
+    display: none;
+}
+.cta_info ul {
+    justify-content: center;
+}
+.cta_title h3 {
+    font-size: 43px;
+}
+.cta_title h3 span {
+    font-size: 25px;
+}
+.packages .center .package_box {
+    -moz-transform: scale(1.0);
+    -ms-transform: scale(1.0);
+    -o-transform: scale(1.0);
+    -webkit-transform: scale(1.0);
+    transform: scale(1.0);
+}
+.package_box {
+    padding: 26px 0 35px;
+}
+.banner_right {
+    display: none;
+}
+.inner_banner {
+    height: auto !important;
+    padding: 60px 0;
+}
+.cta_hd_style2 span {
+    font-size: 34px;
+}
+.skill-progress-wrap {
+    margin-top: 50px;
+}
+.service_title_sec h3 {
+    font-size: 20px;
+    line-height: 47px;
+}
+.service_title_sec h3 strong {
+    font-size: 34px;
+}
+.service_title_sec h2 {
+    font-size: 25px;
+}
+.default_btn {
+    font-size: 13px;
+    padding: 10px 25px 10px 15px;
+}
+.sec_btn .chat_icon h5 {
+    font-size: 10px;
+}
+.default_btn img {
+    top: 2px;
+}
+.about_service {
+    background: #fff;
+}
+.testi_right_img {
+    display: none !important;
+}
+.about_service_right {
+    display: none;
+}
+.form-left-art {
+    margin-left: 0;
+    margin-bottom: 30px;
+}
+.form-left-art {
+    display: none;
+}
+.form-right-art h3 {
+    font-size: 17px;
+}
+.form-right-art h2 {
+    font-size: 21px;
+}
+.ftr-frm button {
+    font-size: 11px;
+    padding: 13px 30px !important;
+}
+.popup-main-wrap {
+    padding: 45px 36px;
+}
+.cta_para {
+    font-size: 19px;
+}
+.service_tabs_sec nav .nav-link {
+    width: auto !important;
+}
+.cta_hd_style2 {
+    color: #ffffff;
+    font-size: 19px;
+    font-weight: 700;
+}
+.last_combo_list {
+    padding-top: 0px;
+}
+.box_position {
+    top: inherit;
+    bottom: 130px;
+}
+.combo_price_box_wrap {
+    background-color: #1c0036;
+    padding: 10PX 10px 10px 10px;
+}
+.innerport_grid {
+    grid-template-columns: auto auto auto;
+}
+.service_tabs_box .row {
+    margin: 0 auto !important;
+}
+.default_btn i {
+    top: 2px;
+}
+.client-reviews-wrap .row {
+    margin: 0px;
+}
+}
+@media (max-width: 767px) {
+.experties .col-md-4 {
+    padding: 0;
+}
+.cta_info ul li.cta_detail {
+    border-right: none;
+}
+.cta_info ul li.cta_detail a h4 {
+    display: none;
+}
+.cta_info ul li.cta_detail a i {
+    margin: 0;
+    font-size: 28px;
+}
+.cta_title h3 {
+    font-size: 39px;
+    text-align: center;
+    line-height: 26px;
+}
+.cta_title h3 span {
+    font-size: 20px;
+    line-height: 13px;
+}
+.sec_title {
+    margin-bottom: 35px;
+}
+.sec_title p {
+    font-size: 16px;
+}
+.sec_title h3 {
+    font-size: 35px;
+}
+.process_circle {
+    height: 247px;
+}
+.why_tab_para p {
+    font-size: 13px;
+}
+.nav_tab_hd p {
+    font-size: 11px;
+    margin-top: 10px;
+}
+.main_footer {
+    padding: 62px 0;
+}
+.footer_menu {
+    margin-top: 40px;
+}
+.cta_info ul li.cta_detail {
+    padding: 14px 35px 18px;
+        padding-left: 35px;
+}
+.home_banner_content h2 {
+    font-size: 42px;
+    line-height: 50px;
+}
+.home_banner_content #banner_typewriter {
+    font-size: 21px;
+    margin-top: 18px;
+}
+.cta_hd_style2 {
+    font-size: 16px;
+    text-align: center;
+}
+.cta_hd_style2 span {
+    font-size: 25px;
+}
+.cta_title {
+    padding: 28px 0;
+}
+.service_title_sec p {
+    margin-top: 25px !important;
+}
+.ftr-frm button {
+    font-size: 17px !important;
+}
+.form-right-art h2 {
+    font-size: 31px;
+}
+.entry-box1 {
+    max-height: 430px;
+}
+.entry-box1 {
+    max-height: 465px;
+    min-width: 500px;
+}
+.cta_para {
+    margin-top: 10px;
+}
+.combo_package_wrap h3 {
+    font-size: 34px;
+}
+.combo_package_wrap {
+    padding-top: 60px;
+    padding-bottom: 60px;
+}
+.combo_pkg_price h4 {
+    font-size: 16px;
+}
+.combo_pkg_price h3 {
+    font-size: 30px;
+}
+.combo_price_box {
+    padding: 18px 21px;
+}
+.combo_package_box a.chat.chat_icon {
+    margin-left: 15px !important;
+}
+.combo_package_box .chat_icon h4 {
+    font-size: 16px !important;
+}
+.combo_btn {
+    padding: 11px 24px;
+}
+.combo_package .sec_btn {
+    margin-top: 30px;
+}
+}
+
+@media (max-width: 575px) {
+.experties_box h3 {
+    padding-top: 133px;
+}
+.home_banner_social {
+    bottom: 30px;
+    right: 30px;
+}
+.main-header-wrap {
+    padding: 15px 0px;
+}
+.home_banner_content h2 {
+    font-size: 30px;
+    line-height: 36px;
+}
+.home_banner_content #banner_typewriter {
+    font-size: 17px;
+    margin-top: 16px;
+}
+.default_btn {
+    font-size: 14px;
+    padding: 12px 22px 12px 22px;
+    margin-top: 27px;
+}
+.default_btn img {
+    display: none;
+}
+.intro_content h2 {
+    font-size: 31px;
+}
+.sec_title p br {
+    display: none;
+}
+.sec_title p {
+    font-size: 13px;
+}
+.sec_padding {
+    padding: 40px 0;
+}
+.sec_padding {
+    padding: 40px 0;
+}
+.process_circle {
+    height: 170px;
+    width: 170px;
+    margin: 0 auto;
+}
+.process_title h2 {
+    margin-left: 89px;
+}
+.why_choose {
+    padding: 40px 0;
+}
+.why_choose_title h2 {
+    font-size: 31px;
+}
+.why_choose_tabs .nav-link {
+    padding: 6px 15px;
+    max-width: 50%;
+    flex: 0 0 50%;
+}
+.why_choose_tabs .nav-link.active .nav_tab_hd::before {
+    display: none;
+}
+.ui-group .button-group {
+    display: block;
+    text-align: center;
+}
+.inner_banner_content h4 {
+    font-size: 24px;
+    padding: 5px 8px;
+}
+.inner_banner_content h2 {
+    font-size: 30px;
+}
+.inner_banner_content strong {
+    font-size: 35px;
+}
+.inner_banner_content p {
+    font-size: 13px;
+}
+a.chat.chat_icon {
+    margin-left: 15px;
+}
+.chat_icon h5 {
+    font-size: 12px;
+}
+.chat_icon h5 i {
+    font-size: 12px;
+    margin-left: 2px;
+}
+.chat_icon h4 {
+    font-size: 20px;
+    font-weight: 700;
+}
+.inner_testimonial {
+    padding: 40px 0;
+}
+.client_review {
+    padding: 35px 25px 35px 35px;
+}
+.client_review p {
+    font-size: 15px;
+}
+.client_review h5 {
+    font-size: 18px;
+}
+.client_review h5 {
+    font-size: 18px;
+    margin-bottom: 14px;
+}
+.client_detail {
+    display: block;
+}
+.rating_stars {
+    margin-top: 15px;
+}
+.inner_banner_content h4 {
+    font-size: 15px;
+    padding: 5px 8px;
+}
+.port_button {
+    font-size: 12px;
+    width: 128px;
+    margin: 5px 5px;
+}
+.sec_btn a.chat.chat_icon {
+    margin-left: 20px;
+}
+.service_title_sec h2 {
+    font-size: 22px;
+}
+.service_tabs_sec nav .nav-link {
+    font-size: 11px;
+    width: 100px;
+}
+.service_tabs_sec nav .nav-link {
+    padding: 6px;
+}
+.service_tabs_box .tab-content .tab-pane {
+    padding: 25px 10px;
+}
+.default_btn {
+    padding: 11px 19px 11px 18px;
+    font-size: 11px;
+}
+.sec_btn a.chat.chat_icon {
+    margin-left: 15px;
+}
+.sec_btn .chat_icon h5 {
+    font-size: 10px;
+}
+.sec_btn .chat_icon h5 i {
+    font-size: 11px;
+}
+.sec_btn .chat_icon h4 {
+    font-size: 17px;
+}
+.grid-first {
+    grid-gap: 2px;
+    margin-bottom: 2px;
+}
+.grid-second {
+    grid-gap: 2px;
+}
+.service_tabs_box .default_btn {
+    font-size: 11px;
+    padding: 11px 22px 11px 22px;
+    margin-top: 25px;
+}
+.about_service {
+    padding: 40px 0;
+}
+.service_tabs_sec nav {
+    padding: 22px 38px;
+}
+.inner_testimonial {
+    height: auto;
+}
+.entry-box1 {
+    max-height: 465px;
+    min-width: 320px;
+    padding: 25px 22px;
+}
+.form-right-art h2 {
+    font-size: 29px;
+}
+.ftr-frm button {
+    font-size: 14px !important;
+}
+.cta_para {
+    font-size: 18px;
+    margin-top: 10px;
+}
+.mob_nav_area .nav-tabs .nav-link.active::after {
+    display: none;
+}
+.mob_tabs_desc h3 {
+    font-size: 21px;
+}
+.mob_tabs_desc p {
+    font-size: 14px;
+}
+.mob_tabs_desc {
+    padding: 145px 25px 45px;
+}
+.mob_tabs_box .sec_btn a.chat.chat_icon {
+    margin-left: 12px !important;
+}
+.mob_tabs_box .default_btn {
+    padding: 11px 11px 11px 11px !important;
+    font-size: 11px;
+}
+.mobport {
+    grid-template-columns: auto auto;
+    grid-gap: 2px;
+}
+.combo_pkg_price {
+    bottom: -10px;
+}
+.combo_pkg_price h3 {
+    font-size: 33px;
+}
+.combo_pkg_price h4 {
+    font-size: 17px;
+}
+.combo_package_box .sec_btn {
+    justify-content: center;
+}
+.box_position {
+    position: static;
+}
+.combo_package .sec_btn {
+    margin-top: 15px;
+}
+.combo_package_wrap h3 {
+    font-size: 24px;
+}
+.combo_package_wrap {
+    padding-top: 20px;
+}
+.combo_package {
+    padding-top: 60px;
+}
+.combo_list_hd {
+    margin-bottom: 9px;
+}
+.combo_package_wrap p {
+    margin-bottom: 30px;
+}
+.color-shape {
+    left: 50% !important;
+    transform: translateX(-50%);
+}
+}
+
+@media (max-width: 375px) {
+.home_banner_content h2 {
+    font-size: 26px;
+    line-height: 33px;
+}
+.home_banner_content #banner_typewriter {
+    font-size: 14px;
+    margin-top: 14px;
+}
+.default_btn {
+    font-size: 12px;
+    padding: 11px 22px 11px 22px;
+    margin-top: 25px;
+}
+.home_banner_social {
+    bottom: 20px;
+    right: 20px;
+}
+.intro_content h2 {
+    font-size: 27px;
+}
+.intro_content h3 {
+    font-size: 15px;
+}
+.intro_content p {
+    font-size: 15px;
+    margin-bottom: 35px;
+}
+.sec_title h3 {
+    font-size: 28px;
+}
+.why_choose_title h2 {
+    font-size: 25px;
+}
+.inner-portfolio-wrap ul li {
+    width: 100%;
+    border-bottom: none;
+}
+
+}

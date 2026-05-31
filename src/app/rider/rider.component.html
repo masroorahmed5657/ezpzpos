@@ -1,0 +1,81 @@
+<div class="container-fluid p-2 driver-status-page">
+
+  <!-- HEADER -->
+  <div class="d-flex justify-content-between align-items-center mb-2 px-2">
+    <div>
+      <h5 class="mb-0 fw-bold">Driver Dashboard</h5>
+      <small class="text-muted">Update your availability</small>
+    </div>
+
+    <div class="d-flex gap-2">
+      <span class="badge bg-dark px-3 py-2">
+        {{ currentStatus }}
+      </span>
+
+      <button class="btn btn-outline-danger btn-sm"
+              (click)="signOut()">
+        ⏻
+      </button>
+    </div>
+  </div>
+
+  <!-- ORDER DETAILS -->
+  <div class="order-card p-3 mb-3" *ngIf="activeOrder">
+
+    <div class="d-flex justify-content-between">
+      <h6 class="fw-bold mb-1">Order #{{activeOrder.orderId}}</h6>
+      <span class="badge bg-warning text-dark">Active</span>
+    </div>
+
+    <div class="small text-muted mb-2">
+      {{activeOrder.customerName}}
+    </div>
+
+    <div class="address-box mb-2">
+      📍 {{activeOrder.deliveryAddress}}
+    </div>
+
+    <div class="d-flex gap-2">
+      <button class="btn btn-success flex-fill"
+              (click)="markDelivered()">
+        ✅ Delivered
+      </button>
+
+      <a class="btn btn-primary"
+         [href]="'tel:' + activeOrder.phone">
+        📞
+      </a>
+    </div>
+
+  </div>
+
+  <!-- STATUS GRID -->
+  <div class="row g-3">
+
+    <div class="col-6" *ngFor="let status of statusList">
+      <div class="status-card text-center p-3"
+           [ngClass]="getStatusClass(status)"
+           (click)="updateStatus(status)">
+
+        <div class="status-icon mb-2">
+          <i [class]="getStatusIcon(status)"></i>
+        </div>
+
+        <div class="fw-bold">
+          {{ status }}
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- STICKY FOOTER (MOBILE FRIENDLY) -->
+<div class="driver-footer p-2">
+  <button class="btn btn-danger w-100"
+          (click)="signOut()">
+    Sign Out
+  </button>
+</div>

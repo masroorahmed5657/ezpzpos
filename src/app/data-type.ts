@@ -126,3 +126,91 @@ export class ProductWrapper{
     productList: any;
  }
 
+ export enum ItemType{
+    RETURN = 'RETURN', 
+    ISSUE = 'ISSUE'
+ }
+
+ export enum SettlementMethod{
+    CASH = 'CASH', 
+    CARD = 'CARD', 
+    WALLET = 'WALLET',
+    CREDIT_NOTE = 'CREDIT_NOTE'
+ }
+
+ export enum AdjustmentType{
+    RETURN = 'RETURN', 
+    EXCHANGE = 'EXCHANGE'
+ }
+
+ export enum SalesAdjustmentStatus {
+  PENDING = 'PENDING',
+  COMPLETED = 'COMPLETED',
+  CANCELLED = 'CANCELLED'
+}
+
+export enum SettlementStatus{
+    EVEN='EVEN', 
+    CUSTOMER_PAY = 'CUSTOMER_PAY', 
+    STORE_PAY = 'STORE_PAY'
+}
+
+ export class SalesAdjustments{
+    adjustmentId:any;
+    orderId:any;
+    adjustmentNo:any;
+    adjustmentType!:AdjustmentType;
+    adjustmentDate:any;
+    returnAmount:any;
+    issueAmount:any;
+    netAmount:any;
+    settlementStatus!:SettlementStatus;
+    reason:any;
+    status!:SalesAdjustmentStatus;
+    createdBy:any;
+    createdDate:any;
+ }
+
+ export class SalesAdjustmentItems{
+    adjustmentItemId:any;
+    adjustmentId:any;
+    productId:any;
+    orderItemId:any;
+    itemType!:ItemType;
+    qty:any;
+    unitPrice:any;
+    totalAmount:any;
+    productName:any;
+    upc:any;
+    taxesPercentage:any;
+    discountPercentage:any;
+    discount:any;
+
+ }
+
+ export class AdjustmentSettlements{
+    settlementId:any;
+    adjustmentId:any;
+    settlementMethod:any;
+    amount:any;
+    settlementDate:any;
+
+ }
+ 
+ export class Drivers{
+  driverId: any;
+  name: any;
+  phone: any;
+  vehicleType: any;
+  vehicleNumber: any;
+  status: any;
+  createdAt: any;
+ }
+
+ export class DriverDelivery {
+  id: any;
+  driverId: any;
+  orderId: any;
+  assignedTime: any;
+  deliveredTime: any;
+ }

@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
   providedIn: 'root',
 })
 export class AuthService {
-  private endpoint: string = environment.apiUrl + 'authenticate'; //http://localhost:9080/PAG_WS/login
+  private endpoint: string = environment.apiUrl + 'authenticate'; 
 
   headers = new HttpHeaders().set('Content-Type', 'application/json');
   currentAdminUser = {};
@@ -32,7 +32,7 @@ authenticate(username: string, password: any) {
 
   isUserLoggedIn() {
     let user = sessionStorage.getItem("username");
-    console.log(!(user === null));
+    //console.log(!(user === null));
     return !(user === null);
   }
 

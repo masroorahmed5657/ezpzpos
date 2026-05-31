@@ -1,0 +1,349 @@
+<div class="container-fluid mt-3">
+    <div class="row align-items-center g-2 ">
+
+        <!-- LOGO -->
+        <div class="col-auto">
+            <img class="img-fluid pos-logo" [src]="logoName">
+        </div>
+
+        <div class="col-auto pos-timer">
+            ⏱ {{ posTime }}
+        </div>
+
+        <div class="col-3 d-none d-md-block pos-closed-banner" *ngIf="disablePOSFlag">
+            EZPZ POS CLOSED
+        </div>
+
+        <div class="col-auto" >
+            <button class="btn btn-success " style="font-size: small;" (click)="home()">
+                Home
+            </button>
+        </div>
+        
+        <!-- ACTION BUTTONS -->
+        <!-- <div class="col-auto">
+            <button class="btn btn-danger " (click)="lastBillOfSale()" style="font-size: small;">
+                Last BOS ({{totalSaleCount}})
+            </button>
+        </div>
+        <div class="col-auto" *ngIf="showOpenBalanceFlag">
+            <button class="btn btn-primary " (click)="closeBalance()" style="font-size: small;">
+                CloseBalance <fa-icon [icon]="faClose"></fa-icon>
+            </button>
+        </div>
+
+        <div class="col-auto">
+            <button class="btn btn-primary " (click)="zReport()" style="font-size: small;">
+                XReport <fa-icon [icon]="faPrint"></fa-icon>
+            </button>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-secondary " style="font-size: small;" (click)="pickup()">
+                PickUp
+            </button>
+        </div>
+
+        <div class="col-auto" *ngIf="showDineInFlag">
+            <button class="btn btn-secondary " style="font-size: small;" (click)="dineIn()">
+                DINE-IN
+            </button>
+        </div>
+        <div class="col-auto" *ngIf="showDeliveryFlag">
+            <button class="btn btn-secondary " style="font-size: small;" (click)="delivery()">
+                DELIVERY
+            </button>
+        </div> -->
+
+        <!-- SIGN OUT -->
+        <div class="col-auto ">
+            <button class="btn btn-outline-danger w-100 fw-bold" (click)="signOut()" style="font-size: small;">
+                Sign Out <fa-icon [icon]="faSignOut"></fa-icon>
+            </button>
+        </div>
+
+
+    </div>
+
+    
+    
+    <h3 class="mb-3">🚚 Delivery Dashboard</h3>
+
+    <div class="table-responsive">
+
+        <table class="table table-bordered table-hover align-middle">
+
+            <thead class="table-light">
+                <tr>
+                    <th>Order</th>
+                    <th>Customer</th>
+                    <th>Total ({{currencyName}})</th>
+                    <th>Area</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                    <th>Driver</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                <tr *ngFor="let data of orderCustomerList">
+
+                    <td>#{{data.orders?.orderId}}</td>
+
+                    <td>{{data.customer?.custName}}</td>
+                    <td>{{data.orders?.grandTotal}}</td>
+
+                    <td>{{data.orders?.shippingDetail}}</td>
+
+                    <td>{{data.orders?.createDate}}</td>
+
+                    <td>
+
+                        <span class="badge" [ngClass]="{
+                            'bg-warning': data.orders?.orderStatus=='SEND_TO_KITCHEN',
+                            'bg-info': data.orders?.orderStatus=='NEW',
+                            'bg-primary': data.orders?.orderStatus=='OUT_FOR_DELIVERY',
+                            'bg-success': data.orders?.orderStatus=='DELIVERED',
+                            'bg-secondary': data.orders?.orderStatus=='ASSIGNED'
+                            }">
+                            {{data.orders?.orderStatus}}
+                        </span>
+
+                    </td>
+
+                    <td> {{data.drivers?.name}} </td>
+
+                    <td>
+
+                        <button class="btn btn-sm btn-secondary me-1" (click)="updateOrderStatus(data.orders?.orderId, 'SEND_TO_KITCHEN')">
+                            Send TOK
+                        </button>
+
+                        <button class="btn btn-sm btn-warning me-1" (click)="showAssignDriver(data.orders?.orderId)">
+                            Assign
+                        </button>
+
+                        <button class="btn btn-sm btn-primary me-1" (click)="updateOrderStatus(data.orders?.orderId, 'OUT_FOR_DELIVERY')">
+                            Out
+                        </button>
+
+                        <button class="btn btn-sm btn-success me-1" (click)="updateOrderStatus(data.orders?.orderId, 'DELIVERED')">
+                            Delivered
+                        </button>
+                        <button class="btn btn-sm btn-danger me-1" (click)="payBill(data.orders?.orderId)">
+                            Payment
+                        </button>
+
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+<!-- $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ -->
+<!-- Cash Checkout Modal -->
+<div class="modal fade" tabindex="-1" role="dialog" [ngClass]="{'show d-block': cashModal}">
+
+    <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down modal-xl">
+        <div class="modal-content shadow-lg">
+
+            <!-- Header -->
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">Checkout</h5>
+                <button type="button" class="btn-close" (click)="closeCashModal()"></button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body">
+
+                <div class="container-fluid">
+
+                    <div class="row g-3">
+                        <div class="card p-3 mt-2">
+
+                            <label class="form-label fw-bold">Payment Method</label>
+
+                            <div class="d-flex gap-4">
+
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="paymentMethod" id="cash"
+                                        value="CASH" [(ngModel)]="payment.paymentMethod">
+
+                                    <label class="form-check-label fw-bold text-success" for="cash">
+                                        💵 CASH
+                                    </label>
+                                </div>
+
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="paymentMethod" id="card"
+                                        value="CARD" [(ngModel)]="payment.paymentMethod">
+
+                                    <label class="form-check-label fw-bold text-primary" for="card">
+                                        💳 CARD
+                                    </label>
+                                </div>
+                                <div>
+                                    Print Copies: <input type="number" class="form-input w-25"
+                                        [(ngModel)]="billCopyNumber" />
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Left: Amount Summary -->
+                        <div class="col-12 col-md-6">
+
+                            <!-- Cash Input -->
+                            <input type="text" class="form-control form-control-lg text-end fw-bold"
+                                placeholder="Cash Paid" id="result" name="result" [(ngModel)]="result"
+                                (input)="calculateBalance()" autofocus>
+
+                            <!-- Summary Cards -->
+                            <div class="mt-3">
+                                <div class="summary-box">
+                                    Paid:
+                                    <span>{{ result || 0 }}</span>
+                                </div>
+                                <div class="summary-box">
+                                    Total:
+                                    <span>{{ registerOrder!.grandTotal }}</span>
+                                </div>
+                                <div class="summary-box balance">
+                                    Balance:
+                                    <span>{{ customerBalance.toFixed(2) }}</span>
+                                </div>
+                            </div>
+                            <br>
+                            <button class="btn btn-warning btn-checkout w-100" (click)="backSpace()">Clear</button>
+                            <button class="btn btn-danger btn-checkout mt-3  w-100" (click)="closeCashModal()"> Close
+                            </button>
+
+                        </div>
+                        <!-- Right: Calculator -->
+                        <div class="col-12 col-md-6">
+                            <div class="calculator-grid">
+                                <button *ngFor="let n of ['7','8','9','4','5','6','1','2','3','0','.']"
+                                    (click)="appendToResult(n)">
+                                    {{ n }}
+                                </button>
+
+
+
+
+                                <button class="btn btn-success btn-checkout " (click)="paymentCheckout()">
+                                    Checkout
+                                </button>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <!-- <div class="modal-footer d-flex gap-2">
+        <button class="btn btn-danger btn-checkout  w-50" (click)="closeCashModal()">
+          Close
+        </button>
+
+        <button class="btn btn-success btn-checkout w-50" (click)="onCustomerSave('CASH')">
+          Checkout
+        </button>
+      </div> -->
+
+        </div>
+    </div>
+</div>
+
+<!-- DRIVER SELECTION MODAL -->
+<div class="modal fade show d-block" tabindex="-1" *ngIf="showDriverModal">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content shadow-lg rounded-3">
+
+      <!-- HEADER -->
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title">
+          🚚 Select Driver for Delivery
+        </h5>
+        <button type="button" class="btn-close btn-close-white"
+          (click)="closeDriverModal()"></button>
+      </div>
+
+      <!-- SEARCH -->
+      <div class="p-3 border-bottom">
+        <input type="text"
+               class="form-control form-control-lg"
+               placeholder="Search driver by name or phone..."
+               [(ngModel)]="searchText">
+      </div>
+
+      <!-- DRIVER LIST -->
+      <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">
+
+        <div class="row g-3">
+<!--  | filter:searchText -->
+          <div class="col-6 col-md-4 col-lg-3"
+               *ngFor="let driver of drivers"
+               (click)="selectDriver(driver)">
+
+            <div class="card driver-card h-100 text-center p-3"
+                 [class.selected]="selectedDriver?.driverId === driver.driverId">
+
+              <div class="driver-avatar mb-2">
+                <i class="bi bi-person-circle fs-1"></i>
+              </div>
+
+              <h6 class="fw-bold mb-1">{{driver.name}}</h6>
+              <small class="text-muted">{{driver.phone}}</small>
+
+              <div class="mt-2">
+                <span class="badge"
+                      [ngClass]="{
+                        'bg-success': driver.status === 'AVAILABLE',
+                        'bg-danger': driver.status !== 'AVAILABLE'
+                      }">
+                  {{driver.status}}
+                </span>
+              </div>
+
+              <div class="small mt-2 text-muted">
+                🚗 {{driver.vehicleType}}<br>
+                {{driver.vehicleNumber}}
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="modal-footer">
+        <button class="btn btn-secondary"
+                (click)="closeDriverModal()">
+          Cancel
+        </button>
+
+        <button class="btn btn-success px-4"
+                [disabled]="!selectedDriver"
+                (click)="assignDriver(1)">
+          ✅ Assign Driver
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- BACKDROP -->
+<div class="modal-backdrop fade show" *ngIf="showDriverModal"></div>

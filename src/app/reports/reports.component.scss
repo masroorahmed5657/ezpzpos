@@ -35,3 +35,22 @@ tbody {
     font-weight: bold;
     color: brown;
 }
+
+.pos-table-header th {
+  background-color: #000 !important;   /* black */
+  color: #fff !important;              /* white text */
+  font-weight: 700;
+  text-transform: uppercase;
+  border-color: #444;
+}
+
+.price {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #198754;
+}
+.price-card-cash {
+  font-size: 1.0rem;
+  font-weight: bold;
+  color: brown;
+}

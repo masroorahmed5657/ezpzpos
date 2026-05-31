@@ -1,0 +1,59 @@
+<div class="container-fluid p-2">
+
+  <div class="card shadow-sm mb-2">
+    <div class="card-body text-center">
+      <h4>Settlement</h4>
+      <h3 [ngClass]="netAmount >= 0 ? 'text-success':'text-danger'">
+        {{ netAmount | number:'1.2-2' }}
+      </h3>
+    </div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+
+      <div class="mb-2">
+        <label class="form-label">Method</label>
+        <select class="form-select"
+                [(ngModel)]="settlement.method">
+          <option value="CASH">Cash</option>
+          <option value="CARD">Card</option>
+          <option value="WALLET">Wallet</option>
+          <option value="CREDIT_NOTE">Credit Note</option>
+        </select>
+      </div>
+
+      <div class="mb-2">
+        <label class="form-label">Amount</label>
+        <input type="number" class="form-control form-control-lg"
+               [(ngModel)]="settlement.amount">
+
+
+
+        <span class="badge"
+  [ngClass]="{
+    'bg-success': settlementStatus === 'CUSTOMER_PAY',
+    'bg-danger': settlementStatus === 'STORE_PAY',
+    'bg-secondary': settlementStatus === 'EVEN'
+  }">
+  {{ settlementStatus }}
+</span>
+       
+      </div>
+
+      <div class="d-grid gap-2">
+        <button class="btn btn-success btn-lg"
+                (click)="completeAdjustment()">
+          Complete Adjustment
+        </button>
+
+        <button class="btn btn-outline-secondary"
+                routerLink="/pos">
+          Cancel
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>

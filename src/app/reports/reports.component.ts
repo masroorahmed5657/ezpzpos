@@ -69,6 +69,7 @@ export class ReportsComponent implements OnInit {
   filteredYearlyItems: any;
   selectedYear: any;
   legacyReport: boolean = false;
+  posUrl = '/' + environment.posUrl;
 
 
 
@@ -167,7 +168,8 @@ export class ReportsComponent implements OnInit {
       let bodyHtmlTag =
         `<title>Daily Sale Report</title>
      </head>    
-     <body  onload="window.print();window.close();">`;
+     <body  onload="window.print()" onafterprint="window.close()">  
+     `;
 
 
 
@@ -313,6 +315,10 @@ export class ReportsComponent implements OnInit {
 
     let reportType = this.route.snapshot.paramMap.get('reportType');
 
+    //this.startDate=null;
+    //this.endDate=null;
+
+
     if (reportType === 'false') {
       this.legacyReport = true;
     }
@@ -321,8 +327,8 @@ export class ReportsComponent implements OnInit {
     }
 
     let datePipe = new DatePipe('en-US');
-    //this.startTime = datePipe.transform(new Date(), 'shortTime');
-    //this.endTime = datePipe.transform(new Date(), 'shortTime');
+    this.startTime = datePipe.transform(new Date(), 'shortTime');
+    this.endTime = datePipe.transform(new Date(), 'shortTime');
 
 
     this.totalCashSaleCount = 0;
@@ -392,6 +398,11 @@ export class ReportsComponent implements OnInit {
   getReports() {
     if (this.legacyReport) {
       let orderType = 'POS';
+      this.dailySaleCashReport.length = 0;
+      this.dailySaleCardReport.length = 0;
+      this.dailyReturnCashReport.length = 0;
+      this.dailyReturnCardReport.length = 0;
+
       this.reportsService.getDailySaleExcel(orderType).subscribe((data: OrderSaleReportResponse) => {
         this.dailySaleExcelReport = data.orderSaleDailyReport;
         this.dailySaleExcelReturnReport = data.orderSaleDailyReturnReport;
@@ -936,8 +947,10 @@ export class ReportsComponent implements OnInit {
   }
 
   startDateChange() {
+    let st1 = (this.startDate).toString();
+    let st2= (this.endDate).toString();
     this.startDate;
-    if ((this.startDate).toString() < (this.endDate).toString()) {
+    if ((this.startDate).toString() > (this.endDate).toString()) {
       Swal.fire('WARNING', 'End Date must be greater or equal to Start Date', 'warning');
       this.startDate = new Date();
     }
@@ -1001,7 +1014,7 @@ export class ReportsComponent implements OnInit {
 
 
 
-      this.reportsService.getDailySaleExcelWithDateRange(orderType, reportRequest).subscribe((data: OrderSaleReportResponse) => {
+      this.reportsService.getDailySaleDetailWithDateRange(orderType, reportRequest).subscribe((data: OrderSaleReportResponse) => {
         //this.dailySaleList=data;
         //this.dailySaleList=data;
 

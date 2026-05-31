@@ -20,6 +20,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
+            "sourceMap": true,
             "outputPath": "dist/ezpzpos",
             "index": "src/index.html",
             "main": "src/main.ts",
@@ -29,24 +30,30 @@
             "assets": [
               "src/favicon.ico",
               "src/assets"
+              
             ],
             "styles": [
+              
               "src/styles.scss"
+              
+             
             ],
-            "scripts": []
+            "scripts": [
+
+            ]
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "3mb",
-                  "maximumError": "3mb"
+                  "maximumWarning": "8mb",
+                  "maximumError": "8mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "3mb",
-                  "maximumError": "3mb"
+                  "maximumWarning": "8mb",
+                  "maximumError": "8mb"
                 }
               ],
               "fileReplacements": [
@@ -69,6 +76,9 @@
           "defaultConfiguration": "production"
         },
         "serve": {
+          "options": {
+            
+          },
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {

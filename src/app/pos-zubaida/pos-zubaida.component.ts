@@ -46,7 +46,8 @@ import { StoreServiceService } from '../services/store-service.service';
 import { OrdersService } from '../services/orders.service';
 import { UserService } from '../services/user.service';
 import { ReportsService } from '../services/reports.service';
-
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 @Component({
   selector: 'app-pos-zubaida',
@@ -129,7 +130,11 @@ export class PosZubaidaComponent {
     total: 0,
     grandTotal: 0,
     totalQty: 0,
-    totalWithoutDiscount: 0
+    totalWithoutDiscount: 0,
+    totalItems: 0,
+    taxesPercentage: 0,
+    discountPercentage: 0,
+
   };
 
   holdSales: CartHold[] = [];
@@ -603,7 +608,7 @@ export class PosZubaidaComponent {
       else {
         this.productService.getSearchProducts(this.search).subscribe((data) => {
           //let productId = data.productId;
-          this.productcheckList = data.productList;
+          this.productcheckList = data;
           if (this.productcheckList === null) {
             Swal.fire('Not Found', 'Product Does not exist', 'error');
           }
@@ -727,7 +732,7 @@ export class PosZubaidaComponent {
 
       cartData.shipping = 0;
       cartData.subTotal = 0;
-      cartData.dicsount = 0;
+      cartData.discount = 0;
       cartData.taxes = 0;
       cartData.transactionId = 0;
 
@@ -1573,7 +1578,7 @@ export class PosZubaidaComponent {
         this.taxCouponFlag = true;//Don't print FBR QR
       }
 
-      orderSaveResponse.taxCouponFlag = this.taxCouponFlag;
+      orderSaveResponse.taxCouponFlag = true; //suspend FBR Inv for now //this.taxCouponFlag;
 
 
       order.shippingHandling = this.priceSummary.delivery.toFixed(2);
@@ -1832,7 +1837,7 @@ export class PosZubaidaComponent {
       if (this.result === "") {//0 Payment
 
         //check for RETURNS
-        if (this.priceSummary.grandTotal<0){
+        if (this.priceSummary.grandTotal < 0) {
           Swal.fire({
             title: 'Warning for RETURN Payment',
             text: 'Payment is negative, do you want to proceed with Return Payment?',
@@ -1841,26 +1846,26 @@ export class PosZubaidaComponent {
             confirmButtonText: 'Yes!',
             cancelButtonText: 'No'
           }).then((response: any) => {
-  
+
             if (!response.value) {
-  
+
               return; // Don't proceed with saving    
             }
             else {
               this.payment.paymentStatus = 'COMPLETED';
               this.payment.instalmentAmount = 0;
               this.payment.remainingBalance = (this.priceSummary.grandTotal);
-  
-  
+
+
               //Create Sale Orders
               this.createSaleOrder(source);
-  
-  
+
+
             }
-  
+
           });
         }
-        else{
+        else {
           Swal.fire({
             title: 'Warning for 0 Payment',
             text: 'Payment is 0, do you want to proceed with 0 Payment?',
@@ -1869,27 +1874,27 @@ export class PosZubaidaComponent {
             confirmButtonText: 'Yes!',
             cancelButtonText: 'No'
           }).then((response: any) => {
-  
+
             if (!response.value) {
-  
+
               return; // Don't proceed with saving    
             }
             else {
               this.payment.paymentStatus = 'PARTIAL';
               this.payment.instalmentAmount = 0;
               this.payment.remainingBalance = (this.priceSummary.grandTotal);
-  
-  
+
+
               //Create Sale Orders
               this.createSaleOrder(source);
-  
-  
+
+
             }
-  
+
           });
         }
 
-      
+
 
 
       }
@@ -4010,6 +4015,83 @@ img {
     this.router.navigate(['reports']);
   }
 
+
+  pdfConversion(DATA:any) {
+
+    html2canvas(DATA).then((canvas) => {
+      let fileWidth = 208;
+      let fileHeight = (canvas.height * fileWidth) / canvas.width;
+      const FILEURI = canvas.toDataURL('image/png');
+      let PDF = new jsPDF('p', 'mm', 'a4');
+      let position = 0;
+      PDF.addImage(FILEURI, 'PNG', 0, position, fileWidth, fileHeight);
+      PDF.save('billof-sale.pdf');
+      PDF.autoPrint();
+    });
+
+  }
+
+  /* ********************************************************************** */
+  lastMonthBillOfSale() {
+
+    let numberOfMonths = 1;
+
+    this.orderService.getLastMonthBillOfSale(numberOfMonths).subscribe((data: OrderResponse) => {
+      if (data !== undefined) {
+        let finalHTMLForAllOrders='';
+        let orderCustomer = data.orderCustomer;
+        let orders: any = new Orders();
+        if (data.orderCustomer.length > 0) {
+          for (let i = 0; i < data.orderCustomer.length; i++) {
+            orders = data.orderCustomer[i].orders;
+            let customer: any = data.orderCustomer[i]?.customer;
+            let orderItems = data.orderCustomer[i]?.orderItems;
+
+            let retHtml = this.printLastMonthBill(orders, customer, orderItems);
+
+            finalHTMLForAllOrders = finalHTMLForAllOrders + retHtml;
+
+          }//for loop
+
+          const parser = new DOMParser();
+
+          // convert html string into DOM
+          const htmlElementVar = parser.parseFromString(finalHTMLForAllOrders, "text/html");
+          const iframe = document.createElement("iframe");          
+          document.body.appendChild(iframe);
+          iframe.contentWindow?.document.open();
+          iframe.contentWindow?.document.write(finalHTMLForAllOrders);
+          iframe.contentWindow?.document.close();
+
+          //this.pdfConversion(finalHTMLForAllOrders);
+          let DATA:HTMLElement = new HTMLElement();
+          DATA = iframe.contentWindow?.document.body!;
+
+          html2canvas(DATA).then((canvas) => {
+            let fileWidth = 208;
+            let fileHeight = (canvas.height * fileWidth) / canvas.width;
+            const FILEURI = canvas.toDataURL('image/png');
+            let PDF = new jsPDF('p', 'mm', 'a4');
+            let position = 0;
+            PDF.addImage(FILEURI, 'PNG', 0, position, fileWidth, fileHeight);
+            PDF.save('billof-sale.pdf');
+            PDF.autoPrint();
+          });
+
+        }
+
+
+      }
+
+    });
+
+
+  }
+
+
+
+
+  /* *********************************************************************** */
   lastBillOfSale() {
 
 
@@ -4034,7 +4116,7 @@ img {
 
 
   }
-  /* ******************************************************************************************************* */
+  /* ************************************** EXISTING ***************************************************************** */
   printThermalLastBill(order: Orders, customer: Customer, orderItems: OrderItemProductWrapper[]) {
     let popupWin;
     //let printContents:HTMLElement = (document.getElementById('print-section-0').innerHTML) as HTMLElement ;
@@ -4711,7 +4793,7 @@ img {
 
         `</tfoot>
           </table>
-          <p class="centered" style="margin-left:10px !important;">Invoice#:BL` + order.orderId +
+          <p class="centered" style="margin-left:10px !important;">Invoice#:BL` + order.invoiceNumber +
         `<br>
           
           
@@ -4771,7 +4853,456 @@ img {
 
 
   }
+/* *********************************************************************************** */
+  /* ************************************* MONTHLY ******************************************************** */
+  printLastMonthBill(order: Orders, customer: Customer, orderItems: OrderItemProductWrapper[]) {
+    let popupWin;
+    //let printContents:HTMLElement = (document.getElementById('print-section-0').innerHTML) as HTMLElement ;
+    //popupWin = window.open('', '_blank');
+    if (true) 
+    {
+      // popupWin.document.open();
 
+      this.customer = customer;
+
+
+      let mainImage = ``;
+      if (this.appName === 'ZUBAIDA') {
+        mainImage = `assets/images/logos/zubaida-color-logo.png`;
+      }
+      else if (this.appName === 'NIKS') {
+        mainImage = `assets/images/logos/niks-logo-small.png`;
+      }
+
+
+      let myHtml01Tag = `
+    <html> 
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+   <style>
+
+.recipt_container
+{
+  width: 100% !important;
+  max-width: 100mm;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* .tax
+{
+  display: none;
+} */
+
+.header
+{
+  text-align: center;
+}
+.header img
+{
+  width: 75%;
+}
+
+.float
+{
+  float: left;
+}
+.clear
+{
+  float: left;
+  clear: both;
+}
+
+.company_details p
+{
+  font-size: 8pt;
+  text-transform: uppercase;
+  font-weight: 400;
+  line-height: 11px;
+}
+.inv_details table
+{
+  font-size: 7pt;
+  margin-left: auto;
+  margin-right: auto;
+  width: 95% !important;
+  text-align: left;
+
+}
+.inv_details table th
+{
+  width: 50%;
+
+}
+.items table
+{
+  width: 98%;
+  font-size: 7pt;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+  border-collapse: collapse;
+
+
+}
+.items table thead tr, .items table tfoot tr
+{
+  border-top: 1pt solid black;
+  border-bottom: 1pt solid black;
+}
+.items table tbody tr
+{
+  border-top: 0.9pt dotted black;
+  border-bottom: 0.9pt dotted black;
+}
+.items table th:first-child{
+ text-align: left;
+}
+.items table td:first-child{
+  text-align: left;
+}
+
+.items table th:last-child{
+  text-align: right;
+}
+.items table td:last-child{
+   text-align: right;
+}
+
+.totals table
+{
+  width: 98%;
+  font-size: 8pt;
+  text-align: right;
+  margin-right: 0px;
+}
+.totals table td:last-child
+{
+   max-width: 30%;
+}
+.fbr
+{
+   text-align: center;
+}
+.fbr_logo_0
+{
+   width: 30mm;
+   text-align: center;
+}
+.usin
+{
+  width: 80%;
+  max-height: 100px;
+}
+
+.fbr p
+{
+  font-size: 9pt;
+  margin-top: 3px;
+  margin-bottom: 3px;
+  padding-left: 1%;
+  padding-right: 1%;
+}
+
+.terms
+{
+  font-size: 8pt;
+  text-align: center;
+  padding-left: 1%;
+  padding-right: 1%;
+}
+
+.copy
+{
+  font-size: 6pt;
+  text-align: center;
+}
+
+.items table .inv_of td:last-child{
+  text-align: center;
+}
+
+.logo
+{
+  margin-top: 5%;
+  max-width: 100%;
+  max-height: 100px;
+}
+
+.contact
+{
+  font-size: 7pt;
+  text-align: center;
+  padding-left: 1%;
+  padding-right: 1%;
+}
+
+@media print {
+
+  .recipt_container {
+      page-break-after: always;
+
+  }
+
+}
+
+
+  </style>
+    
+  <title>Niks Receipt</title>
+  </head>    
+  <body  onload="window.print();window.close();">
+  <div class="recipt_container">  
+    <div class="header">
+    <img class="logo" src="` + mainImage + `" >
+  
+    <div class="company_details">
+      <p ><b> ABC SONS </b><br>
+        <span class="strn">STRN:1700223239612|NTN:2232396-1</span>
+      </p>
+    </div>
+    
+    
+    `;
+
+
+//<p style="text-align:left"><b> Bill#:` + order.orderId + `</b></p>
+      let myHtml02Tag = `
+    <div class="inv_details">
+      <p style="text-align:left"><b>Customer: ` + this.customer.firstName + `  (` + this.customer.phone1 + ` )` + `</b></p>
+      <p style="text-align:left"><b>Date/Time:   &nbsp;` + order.createDate + `</b></p>
+      <p class="centered" style="margin-left:10px !important;">Invoice#:BL` + order.invoiceNumber + `</b></p>
+      
+    </div>  
+    <div class="items">
+    `;
+
+      let myHtmlTableTag = `
+        <table >
+     
+  <thead>
+      <tr class="inv_of">
+          <td colspan="7" style="text-align: center;border-top: 1px solid #000;"><b>---SALES---</b>
+          </td>
+      </tr>    
+
+      <tr>
+      <th>Barcode</th>
+      <th>Price</th>
+      <th>Qty</th>
+      <th>Disc</th>
+      <th >Tax</th>
+      <th >GST%</th>
+      <th >Total</th>
+      </tr>
+      <tr >
+          <th colspan="6" >Description</th>
+          <th></th>
+      </tr>
+    </thead>
+    <tbody >
+    
+    `;
+
+      let myHtmlItemHeadingTag = `
+        <table >
+     
+        <thead>
+          <tr class="inv_of">
+              <td colspan="7" style="text-align: center;border-top: 1px solid #000;"><b>---SALES---</b>
+              </td>
+          </tr>    
+
+          <tr>
+          <th>Barcode</th>
+          <th>Price</th>
+          <th>Qty</th>
+          <th>Disc</th>
+          <th >Tax</th>
+          <th >GST%</th>
+          <th >Total</th>
+          </tr>
+          <tr >
+              <th colspan="6" >Description</th>
+              <th></th>
+          </tr>
+        </thead>
+        <tbody >
+    `;
+
+
+      let itemListHtmlTag = ``;
+      let taxTdBlock = ``;
+      let price: any = 0;
+      let totalQty = 0;
+      let totalDiscount = 0;
+
+      for (let i = 0; i < orderItems.length; i++) {
+        price = orderItems[i].ordersItems?.unitPrice;
+        let quantity: any = orderItems[i].ordersItems?.quantity;//1
+        let discount = orderItems[i].ordersItems?.discount;//%age 10
+
+        let discountVal = price - (price * discount) / 100;//52
+        let taxItem = ((orderItems[i].products?.tax) * (quantity * discountVal)) / 100;
+        let totalPrice = taxItem + (quantity * discountVal);
+
+        totalQty = totalQty + quantity;
+
+
+        itemListHtmlTag = itemListHtmlTag +
+          `<tr>
+          <td>` +
+          orderItems[i].ordersItems?.agentId + `-` + orderItems[i].products?.upc +
+          `</td>
+          <td>` +
+          price.toFixed(2) +
+          `</td>
+          <td>` +
+          orderItems[i].ordersItems?.quantity +
+          `</td>
+          <td>` +
+          (orderItems[i].ordersItems?.discount === null ? 0 : orderItems[i].ordersItems?.discount) +
+          `</td>`;
+
+
+        if (this.showTaxFlag) {
+          taxTdBlock = `<td><b>` +
+            (taxItem).toFixed(2) +
+            `</b></td>
+          <td><b>` +
+            orderItems[i].products?.tax +
+            `</b></td>`;
+
+        }
+        else {
+          taxTdBlock = ``;
+        }
+
+        itemListHtmlTag += taxTdBlock +
+          `<td><b>` +
+          (totalPrice).toFixed(2) +
+          `</b></td>
+        </tr>
+        <tr>
+          <td colspan="6">` +
+          orderItems[i].products?.productName +
+          `</td>
+           <td><td>
+        </tr>
+        `;
+
+
+      } //for loop  
+
+      let tableFooterHtmlTag = `
+    </tbody>
+      <tfoot>
+      <tr>
+      <td >Sub Total:</td>
+      <td colspan="6" style="text-align: left;border-top: 1px solid #000;">Rs.` + Math.round(Number(order.orderAmount)).toFixed(2) + ` </td>
+      
+      </tr>
+      <tr>
+      <td style="text-align: left;">Total Qty:</td>
+      <td colspan="5" style="text-align: left;"> ` +
+        totalQty +
+        `</td>
+      </tr>
+      <tr>
+      <td >Discount:</td>
+      <td colspan="5" style="text-align: left;">Rs.` + totalDiscount + ` </td>
+      </tr> 
+          <tr>
+            <td >Tax:</td>
+            <td colspan="5" style="text-align: left;">Rs.` + Math.round((Number(order.tax))).toFixed(2) + ` </td>
+          </tr><tr> 
+        <td ><b>Total: </b></td>
+        <td colspan="5" style="text-align: left;"><b>Rs.` + Math.round((Number(order.grandTotal))).toFixed(2) + `</b> </td>
+        </tr><tr>
+        <td >Cash Paid:</td>
+        <td colspan="5" style="text-align: left;">Rs.` + this.result + ` </td>
+        </tr><tr>
+      <td style="text-align: left;border-bottom: 1px solid #000;" ><b>Customer Balance: </b></td>
+      <td colspan="5" style="text-align: left;border-bottom: 1px solid #000;"><b>Rs.` + (this.customerBalance).toFixed(2) + `</b> 
+      </td>
+      
+          </tfoot>
+      </table>
+    
+    `;
+
+      let fbrHtmlTag = `
+    <div class="tax fbr" style="display: block;">          
+
+      <img src="assets/images/barcode.jpg" id="imagea" class="usin fbr">
+      <p>FBR Invoice#: 133330240702174</p>
+      <div class="fbr_logo">
+        <img style="width:30mm;" src="assets/images/fbr.png"  alt="We are integrated with FBR">
+        <img style="width:30mm;" src="assets/images/FBR_QRReceipt.png" >
+      </div>
+        <p>
+                 <em>Verify your invoice through FBR Tax Asaan Mobile App
+                  or SMS at 9966 and win exciting prizes in draw.</em>
+        </p>
+      
+    </div>
+
+    `;
+
+      let contactHtmlTag = `
+      <div class="contact">
+        <p>If you have any queries related, feel free to reach us at: <br>
+            <i class="fa fa-fw fa-phone"></i>+92 300 3932177 +92 21 37293088><br>
+            <i class="fa fa-fw fa-envelope"></i>info@bebekingdom.pk<br>
+            <i class="fa fa-fw fa-map-pin"></i> Shop#1, Chawla Center, P.E.C.H.S, Block 2, Tariq Road, Karachi
+        </p>
+      </div>
+    `;
+
+      let termHtmlTag = `
+    <div class="terms">
+      <p>
+        <b>**Terms &amp; Conditions**</b>
+                                      <br>
+                                      Items once sold are exchangeable/replaceable within 3 days. All items must be
+                                      returned is in original form (unused, unworn, original packaging, seals, and
+                                      tags attached), along with all accessories, manuals, and warranty card that came
+                                      with it.
+                                      <br>
+                                      Items <b>SOLD ON SALE</b> are <b>NOT</b> exchangeable or replaceable.
+                                      <br>
+                                       GST is exclusive of pricing 
+      </p>
+    </div>
+    `;
+
+      let lastHtmlTag = `
+    <p style="margin-left:30px !important;">
+        <b>Thanks for your purchase!</b>
+    </p>
+     
+    </div>
+     
+  
+    </body>
+  </html>
+    `;
+
+
+      //Add all hmt tags
+      let finalHTMLTag = myHtml01Tag + myHtml02Tag + myHtmlItemHeadingTag + itemListHtmlTag + tableFooterHtmlTag + fbrHtmlTag + contactHtmlTag + termHtmlTag + lastHtmlTag;
+
+
+      return finalHTMLTag;
+      
+
+    }//popupWin
+
+  }//printLastMonthBill
+
+
+/* ********************************************************************************* */
   getPrice(product: any): any {
     let price = 0;
     if (product.upc === '00448666') {

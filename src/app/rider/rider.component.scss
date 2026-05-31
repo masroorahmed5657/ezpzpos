@@ -1,0 +1,42 @@
+.driver-status-page {
+  max-width: 500px;
+  margin: auto;
+  padding-bottom: 80px; /* space for footer */
+}
+
+/* ORDER CARD */
+.order-card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+/* ADDRESS */
+.address-box {
+  font-size: 14px;
+  background: #f8f9fa;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+/* STATUS CARDS (same as before) */
+.status-card {
+  border-radius: 16px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: 0.2s;
+}
+
+.status-card:active {
+  transform: scale(0.97);
+}
+
+/* FOOTER */
+.driver-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border-top: 1px solid #ddd;
+}

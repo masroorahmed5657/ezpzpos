@@ -1,0 +1,85 @@
+.tdcolumnheader{
+    color: white !important; 
+}
+
+/*
+table {
+    width: 100%;
+    display:block;
+}
+
+thead, tbody { display: block; width: 100%;}
+
+tbody {
+    height: 100px;       
+    overflow-y: auto;    
+    overflow-x: hidden;  
+    width:100%;
+}
+*/
+
+.enMoney::before {
+    content:"$";
+}
+.negMoney {
+    color:red;
+}
+
+.totalSale{
+    font-size: x-large;
+    font-weight: bold;
+    color: green;
+}
+.totalSaleCombined{
+    font-size: x-large;
+    font-weight: bold;
+    color: brown;
+}
+
+.pos-table-header th {
+  background-color: #000 !important;   /* black */
+  color: #fff !important;              /* white text */
+  font-weight: 700;
+  text-transform: uppercase;
+  border-color: #444;
+}
+
+.price {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #198754;
+}
+.price-card-cash {
+  font-size: 1.0rem;
+  font-weight: bold;
+  color: brown;
+}
+
+ .report-card {
+      border-radius: 8px;  
+      padding: 6px 8px;
+      text-align: center;
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      transition: 0.2s;
+    }
+
+    .report-card:hover {
+      transform: translateY(-3px);
+    }
+
+    .report-title {
+      font-size: 14px;
+      color: #6c757d;
+    }
+
+    .report-value {
+      font-size: 22px;
+      font-weight: bold;
+      color: #212529;
+    }
+
+    .section-title {
+      font-weight: 600;
+      margin-bottom: 15px;
+    }

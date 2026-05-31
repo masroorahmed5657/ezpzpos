@@ -1,0 +1,260 @@
+.item-card {
+  cursor: pointer;
+  border-radius: 12px;
+  transition: transform 0.1s;
+  background: #f8f9fa;
+}
+
+.item-card:hover {
+  transform: scale(1.05);
+  background: #e9ecef;
+}
+
+.item-name {
+  font-size: 14px;
+  min-height: 36px;
+}
+
+.cart-scroll {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.cart-item {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.qty-controls button {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+}
+.pos-logo {
+  max-height: 5rem;   /* adjust as needed: 40–60px */
+  //width: auto;
+  max-width: 5rem;
+  object-fit: contain;
+}
+.prod-image {
+  max-height: 5rem;   /* adjust as needed: 40–60px */
+  max-width: 7rem;
+  //width: auto;
+  object-fit: contain;
+}
+.price-css {
+  text-align: center;
+  align-items: center;
+  font-size: larger;
+  max-width: 5rem;
+  max-height: 3rem;
+
+}
+
+.total-css {
+  text-align: center;
+  align-items: center;
+  font-size: larger;
+
+}
+
+.cart-title{
+    background-color: beige;
+    color: black;
+}
+.calculator .buttons button {
+  width: calc(20% - 2px);
+  margin: 1px;
+  font-size: 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.calculator input[type="text"] {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 5px;
+}
+
+.calculator .buttons button:nth-child(4n) {
+  margin-right: 0;
+}
+
+.calculator .buttons button:hover {
+  background-color: #bbbaba;
+}
+.calculator-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.calculator-grid button {
+  padding: 18px;
+  font-size: 1.4rem;
+  font-weight: bold;
+  border-radius: 10px;
+}
+
+.calculator-grid .btn-clear {
+  grid-column: span 3;
+  background: blue;
+  color: white;
+}
+
+.btn-checkout{
+    grid-column: span 3;
+    font-size: larger;
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 80%;
+  height: 80%;
+  background-color: rgba(0, 0, 0, 0.5);
+  /* Semi-transparent black */
+  backdrop-filter: blur(5px);
+  /* Apply blur effect */
+  z-index: 1040;
+  /* Adjust z-index to ensure it's behind the modal */
+}
+@media (max-width: 768px) {
+  table {
+    font-size: 0.85rem;
+  }
+
+  .modal-dialog {
+    margin: 0.5rem;
+  }
+}
+/* Mobile tweaks */
+@media (max-width: 768px) {
+  .modal-dialog {
+    margin: 0.5rem;
+  }
+
+  .modal-body {
+    padding: 0.75rem;
+  }
+}
+.summary-box {
+  background: #f8f9fa;
+  padding: 12px;
+  margin-top: 8px;
+  border-radius: 10px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+}
+
+.summary-box.balance {
+  background: #e6ffe6;
+  color: #0a7d00;
+}
+
+
+// .pos-header {
+//   flex-wrap: wrap;
+// }
+
+// .pos-logo {
+//   max-height: 40px;
+// }
+
+.pos-search {
+  font-size: 14px;
+  padding: 1px 1px;
+}
+
+.waiter-input {
+  width: 10rem;
+}
+
+@media (max-width: 768px) {
+  .pos-header {
+    flex-wrap: wrap;
+  }
+
+  .waiter-input {
+    width: 70px;
+  }
+}
+
+.order-timer {
+  font-size: 1.3rem;
+  font-weight: bold;
+  padding: 6px 12px;
+  border-radius: 12px;
+  min-width: 80px;
+  text-align: center;
+}
+
+.timer-normal {
+  background: #e9f7ef;
+  color: #0f5132;
+}
+
+.timer-warning {
+  background: #dc3545;
+  color: #fff;
+}
+
+/* BLINKING EFFECT */
+.blink {
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%   { opacity: 1; }
+  50%  { opacity: 0.3; }
+  100% { opacity: 1; }
+}
+@media (min-width: 1200px) {
+  .order-timer {
+    font-size: 1.8rem;
+  }
+}
+.pos-closed-banner {
+  width: 100%;
+  text-align: center;
+  font-size: 32px;
+  font-weight: bold;
+  color: white;
+  background-color: red;
+  padding: 15px;
+  animation: blinkPOS 1s infinite;
+}
+
+@keyframes blinkPOS {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.pos-timer{
+  font-size:18px;
+  font-weight:600;
+  color:#0d6efd;
+}
+.cart-item {
+  border-radius: 10px;
+}
+
+.cart-item textarea {
+  font-size: 13px;
+}
+
+.cart-item button {
+  min-height: 32px;
+}

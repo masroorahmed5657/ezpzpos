@@ -1,0 +1,345 @@
+<div class="page-break"></div>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+
+    <style>
+        .recipt_container {
+            width: 100% !important;
+            max-width: 100mm;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* .tax
+{
+    display: none;
+} */
+
+        .header {
+            text-align: center;
+        }
+
+        .header img {
+            width: 75%;
+        }
+
+        .float {
+            float: left;
+        }
+
+        .clear {
+            float: left;
+            clear: both;
+        }
+
+        .company_details p {
+            font-size: 8pt;
+            text-transform: uppercase;
+            font-weight: 400;
+            line-height: 11px;
+        }
+
+        .inv_details table {
+            font-size: 7pt;
+            margin-left: auto;
+            margin-right: auto;
+            width: 95% !important;
+            text-align: left;
+
+        }
+
+        .inv_details table th {
+            width: 50%;
+
+        }
+
+        .items table {
+            width: 98%;
+            font-size: 7pt;
+            text-align: center;
+            margin-left: auto;
+            margin-right: auto;
+            border-collapse: collapse;
+
+
+        }
+
+        .items table thead tr,
+        .items table tfoot tr {
+            border-top: 1pt solid black;
+            border-bottom: 1pt solid black;
+        }
+
+        .items table tbody tr {
+            border-top: 0.9pt dotted black;
+            border-bottom: 0.9pt dotted black;
+        }
+
+        .items table th:first-child {
+            text-align: left;
+        }
+
+        .items table td:first-child {
+            text-align: left;
+        }
+
+        .items table th:last-child {
+            text-align: right;
+        }
+
+        .items table td:last-child {
+            text-align: right;
+        }
+
+        .totals table {
+            width: 98%;
+            font-size: 8pt;
+            text-align: right;
+            margin-right: 0px;
+        }
+
+        .totals table td:last-child {
+            max-width: 30%;
+        }
+
+        .fbr {
+            text-align: center;
+        }
+
+        .fbr_logo_0 {
+            width: 30mm;
+            text-align: center;
+        }
+
+        .usin {
+            width: 80%;
+            max-height: 100px;
+        }
+
+        .fbr p {
+            font-size: 9pt;
+            margin-top: 3px;
+            margin-bottom: 3px;
+            padding-left: 1%;
+            padding-right: 1%;
+        }
+
+        .terms {
+            font-size: 8pt;
+            text-align: center;
+            padding-left: 1%;
+            padding-right: 1%;
+        }
+
+        .copy {
+            font-size: 6pt;
+            text-align: center;
+        }
+
+        .items table .inv_of td:last-child {
+            text-align: center;
+        }
+
+
+        .img-fluid {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .img-thumbnail {
+            padding: 0.25rem;
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 0.25rem;
+            max-width: 3rem;
+            height: 3rem;
+        }
+
+        .pos-logo {
+            max-height: 60px;
+        }
+
+        .logo {
+            margin-top: 5%;
+            max-width: 100%;
+            max-height: 100px;
+        }
+
+        .contact {
+            font-size: 7pt;
+            text-align: center;
+            padding-left: 1%;
+            padding-right: 1%;
+        }
+
+        @media print {
+
+            .recipt_container {
+                page-break-after: always;
+
+            }
+
+            .page-break {
+                page-break-before: always;
+            }
+
+
+        }
+        .termCondition{
+            font-size:7px;
+        }
+        
+    </style>
+    <title> Scientech Receipt </title>
+</head>
+
+<body >
+    <div class="recipt_container">
+        <div class="header">
+            <img class="img-fluid img-thumbnail" src="assets/images/logos/logo-scientech.png">
+            <div class="company_details">
+                <p><b> Scientech </b><br>
+                </p>
+                <br>
+                <p>
+                    Computer & Gaming Accessories<br>
+                    📍 Shop No. G198, Naz Plaza, Saddar, Karachi<br>
+                    📞 0345-3048293 | 🌐 www.scientechmart.com<br>
+                    ✉ info@scientechmart.com<br>
+                </p>
+
+            </div>
+
+            <div class="inv_details">
+                
+                
+                <p style="text-align:left">Invoice No.:BL20260130012058020<br>
+                Date & Time: &nbsp;2026-01-30 12:58<br>
+                Customer: Walk-in <br>
+                Payment Method: CARD </p>
+            </div>
+            <div class="items">
+
+                <table>
+
+                    <thead>
+                        <tr class="inv_of">
+                            <td colspan="7" style="text-align: center;border-top: 1px solid #000;"><b>--- SALES RECEIPT---</b>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Barcode</th>
+                            <th>Price</th>
+                            <th>Qty</th>
+                            <!-- <th>Disc</th>
+                            <th>Tax</th>
+                            <th>GST%</th> -->
+                            <th>Total</th>
+                        </tr>
+                        <tr>
+                            <th colspan="6">Description</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>4-00000024</td>
+                            <td>5200.00</td>
+                            <td>1</td>
+                            <!-- <td>0</td>
+                            <td><b>0.00</b></td>
+                            <td><b>0</b></td> -->
+                            <td><b>5200.00</b></td>
+                        </tr>
+                        <tr>
+                            <td colspan="7">Brighto Super Emulsion</td>
+                            <td>
+                            <td>
+                        </tr>
+
+                        <tr>
+                            <td colspan="7" style="border-top: 1pt solid black;"> &nbsp; </td>
+                        </tr>
+
+
+                        <tr>
+                            <td colspan="7" style="border-top: 1pt solid black;"> &nbsp; </td>
+                        </tr>
+                        <tr>
+                            <td colspan="1"> &nbsp; </td>
+                            <td><b>5200.00</b></td>
+                            <td><b>1</b></td>
+                            <!-- <td><b>0.00</b></td>
+                            <td colspan="1">0.00 </td>
+                            <td colspan="1"> &nbsp; </td> -->
+                            <td><b>5200.00</b></td>
+                        </tr>
+
+
+                        <tr>
+                            <td colspan="7" style="border-top: 1pt solid black;"> &nbsp; </td>
+                        </tr>
+
+
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="7" style="text-align: left;border-top: 1px solid #000; font-weight: bold;">------- BILL SUMMARY --------</td>
+                        </tr>
+                        <tr>
+                            <td>Sub Total:</td>
+                            <td colspan="6" style="text-align: left;border-top: 1px solid #000;">{{currency}}5200.00 </td>
+
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;">Total Qty:</td>
+                            <td colspan="5" style="text-align: left;"> 1</td>
+                        </tr>
+                        <!-- <tr>
+                            <td>Discount:</td>
+                            <td colspan="5" style="text-align: left;">{{currency}}0.00</td>
+                        </tr>         -->
+                        <tr>
+                            <td>Tax:</td>
+                            <td colspan="5" style="text-align: left;">{{currency}}0.00 </td>
+                        </tr>
+                        <tr>
+                            <td><b>Total: </b></td>
+                            <td colspan="5" style="text-align: left;"><b>{{currency}}5200</b> </td>
+                        </tr>
+                        <tr>
+                            <td>Paid by Card</td>
+                            <td colspan="5" style="text-align: left;"> &nbsp; </td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;border-bottom: 1px solid #000;"><b>Customer Balance: </b></td>
+                            <td colspan="5" style="text-align: left;border-bottom: 1px solid #000;"><b>{{currency}}0.00</b> </td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;border-bottom: 1px solid #000;"><b>Signature: </b></td>
+                            <td colspan="5" style="text-align: left;border-bottom: 1px solid #000;">___________________
+                            </td>
+                        </tr>
+
+
+                    </tfoot>
+                </table>
+                <!-- {{contact}}
+                {{term}} -->
+
+                <p style="margin-left:30px !important;">
+                    <b>Thanks for your purchase!</b>
+                </p>
+
+            </div>
+
+    </div>
+    </div>
+</body>
+
+</html>

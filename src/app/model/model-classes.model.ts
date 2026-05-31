@@ -1,3 +1,4 @@
+import { DriverDelivery, Drivers } from "../data-type";
 
 export class UserLoginResponse{
   adminUser?: AdminUser;
@@ -132,6 +133,8 @@ export class ProductView{
    createdBy:any;
    createdDate:any;
    hsn:any;
+   showNotes:any
+   
 }
 
 export class ProductDocuments{
@@ -178,6 +181,8 @@ export class Customer{
  createdBy: any;
  subsExpiry: any;
  subsPlan: any;
+ discountPercentage:any;
+ discountAmount:any;
 
 }
 export class CustomerType{
@@ -230,6 +235,9 @@ export class CustomerRequest{
  createdBy: any;
  subsExpiry: any;
  subsPlan: any;
+  discountPercentage:any;
+ discountAmount:any;
+
 }
 
 export class CustomerResponse{
@@ -307,6 +315,7 @@ export class Orders{
   posName:any;
   invoiceNumber:any
   fbrInvoiceNumber:any;
+  tableId:any;
 }
 
 export class OrdersItems {
@@ -371,18 +380,22 @@ export class OrdersWrapper{
 
 }
 
-
 export class OrdersCustomerWrapper {
 
   orders?: Orders;
   customer?: Customer;
+  orderItems:OrderItemProductWrapper[]=[];
+  driverDelivery?: DriverDelivery ;
+  drivers?: Drivers ;
 
 }
+
 export class OrderItemProductWrapper {
   ordersItems?: OrdersItems;
   category?: Category;
   products?: Product;
 }
+
 export class ApiResponse  {
   statusCode?: number;
   statusDesc?: string ;
@@ -428,6 +441,7 @@ export class OrderSearch {
   categoryId: any;
   productId: any;
   orderNumber: any;
+  orderType:any;
 
 }
 
@@ -452,7 +466,11 @@ export interface PriceSummary{
   total:number,
   grandTotal:number,
   totalQty:number,
-  totalWithoutDiscount:number
+  totalWithoutDiscount:number,
+  taxesPercentage: number,
+  discountPercentage: number,
+  totalItems: number
+
 }
 
 export interface Cart{
@@ -615,6 +633,7 @@ export class Payment{
  instalmentAmount:any;
  instalmentDate:any;
  remainingBalance:any;
+ customerPaid:any;
 
 }
 
@@ -658,18 +677,21 @@ export class CountryStateProvince{
 
 export class CartHold{
  transactionId:any;
-
  subTotal:any;
  shipping:any;
  taxes:any;
- dicsount:any;
+ discount:any;
  total:any;
  price: any;
  totalQty:any;
+ taxesPercentage:any;
+ discountPercentage:any;
+ totalItems:any;
 
  product:ProductView[]=[];
  customer:Customer = new Customer();
  cartData: any;
+ tableNo: any;
 
 }
 export class OrderSaleReport{
@@ -700,6 +722,8 @@ export class OrderSaleDailyReport {
   phone1:any;
   invoiceNumber:any;
   paymentStatus:any;
+  orderType:any;
+  orderCount:any
 }
 
 export class PaymentMethodResponse{
@@ -718,6 +742,22 @@ export class PaymentMethodReport{
 
 }
 
+export class ProductsSalePrice{
+  productId:any
+  productName:any;
+  salePrice:any;
+  noOfOrders:any;
+  totalTax:any;
+  totalDiscount:any;
+}
+
+export class ProductSaleResponse{
+  sale: ProductsSalePrice[]=[];
+}
+
+export class CategorySaleResponse {
+    catSale: CategorySalePrice[]=[];
+}
 
 export class OrderSaleReportResponse{
   orderSaleReport: OrderSaleReport[]=[];
@@ -745,7 +785,9 @@ export class DailySale{
 export class CategorySalePrice{
   categoryName:any;
   salePrice:any;
-  noOrder:any;
+  noOfOrders:any;
+  totalTax:any;
+  totalDiscount:any;
 }
 
 export class WeeklySale{
@@ -953,4 +995,63 @@ export class OrdersCustomerPaymentWrapper{
   orders: Orders = new Orders;
   customer: Customer = new Customer;
   payment:Payment[]=[];
+}
+
+export class DeviceRegister{
+  deviceId:any;
+  deviceName:any;
+  deviceUuid:any;
+  branchId:any;
+  activeFlag:any;
+} 
+
+export class CashierShift {
+
+  shiftId: any;
+
+  userId: any;          // NOT NULL
+  deviceId: any;        // nullable
+
+  openingBalance: any;  // NOT NULL
+  closingBalance: any;  // nullable
+
+  openedAt: any;        // NOT NULL
+  closedAt: any;        // nullable
+
+  shiftStatus: any;
+
+}
+
+// export class RestaurantTable{
+//   tableId:any;
+//   tableNo:any;
+//   capacity:any;
+//   status:any;
+//   userId:any;
+//   tableType:any;
+//   agentName: any;
+// }
+
+export class DeliveryOrder {
+
+  deliveryId: any;
+  orderId: any;
+  customerName: any;
+  phone: any;
+  address: any;
+  deliveryFee: any;
+  riderId: any;
+  deliveryStatus: any;
+  createdAt: any;
+
+}
+
+export interface RestaurantTable {
+  tableId: any;
+  tableNo: any;
+  capacity: any;
+  status: any;
+  userId: any;
+  tableType: any;
+  agentName: any;
 }
