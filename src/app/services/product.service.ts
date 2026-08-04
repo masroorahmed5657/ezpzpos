@@ -161,13 +161,15 @@ foodProducts(categoryId: number): Observable<ProductWrapper>{
   );
 }
 /* ************************************************************* */
-getSearchProducts(search: any): Observable<ProductWrapper>{
+
+
+getSearchProducts(search: any): Observable<ProductView[]>{
 
   let myUrl = `${this.myUrl}` + `products/pos/searchProducts/` + search ;
 
-  return this.http.get<ProductWrapper>(myUrl).pipe(
+  return this.http.get<ProductView[]>(myUrl).pipe(
       //tap( error ==> this.log('Fetched Product') ),
-    catchError(this.errors.handleError<ProductWrapper>('getSearchProducts'))
+    catchError(this.errors.handleError<ProductView[]>('getSearchProducts'))
   );
 }
 
@@ -282,6 +284,13 @@ getProductsUpdatedInCloud(lastUpdateDate:any): Observable<ProductWrapper>{
   );
 }
 
+  /* ************************************************************* */
+  getFirstLatestProducts(pageSize: any, pageNo: any): Observable<ProductView[]> {
+
+    // let myUrl = `${this.myUrl}` + `products/withoutimage/findFirstLatestProducts/` + pageSize + '/' + pageNo;
+
+    return this.http.get<ProductView[]>(`${this.myUrl}` + `products/pos/findAllActiveProducts/` + pageSize + '/' + pageNo)
+  }
 
 
 /* ************************ END OF SERVICE ************************* */

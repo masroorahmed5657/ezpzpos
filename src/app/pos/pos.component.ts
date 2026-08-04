@@ -105,7 +105,8 @@ export class PosComponent {
     total: 0,
     grandTotal: 0,
     totalQty: 0,
-    totalWithoutDiscount:0
+    totalWithoutDiscount:0,
+    totalItems:0
   };
 
   holdSales: CartHold[] = [];
@@ -470,6 +471,19 @@ export class PosComponent {
             );
           } else if (productId !== null || productId !== undefined) {
             let rcvdProduct = new CartHold();
+
+            if (data.quantity === 0 || data.quantity < 0) {
+              Swal.fire('OUT OF STOCK', 'Product is Out of Stock', 'warning');
+              return;
+            }
+            else if (data.quantity < 2) {
+              Swal.fire('LAST ITEM', 'Product will be Out of Stock soon', 'warning');
+              //this.commonAdditionToCart(productView);
+            }
+            else {
+              //this.commonAdditionToCart(productView);
+            }
+
 
             let localCartData = localStorage.getItem('localCart');
             if (localCartData) {

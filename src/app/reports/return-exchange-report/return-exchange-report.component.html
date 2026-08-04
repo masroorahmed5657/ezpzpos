@@ -1,0 +1,61 @@
+<div class="row g-2">
+
+  <div class="col-6 col-md-3">
+    <div class="card text-center shadow-sm">
+      <div class="card-body">
+        <small>Total Returns</small>
+        <h4 class="text-danger">{{ summary.totalReturns }}</h4>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-3">
+    <div class="card text-center shadow-sm">
+      <div class="card-body">
+        <small>Total Exchanges</small>
+        <h4 class="text-primary">{{ summary.totalExchanges }}</h4>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-3">
+    <div class="card text-center shadow-sm">
+      <div class="card-body">
+        <small>Customer Paid</small>
+        <h4 class="text-success">{{ summary.customerPay }}</h4>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-3">
+    <div class="card text-center shadow-sm">
+      <div class="card-body">
+        <small>Store Paid</small>
+        <h4 class="text-danger">{{ summary.storePay }}</h4>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="table-responsive mt-2">
+  <table class="table table-sm table-striped">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Returns</th>
+        <th>Exchanges</th>
+        <th>Net</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let row of reportList">
+        <td>{{ row.date }}</td>
+        <td class="text-danger">{{ row.returnAmount }}</td>
+        <td class="text-success">{{ row.issueAmount }}</td>
+        <td>{{ row.netAmount }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+

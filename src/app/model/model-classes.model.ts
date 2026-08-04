@@ -376,6 +376,7 @@ export class OrdersCustomerWrapper {
 
   orders?: Orders;
   customer?: Customer;
+  orderItems:OrderItemProductWrapper[]=[];
 
 }
 export class OrderItemProductWrapper {
@@ -452,7 +453,8 @@ export interface PriceSummary{
   total:number,
   grandTotal:number,
   totalQty:number,
-  totalWithoutDiscount:number
+  totalWithoutDiscount:number,
+  totalItems:number
 }
 
 export interface Cart{

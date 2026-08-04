@@ -7,13 +7,45 @@ import { PosZubaidaComponent } from './pos-zubaida/pos-zubaida.component';
 import { ReportsComponent } from './reports/reports.component';
 import { DailysalereportComponent } from './dailysalereport/dailysalereport.component';
 import { PosDemoComponent } from './pos-demo/pos-demo.component';
+import { PosRestaurantComponent } from './pos-restaurant/pos-restaurant.component';
+import { LicenseGuard } from './shared/license-guard';
+import { SalesAdjustmentComponent } from './sales-adjustment/sales-adjustment.component';
+import { PosElectricComponent } from './pos-electric/pos-electric.component';
+import { PosFashionComponent } from './pos-fashion/pos-fashion.component';
+import { PosPaintComponent } from './pos-paint/pos-paint.component';
 
 
 const routes: Routes = [
   {
     path: 'pos',
-     component:PosDemoComponent,canActivate:[AuthGaurdService]
+     component:PosZubaidaComponent, canActivate:[AuthGaurdService, LicenseGuard]
   },
+  {
+    path: 'posDemo',
+     component:PosDemoComponent, canActivate:[AuthGaurdService, ]
+  },
+  {
+    path: 'posRestaurant',
+     component:PosRestaurantComponent, canActivate:[AuthGaurdService, ]
+  },
+
+   {
+    path: 'saleReturns',
+     component:SalesAdjustmentComponent, canActivate:[AuthGaurdService, ]
+  },
+  {
+    path: 'posElectric',
+     component:PosElectricComponent, canActivate:[AuthGaurdService, ]
+  },
+  {
+    path: 'posFashion',
+     component:PosFashionComponent, canActivate:[AuthGaurdService, ]
+  },
+  {
+    path: 'posPaint',
+     component:PosPaintComponent, canActivate:[AuthGaurdService, ]
+  },
+
   {
     path: '',
      component:LoginComponent

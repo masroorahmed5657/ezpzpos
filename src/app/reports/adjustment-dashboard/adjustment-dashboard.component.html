@@ -1,0 +1,50 @@
+<div class="container-fluid p-2">
+
+  <!-- KPI Row -->
+  <div class="row g-2 mb-2">
+    <div class="col-6 col-md-3" *ngFor="let kpi of kpis">
+      <div class="card shadow-sm text-center">
+        <div class="card-body py-2">
+          <small>{{ kpi.label }}</small>
+          <h4 [ngClass]="kpi.class">{{ kpi.value }}</h4>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="row g-2">
+
+    <!-- Bar Chart -->
+    <div class="col-12 col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h6 class="mb-2">Returns vs Exchanges</h6>
+          <canvas id="barChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pie Chart -->
+    <div class="col-12 col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h6 class="mb-2">Settlement Distribution</h6>
+          <canvas id="pieChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Line Chart -->
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h6 class="mb-2">Net Adjustment Trend</h6>
+          <canvas id="lineChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>

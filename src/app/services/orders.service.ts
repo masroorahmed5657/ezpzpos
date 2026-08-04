@@ -7,6 +7,7 @@ import { environment } from 'src/environments/environment';
 import { Errors } from '../errors/errors'
 import { ApiResponse, OrderResponse, Orders, OrderSaveResponse, OrderSearch } from '../model/model-classes.model';
 import Swal from 'sweetalert2';
+import { AdjustmentSettlements, SalesAdjustmentItems, SalesAdjustments } from '../data-type';
 
 
 @Injectable({
@@ -108,6 +109,17 @@ export class OrdersService {
 
   }
 /* ******************************************************** */
+findBillOfSale(invoiceNbr:any): Observable<OrderResponse>{
+
+  let myUrl = `${this.myUrl}` + `orders/pos/findBillOfSale/${invoiceNbr}`  ;
+
+  return this.http.get<OrderResponse>(myUrl ).pipe(
+    //tap( error ==> this.log('Save saveOrders') ),
+    catchError(this.errors.handleError<OrderResponse>('findBillOfSale'))
+  );
+
+}
+
 /* ************************************************************* */
 getLastBillOfSale(): Observable<OrderResponse>{
 
@@ -120,7 +132,73 @@ getLastBillOfSale(): Observable<OrderResponse>{
 
 }
 
+/* ************************************************************* */
+getLastMonthBillOfSale(numberOfMonths:number): Observable<OrderResponse>{
 
+  let myUrl = `${this.myUrl}` + `orders/lastMonthBillOfSale/` + numberOfMonths;
+
+  return this.http.get<OrderResponse>(myUrl ).pipe(
+    //tap( error ==> this.log('Save saveOrders') ),
+    catchError(this.errors.handleError<OrderResponse>('findLastBillOfSale'))
+  );
+
+}
+/* ************************************************************* */
+  saveReturn(salesAdj: SalesAdjustments): Observable<SalesAdjustments>{
+
+    let myUrl = `${this.myUrl}` + `salesAdjustment/save`  ;
+
+    return this.http.post<SalesAdjustments>(myUrl, salesAdj).pipe(
+        //tap( error ==> this.log('Save orders') ),
+      catchError(this.errors.handleError<SalesAdjustments>('saveOrder'))
+    );
+
+  }
+
+/* ************************************************************* */
+  saveReturnItems(salesAdjItems: SalesAdjustmentItems[]): Observable<SalesAdjustmentItems[]>{
+
+    let myUrl = `${this.myUrl}` + `salesAdjustmentItem/save`  ;
+
+    return this.http.post<SalesAdjustmentItems[]>(myUrl, salesAdjItems).pipe(
+        //tap( error ==> this.log('Save orders') ),
+      catchError(this.errors.handleError<SalesAdjustmentItems[]>('saveOrder'))
+    );
+
+  }
+/* ******************************************************** */
+findSaleAdjustment(orderId:any): Observable<SalesAdjustments[]>{
+
+  let myUrl = `${this.myUrl}` + `salesAdjustment/findByOrderId/${orderId}`  ;
+
+  return this.http.get<SalesAdjustments[]>(myUrl ).pipe(
+    //tap( error ==> this.log('Save saveOrders') ),
+    catchError(this.errors.handleError<SalesAdjustments[]>('findByOrderId'))
+  );
+
+}
+/* ******************************************************** */
+findSaleAdjustmentItemsByAdjustmentId(adjustmentId:any): Observable<SalesAdjustmentItems[]>{
+
+  let myUrl = `${this.myUrl}` + `salesAdjustmentItem/findAll/${adjustmentId}`  ;
+
+  return this.http.get<SalesAdjustmentItems[]>(myUrl ).pipe(
+    //tap( error ==> this.log('Save saveOrders') ),
+    catchError(this.errors.handleError<SalesAdjustmentItems[]>('findSaleAdjustmentItemsByAdjustmentId'))
+  );
+
+}
+/* ************************************************************* */
+saveAdjustmentsPayment(salesAdj: AdjustmentSettlements): Observable<AdjustmentSettlements>{
+
+    let myUrl = `${this.myUrl}` + `adjustment/save`  ;
+
+    return this.http.post<AdjustmentSettlements>(myUrl, salesAdj).pipe(
+        //tap( error ==> this.log('Save AdjustmentSettlements') ),
+      catchError(this.errors.handleError<AdjustmentSettlements>('saveAdjustmentSettlements'))
+    );
+
+  }
 
 
 }

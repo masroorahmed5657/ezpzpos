@@ -160,3 +160,58 @@
           background: rgb(194, 243, 194) !important;
           color:black;
         }      
+
+
+        .pos {
+          display: flex;
+          justify-content: center;
+          flex-wrap: wrap;
+        
+          // gap: 10px;
+          // margin: 20px 0;
+        }
+        
+        // .pos div {
+        //     // height: 100px;
+        //     // width: 200px;
+        //     // display: flex;
+        //     // align-items: center;
+        //     //justify-content: center;
+        //     // color: white;
+        //     //font-weight: bold;
+        //     // border-radius: 5px;
+        // }    
+        
+        .totalBox{
+          border: 1px solid;
+          padding: 10px;
+          box-shadow: 5px 10px #888888;
+        }
+        .headerLabels{
+          text-align: center;
+        }
+        
+        .headerItemLabels{
+          text-align: left;
+          width: 30%;
+        }
+        .qtyLabels{
+          text-align: center;
+          width: 50%;
+          margin-right: 5px;
+          margin-left: 5px;
+        }
+        
+        .btn-hold{
+          background-color: #ddd;
+          color:black;
+        }
+        
+        .btn-one{
+          background-color: #ddd;
+        }
+        
+        .btn-other{
+          background-color: #bbbaba;
+        }
+        

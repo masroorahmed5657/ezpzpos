@@ -18,7 +18,7 @@ export class UserService {
 
   getUserList(): Observable<AdminUser[]>{
 
-    let myUrl = `${this.myUrl}` + `adminuser/findAllAdminUser/` ;
+    let myUrl = `${this.myUrl}` + `adminuser/findAllAdminUser` ;
   
     return this.http.get<AdminUser[]>(myUrl).pipe(
   

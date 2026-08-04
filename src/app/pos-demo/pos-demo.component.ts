@@ -33,7 +33,7 @@ import { environment } from 'src/environments/environment';
 import { faSignOut } from '@fortawesome/free-solid-svg-icons';
 import { DepartmentsService } from '../services/departments.service';
 import Swal from 'sweetalert2';
-import { faCloudUpload, faCloudDownload, faPerson, faCreditCard, faCashRegister, faPlusSquare, faDashboard, faRemove, faRupeeSign, faDollar, faCar, faHome, faSave, faUndo, faFilter, faEdit, faPlusCircle, faHistory, faFileInvoiceDollar, faShoppingCart, faSort, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faPrint, faList, faCloudUpload, faCloudDownload, faPerson, faCreditCard, faCashRegister, faPlusSquare, faDashboard, faRemove, faRupeeSign, faDollar, faHome, faSave, faUndo, faFilter, faEdit, faPlusCircle, faHistory, faFileInvoiceDollar, faShoppingCart, faSort, faSearch } from '@fortawesome/free-solid-svg-icons';
 
 // import { product } from '../data-type';
 import {
@@ -47,6 +47,7 @@ import { StoreServiceService } from '../services/store-service.service';
 import { OrdersService } from '../services/orders.service';
 import { UserService } from '../services/user.service';
 import { ReportsService } from '../services/reports.service';
+import { LicenseService } from '../services/license.service';
 
 
 @Component({
@@ -59,8 +60,12 @@ export class PosDemoComponent {
   private cloudAPIUrl = environment.cloudAPIUrl;
   faCreditCard = faCreditCard;
   faCashRegister = faCashRegister;
+  faPrint = faPrint;
+  faList = faList;
   branchName = environment.branchName;
-  currencyName= environment.currency;
+  currencyName = environment.currency;
+  currency = environment.currency;
+  showReturnsFlag = environment.showReturnsFlag;
 
   printThermalHTMLTag = '';
   totalSaleCount: number = 0;
@@ -71,7 +76,7 @@ export class PosDemoComponent {
   attemptCount = 0;
   attempTotalCount = 0;
   invoiceNumber: any = 'BL00012';
-  selectedAgent: AdminUser | undefined;
+  //selectedAgent: AdminUser | undefined;
   mobileshow: any = false;
   nameSearchModal: any = false;
   logoName = environment.logoName;
@@ -84,8 +89,8 @@ export class PosDemoComponent {
   // @ViewChild('result')
   // result!:ElementRef;
   result: any = '';
-  
-  
+
+
   totalDiscount: any = '';
   FbrCharges = 1;
   search: any;
@@ -137,7 +142,8 @@ export class PosDemoComponent {
     total: 0,
     grandTotal: 0,
     totalQty: 0,
-    totalWithoutDiscount: 0
+    totalWithoutDiscount: 0,
+    totalItems: 0
   };
 
   holdSales: CartHold[] = [];
@@ -190,6 +196,7 @@ export class PosDemoComponent {
   orderItemWrapperList: OrderItemProductWrapper[] = [];
 
   appName = environment.appName;
+  showAgent=environment.showAgentFlag;
   cancelSaleFlag: boolean = true;
   retrieveSaleFlag: boolean = true;
   showTaxFlag: boolean = true;
@@ -208,9 +215,12 @@ export class PosDemoComponent {
   phoneSearch = '';
   showPartialPaymentFlag: boolean = false;
   multiPaymentListFlag: boolean = false;
-  faDollar=faDollar;
-  currencySign='$';
+  faDollar = faDollar;
+  currencySign = '$';
+  selectedAgent: any;
 
+  trialDaysLeft = 0;
+  
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -221,7 +231,8 @@ export class PosDemoComponent {
     private customerService: CustomerService,
     private userService: UserService,
     private paymentService: PaymentService,
-    private reportsService: ReportsService
+    private reportsService: ReportsService,
+    private licenseService: LicenseService
 
   ) { }
 
@@ -249,26 +260,37 @@ export class PosDemoComponent {
       this.customer.email = 'info@techmaci.com';//set default
     }
 
-    if (environment.currency==='USD'){
+    if (environment.currency === 'USD') {
       this.faDollar = faDollar;
       this.currencySign = '$';
     }
-    else if(environment.currency==='CAD'){
+    else if (environment.currency === 'CAD') {
       this.faDollar = faDollar;
       this.currencySign = '$';
     }
-    else if(environment.currency==='PKR'){
+    else if (environment.currency === 'PKR') {
       this.faDollar = faRupeeSign;
       this.currencySign = 'Rs';
     }
 
 
+
+    // this.licenseService.checkLicense().subscribe(res => {
+    //   const end = new Date(res.trialEndDate).getTime();
+    //   const now = Date.now();
+    //   this.trialDaysLeft = Math.ceil(
+    //     (end - now) / (1000 * 60 * 60 * 24)
+    //   );
+    // });
+
+
+
     this.initPaymentMethodList()
 
-    //COMMENTED On Dec 25, 2024, as per Muneef
-    this.salesAgentList = this.cache.getList("salesAgent");
-    this.selectedAgent = new AdminUser();
-    this.selectedAgent = JSON.parse(this.cache.get("selectedAgent"));
+    // //COMMENTED On Dec 25, 2024, as per Muneef
+    // this.salesAgentList = this.cache.getList("salesAgent");
+    // this.selectedAgent = new AdminUser();
+    // this.selectedAgent = JSON.parse(this.cache.get("selectedAgent"));
     ////////////////////////////////////////////////////////////////////////
 
     //Get totalSaleCount
@@ -282,7 +304,7 @@ export class PosDemoComponent {
     });
 
 
-    if (this.salesAgentList === undefined || this.salesAgentList === null) {
+    if (this.salesAgentList === undefined || this.salesAgentList === null || this.salesAgentList.length === 0) {
       this.userService.getUserList().subscribe((data: AdminUser[]) => {
         //this.salesAgentList = data;
         if (data !== undefined) {
@@ -293,21 +315,23 @@ export class PosDemoComponent {
               if (userRole === 'AGENT') {
                 this.salesAgentList.push(data[i]);
               }
+            }//for loop
+            if (this.salesAgentList.length > 0 && this.selectedAgent === undefined) {
+              this.selectedAgent = this.salesAgentList[0].userId;
             }
+            else if (this.salesAgentList.length > 0 && this.selectedAgent === null) {
+              this.selectedAgent = this.salesAgentList[0].userId;
+            }
+
           }
         }
 
 
-        this.cache.setList("salesAgent", this.salesAgentList);
-
         if (this.salesAgentList.length > 0 && this.selectedAgent === undefined) {
-          this.selectedAgent = new AdminUser(); //this.salesAgentList[0];
+          this.selectedAgent = this.salesAgentList[0].userId;
         }
         else if (this.salesAgentList.length > 0 && this.selectedAgent === null) {
-          this.selectedAgent = new AdminUser(); //this.salesAgentList[0];
-        }
-        else if (this.selectedAgent?.loginId === '') {
-          this.selectedAgent = new AdminUser(); //this.salesAgentList[0];
+          this.selectedAgent = this.salesAgentList[0].userId;
         }
 
 
@@ -340,16 +364,16 @@ export class PosDemoComponent {
     this.searchFlag = false;
     let search = '';
 
-    //Only select Agent when it was not selected before
-    setTimeout(() => {
-      if (this.selectedAgent === undefined || this.selectedAgent === null) {
-        this.agentFocus(true);
-      }
-      else {
-        this.focusUpc(true);
-      }
+    // //Only select Agent when it was not selected before
+    // setTimeout(() => {
+    //   if (this.selectedAgent === undefined || this.selectedAgent === null) {
+    //     this.agentFocus(true);
+    //   }
+    //   else {
+    //     this.focusUpc(true);
+    //   }
 
-    }, 500);
+    // }, 500);
 
 
 
@@ -369,33 +393,36 @@ export class PosDemoComponent {
   } //ngOnInit
 
 
-  
+
 
   agentFocus(focusFlag: boolean) {
     let agentInput = <HTMLInputElement>document.getElementById('selectAgentInput');
-    if (focusFlag) {
-      if (this.selectedAgent === undefined || this.selectedAgent === null) {
-        agentInput.focus();
+    if (agentInput !== null) {
+      if (focusFlag) {
+        if (this.selectedAgent === undefined || this.selectedAgent === null) {
+          agentInput.focus();
+        }
       }
+
+      agentInput.autofocus = focusFlag;
     }
 
-    agentInput.autofocus = focusFlag;
   }
 
 
   ngAfterViewInit(): void {
     let len = this.cartDataList.product.length - 1;
 
-    if (this.cashModal){
+    if (this.cashModal) {
       //setTimeout(()=> this.result.nativeElement.focus(),0);
       let resultInput = <HTMLInputElement>document.getElementById('result');
       resultInput.focus();
     }
-    else{
+    else {
       const discountColName = 'discount_' + len;
       this.discountFocus(false, discountColName);
       this.agentFocus(true);
-  
+
     }
 
   }
@@ -425,10 +452,6 @@ export class PosDemoComponent {
       }
 
     }
-
-
-
-
 
   }
 
@@ -553,9 +576,9 @@ export class PosDemoComponent {
 
       }
       productView.quantity = this.productQuantity;
-      productView.agentId = this.selectedAgent?.userId; //both are integer, userId is the PK of admin_user table
-      productView.loginId = this.selectedAgent?.loginId;
-      productView.firstName = this.selectedAgent?.firstName;
+      productView.agentId = this.selectedAgent;//?.userId; //both are integer, userId is the PK of admin_user table
+      productView.loginId = this.selectedAgent;//?.loginId;
+      //productView.firstName = this.selectedAgent;//?.firstName;
 
       rcvdProduct.product.push(productView);
 
@@ -639,7 +662,7 @@ export class PosDemoComponent {
       else {
         this.productService.getSearchProducts(this.search).subscribe((data) => {
           //let productId = data.productId;
-          this.productcheckList = data.productList;
+          this.productcheckList = data;
           if (this.productcheckList === null) {
             Swal.fire('Not Found', 'Product Does not exist', 'error');
           }
@@ -686,9 +709,9 @@ export class PosDemoComponent {
         if (!found) {
           //CASE-3-Cart available some products, and this upc is new to cart
           productView.quantity = 1;
-          productView.agentId = this.selectedAgent?.userId;
-          productView.loginId = this.selectedAgent?.loginId;
-          productView.firstName = this.selectedAgent?.firstName;
+          productView.agentId = this.selectedAgent;//?.userId;
+          productView.loginId = this.selectedAgent;//?.loginId;
+          //productView.firstName = this.selectedAgent?.firstName;
           productView.price = this.getPrice(productView);
           productView.totalPrice = 0;
           productView.totalTax = 0;
@@ -729,9 +752,9 @@ export class PosDemoComponent {
         //CASE-2: Cart available but no products
         //Add new item to product List for this cart
         productView.quantity = 1;
-        productView.agentId = this.selectedAgent?.userId;
-        productView.loginId = this.selectedAgent?.loginId;
-        productView.firstName = this.selectedAgent?.firstName;
+        productView.agentId = this.selectedAgent;//?.userId;
+        productView.loginId = this.selectedAgent;//?.loginId;
+        //productView.firstName = this.selectedAgent?.firstName;
         productView.price = this.getPrice(productView);
         productView.totalPrice = 0;
         productView.totalTax = 0;
@@ -769,9 +792,9 @@ export class PosDemoComponent {
 
       //Add new item to product List for this cart
       productView.quantity = 1;
-      productView.agentId = this.selectedAgent?.userId;
-      productView.loginId = this.selectedAgent?.loginId;
-      productView.firstName = this.selectedAgent?.firstName;
+      productView.agentId = this.selectedAgent;//?.userId;
+      productView.loginId = this.selectedAgent;//?.loginId;
+      //productView.firstName = this.selectedAgent?.firstName;
       productView.price = this.getPrice(productView);
       productView.totalPrice = 0;
       productView.totalTax = 0;
@@ -831,7 +854,7 @@ export class PosDemoComponent {
       }
       let upc = qtyInput.value;
       if (upc !== undefined || upc !== '') {
-        if (this.selectedAgent?.loginId === undefined || this.selectedAgent?.loginId === '') {
+        if (this.selectedAgent === undefined || this.selectedAgent === '') {
           Swal.fire('Agent Required', 'Please select an Agent', 'warning');
           return;
         }
@@ -841,14 +864,14 @@ export class PosDemoComponent {
         let productView: ProductView = new ProductView();
         //serach product by UPC
         this.productService.getProductsByUPC(upc).subscribe((data) => {
-          qtyInput.value='';
+          qtyInput.value = '';
           if (data === undefined) {
             Swal.fire(
               'Not Found',
               'Product Does not exist for this UPC',
               'error'
             );
-            qtyInput.value='';
+            qtyInput.value = '';
           }
           productView = data;
 
@@ -860,10 +883,21 @@ export class PosDemoComponent {
               'Product Does not exist for this UPC',
               'error'
             );
-            qtyInput.value='';
+            qtyInput.value = '';
           }
           else if (productView !== null || productView !== undefined) {
-            this.commonAdditionToCart(productView);
+            if (productView.quantity === 0 || productView.quantity < 0) {
+              Swal.fire('OUT OF STOCK', 'Product is Out of Stock', 'warning');
+              return;
+            }
+            else if (productView.quantity < 2) {
+              Swal.fire('LAST ITEM', 'Product will be Out of Stock soon', 'warning');
+              this.commonAdditionToCart(productView);
+            }
+            else {
+              this.commonAdditionToCart(productView);
+            }
+
 
           }
         });
@@ -871,6 +905,24 @@ export class PosDemoComponent {
     } else {
       myScan = event.target.value;
     }
+  }
+
+  checkStock(productView: ProductView) {
+    let retFlag = true;
+    if (productView.quantity === 0 || productView.quantity < 0) {
+      Swal.fire('OUT OF STOCK', 'Product is Out of Stock', 'warning');
+      return false;
+    }
+    else if (productView.quantity < 2) {
+      Swal.fire('LAST ITEM', 'Product will be Out of Stock soon', 'warning');
+      return true;
+      //this.commonAdditionToCart(productView); 
+    }
+    else {
+      return true;
+    }
+
+
   }
 
   /* ************************************************************** */
@@ -886,7 +938,7 @@ export class PosDemoComponent {
       if (sku !== undefined || sku !== '') {
 
         if (sku !== undefined || sku !== '') {
-          if (this.selectedAgent?.loginId === undefined || this.selectedAgent?.loginId === '') {
+          if (this.selectedAgent === undefined || this.selectedAgent === '') {
             Swal.fire('Agent Required', 'Please select an Agent', 'warning');
             return;
           }
@@ -921,7 +973,7 @@ export class PosDemoComponent {
 
       let price = qtyInput.value;
       if (price !== undefined || price !== '') {
-        if (this.selectedAgent?.loginId === undefined || this.selectedAgent?.loginId === '') {
+        if (this.selectedAgent === undefined || this.selectedAgent === '') {
           Swal.fire('Agent Required', 'Please select an Agent', 'warning');
           return;
         }
@@ -990,9 +1042,9 @@ export class PosDemoComponent {
               rcvdProduct.discountVal = data.discountVal;
               rcvdProduct.unitPrice = data.unitPrice;
               rcvdProduct.salePrice = data.salePrice;
-              rcvdProduct.agentId = this.selectedAgent?.userId;
-              rcvdProduct.loginId = this.selectedAgent?.loginId;
-              rcvdProduct.firstName = this.selectedAgent?.firstName;
+              rcvdProduct.agentId = this.selectedAgent;//?.userId;
+              rcvdProduct.loginId = this.selectedAgent;//?.loginId;
+              //rcvdProduct.firstName = this.selectedAgent?.firstName;
 
               this.productcheckList.push(rcvdProduct);
 
@@ -1050,8 +1102,8 @@ export class PosDemoComponent {
 
         let cartData = cartDataArray[0];
       }
-     } 
-     //else {
+    }
+    //else {
     //   Swal.fire('WARNING', 'No Hold Sale Found', 'warning')
     //   return;
     // }
@@ -1059,17 +1111,24 @@ export class PosDemoComponent {
     //retrive list show
     let holdSalesObj = this.cache.getList('holdCartList');
     this.holdSales = holdSalesObj;
+    if (holdSalesObj === null) {
+      Swal.fire('WARNING', 'No Item scanned for Hold', 'warning')
+      return;
+    }
+    else {
+      let holdSaleArray: CartHold[] = [];
+      //Not an array, just carthold object
+      if (this.holdSales.length === undefined) {
+        holdSaleArray.push(holdSalesObj);
+        this.holdSales = holdSaleArray;
 
+      }
 
-    let holdSaleArray: CartHold[] = [];
-    //Not an array, just carthold object
-    if (this.holdSales.length === undefined) {
-      holdSaleArray.push(holdSalesObj);
-      this.holdSales = holdSaleArray;
+      this.retrieveSalePopup = true;
 
     }
 
-    this.retrieveSalePopup = true;
+
 
   }
   /* ************************************************************** */
@@ -1086,8 +1145,8 @@ export class PosDemoComponent {
     this.priceCheckPopup = false;
     this.clearFields();
   }
-    /* ************************************************************** */
-   
+  /* ************************************************************** */
+
 
 
 
@@ -1126,7 +1185,7 @@ export class PosDemoComponent {
         //this.cashModal.nativeElement.focus();
         if (this.priceSummary.grandTotal < 0) {
 
-          resultInput.value = ''+this.priceSummary.grandTotal; //.toFixed(2);
+          resultInput.value = '' + this.priceSummary.grandTotal; //.toFixed(2);
         }
         else {
           resultInput.value = ''; //(0).toFixed(2);
@@ -1137,7 +1196,7 @@ export class PosDemoComponent {
         setTimeout(() => {
           let resultInput = <HTMLInputElement>document.getElementById('result');
           resultInput.focus();
-    
+
         }, 500);
 
       }
@@ -1187,12 +1246,7 @@ export class PosDemoComponent {
 
       this.onCustomerSave('CARD');
 
-
-
     }
-
-
-
   }
   /* ************************************************************** */
   closeCardModal() {
@@ -1436,6 +1490,10 @@ export class PosDemoComponent {
         qty = qty + 1;
       }
       else {
+        if (qty===0){
+          Swal.fire('NO NEGATIVE QTY', 'Qty should be positive', 'warning');
+          return;
+        }
         qty = qty - 1;
       }
 
@@ -1459,12 +1517,12 @@ export class PosDemoComponent {
       let len = qtyInput.value.length;
 
       let qty = Number(val);
-      // if (qty<1){
-      //     //0 or below not allowed
-      //     Swal.fire('WARNING','0 or negative Qty is not allowed', 'warning');
-      //     return;
+      if (qty<1){
+          //0 or below not allowed
+          Swal.fire('WARNING','0 or negative Qty is not allowed', 'warning');
+          return;
 
-      // }
+      }
       // if (len > 2) {
       //   qtyInput.value = qtyInput.value.toString().slice(0, 2);
       // }
@@ -1691,11 +1749,11 @@ export class PosDemoComponent {
 
               this.todaydatashow = data.orders.createDate;
               localStorage.setItem('localCart', '');
-              this.selectedAgent = new AdminUser();
-              this.cache.set("selectedAgent", JSON.stringify(this.selectedAgent));
+              //this.selectedAgent = new AdminUser();
+              //this.cache.set("selectedAgent", JSON.stringify(this.selectedAgent));
 
 
-              Swal.fire('Submit', 'Order#' + orderNum + ' has been created.', 'success')
+              Swal.fire('Submit', 'Sale#' + orderNum + ' completed.', 'success')
                 .then((result) => {
                   if (result.isConfirmed) {
                     this.cache.set('reload', 'F');
@@ -1924,16 +1982,10 @@ export class PosDemoComponent {
 
               //Create Sale Orders
               this.createSaleOrder(source);
-
-
             }
 
           });
         }
-
-
-
-
       }
       else if (this.result < this.priceSummary.grandTotal) {
 
@@ -2084,9 +2136,9 @@ export class PosDemoComponent {
       var encodedURI = encodeURI(whatsAppMessage);
       var imageUri = this.dataURItoBlob(dataURI);
 
+      var phone=environment.whatsappPhone;//+14165759062
 
-
-      var url = `https://api.whatsapp.com/send?phone=+14165759062&text=` + encodedURI;
+      var url = `https://api.whatsapp.com/send?phone=$phone&text=` + encodedURI;
 
       let popupWin;
 
@@ -2744,7 +2796,7 @@ export class PosDemoComponent {
 
       `;
 
-//<img style="width:6.5rem; height:6.5rem"  src='data:` + this.fbrQRCode.imageType + ` ;base64,` + this.fbrQRCode.image + `' alt="Card image cap">
+      //<img style="width:6.5rem; height:6.5rem"  src='data:` + this.fbrQRCode.imageType + ` ;base64,` + this.fbrQRCode.image + `' alt="Card image cap">
 
       let contactHtmlTag = ``;
       if (this.appName === 'ZUBAIDA') {
@@ -2769,7 +2821,7 @@ export class PosDemoComponent {
         </div>
       `;
       }
-      else  {
+      else {
         contactHtmlTag = `
         <div class="contact">
           <p>If you have any queries related, feel free to reach us at: <br>
@@ -2924,7 +2976,7 @@ export class PosDemoComponent {
       else if (this.appName === 'NIKS') {
         myBodyOrder = myBodyOrder + `<img src="assets/images/logos/niks-logo-small.png" id="imagea" width: 20mm; text-align: center; ">`;
       }
-      else{
+      else {
         myBodyOrder = myBodyOrder + `<img src="assets/images/logos/techmaci-logo.png" id="imagea" width: 20mm; text-align: center; ">`;
       }
 
@@ -3690,7 +3742,7 @@ img {
           if (this.salesAgentList[i].loginId === agent) {
             this.selectedAgent = this.salesAgentList[i];
             found = true;
-            this.cache.set("selectedAgent", JSON.stringify(this.selectedAgent));
+            //this.cache.set("selectedAgent", JSON.stringify(this.selectedAgent));
           }
         }//for loop
         if (!found) {
@@ -3711,7 +3763,7 @@ img {
       let phone = selectedPhoneInput.value;
       if (phone !== undefined || phone !== '') {
         let sizeOfPhone = phone.length;
-        if (sizeOfPhone<10){
+        if (sizeOfPhone < 10) {
           Swal.fire('WARNING', 'Customer Phone must be 10 Numeric characters', 'error');
         }
 
@@ -3720,9 +3772,14 @@ img {
       }
     }
   }
-/* **************************************************** */
+  /* **************************************************** */
   focusAgent(focusFlag: boolean) {
     let agentInput = <HTMLInputElement>document.getElementById('selectAgentInput');
+
+    if (agentInput === null) {
+      return;
+    }
+
     if (focusFlag) {
       agentInput.focus();
     }
@@ -3737,7 +3794,9 @@ img {
 
   focusUpc(focusFlag: boolean) {
     let upcInput = <HTMLInputElement>document.getElementById('upc-search');
-    if (focusFlag) {
+    if (upcInput === null) return;
+
+    if (focusFlag && upcInput !== null) {
       upcInput.focus();
     }
     else {
@@ -4015,7 +4074,7 @@ img {
 
   selectSearchProduct(product: ProductView) {
 
-    if (this.selectedAgent?.loginId === undefined || this.selectedAgent?.loginId === '') {
+    if (this.selectedAgent === undefined || this.selectedAgent === '') {
       Swal.fire('Agent Required', 'Please select an Agent', 'warning');
       return;
     }
@@ -4468,7 +4527,7 @@ img {
       </tr>
       <tr>
       <td >Discount:</td>
-      <td colspan="5" style="text-align: left;">` +this.currencySign + totalDiscount + ` </td>
+      <td colspan="5" style="text-align: left;">` + this.currencySign + totalDiscount + ` </td>
       </tr> 
           <tr>
             <td >Tax:</td>
@@ -4855,7 +4914,7 @@ img {
   closePriceCheck() {
 
     let qtyInput = <HTMLInputElement>document.getElementById('priceCheck');
-    if (qtyInput === undefined) {
+    if (qtyInput === null || qtyInput === undefined) {
       this.priceCheckPopup = false;
       return;
     }
@@ -4869,34 +4928,34 @@ img {
   }
 
   searchPartialPayment() {
-    let phone1 = this.phoneSearch; 
+    let phone1 = this.phoneSearch;
     let billOfSale = this.orderSearch;
     let found = true;
-    if (phone1 !== undefined || phone1 !== '' ) {
-      if (phone1!==""){
+    if (phone1 !== undefined || phone1 !== '') {
+      if (phone1 !== "") {
         this.searchPartialPaymentByPhone();
       }
-      else{
-        if(billOfSale!==undefined || billOfSale !== '') {
-          if (billOfSale!==""){
+      else {
+        if (billOfSale !== undefined || billOfSale !== '') {
+          if (billOfSale !== "") {
             this.searchPartialPaymentByBOL();
           }
-          else{
+          else {
             Swal.fire('ERROR', 'Please enter BOL or Customer Phone', 'error');
           }
-            
+
         }
-        else{
+        else {
           Swal.fire('ERROR', 'Please enter BOL or Customer Phone', 'error');
         }
         // Swal.fire('ERROR', 'Please enter BOL or Customer Phone', 'error');
       }
-      
+
     }
-    else if(billOfSale!==undefined || billOfSale !== '') {
+    else if (billOfSale !== undefined || billOfSale !== '') {
       this.searchPartialPaymentByBOL();
     }
-    else{
+    else {
       Swal.fire('ERROR', 'Please enter BOL or Customer Phone', 'error');
     }
 
@@ -4962,7 +5021,7 @@ img {
 
   searchPartialPaymentByPhone() {
     //reset other searches
-    let phone1 = this.phoneSearch; 
+    let phone1 = this.phoneSearch;
     this.orderSearch = '';
 
     let found = true;
@@ -5016,12 +5075,18 @@ img {
 
   }
 
-  truncateToTwoDecimals(value:any) {
+  truncateToTwoDecimals(value: any) {
     if (isNaN(value)) return null; // Check if the input is a valid number
     const parts = value.toString().split(".");
     if (parts.length < 2) return parts[0]; // No decimal part exists
     return parts[0] + "." + parts[1].substring(0, 2); // Truncate to 2 decimal places
-}
+  }
+
+
+  saleReturns(){
+    this.router.navigate([`saleReturns`]);
+  }
+
 
   /* ************************** THE END ***************************************** */
 

@@ -1,0 +1,361 @@
+<div class="container-fluid py-2 border-bottom">
+  <div class="row align-items-center text-center text-md-start">
+
+    <div class="col-12 col-md-2 mb-2 mb-md-0">
+      <img class="img-fluid pos-logo" [src]="logoName">
+    </div>
+    <div class="col-12 col-md-2">
+      <button class="btn btn-outline-primary w-100 fw-bold" (click)="gotoPos()">
+        POS <fa-icon [icon]="faCartPlus"></fa-icon>
+      </button>
+
+
+      <!-- <a [routerLink]="posUrl" class="btn btn-outline-dark">POS</a> -->
+    </div>
+    <div class="col-12 col-md-2">
+      <button class="btn btn-outline-danger w-100 fw-bold" (click)="signOut()">
+        Sign Out <fa-icon [icon]="faSignOut"></fa-icon>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+
+<div class="container-fluid py-2 border-bottom">
+  <div class="container-fluid p-2">
+
+    <!-- Header -->
+    <div class="card shadow-sm mb-2">
+      <div class="card-body py-2">
+        <div class="row g-2 align-items-center">
+
+          <div class="col-12 col-md-3">
+            <label class="form-label mb-0">Invoice #:</label>
+            <input type="text" class="form-control" [(ngModel)]="InvoiceNbr" placeholder="Scan / Enter Invoice"
+              (keyup)="invoiceSearch($event)">
+          </div>
+          <div class="col-12 col-md-3">
+            <label class="form-label mb-0">BarCode:</label>
+            <input type="text" class="form-control form-control-lg" placeholder="Scan Barcode" autofocus
+              id="barcodeInput" (keydown.enter)="upcSearch(barcodeInput.value)" #barcodeInput>
+          </div>
+          <!-- <div class="col-12 col-md-3 text-md-end">
+            <button class="btn btn-primary w-100 w-md-auto" (click)="loadInvoice()">
+              Load Invoice
+            </button>
+          </div> -->
+          <!-- Actions -->
+          <div class="col-12 col-md-3  d-grid gap-2 mt-2">
+            <button class="btn btn-success btn-lg" (click)="proceedSettlement()">
+              Proceed to Settlement
+            </button>
+          </div>
+
+        </div>
+        <div class="row g-2 align-items-center">
+          <div class="col-12 col-md-2">
+            <label class="form-label mb-0">Type:</label>
+            <select class="form-select" [(ngModel)]="salesAdj.adjustmentType">
+              <option value="RETURN">Return</option>
+              <option value="EXCHANGE">Exchange</option>
+            </select>
+          </div>
+
+          <div class="col-12 col-md-2">
+            <label class="form-label mb-0">Adjustment No:</label>
+            <input type="text" class="form-control" [(ngModel)]="salesAdj.adjustmentNo">
+          </div>
+          <div class="col-12 col-md-2">
+            <label class="form-label mb-0">Return Amount:</label>
+            <input type="text" class="form-control" [(ngModel)]="salesAdj.returnAmount" disabled>
+          </div>
+          <div class="col-12 col-md-2">
+            <label class="form-label mb-0">Settlements:</label>
+            <select class="form-select" [(ngModel)]="salesAdj.settlementStatus">
+              <option value="EVEN"> Even </option>
+              <option value="CUSTOMER_PAY"> Customer Pay </option>
+              <option value="STORE_PAY"> Store Pay </option>
+            </select>
+          </div>
+          <div class="col-12 col-md-2">
+            <label class="form-label mb-0">Reason:</label>
+            <input type="text" class="form-control" [(ngModel)]="salesAdj.reason">
+          </div>
+          <div class="col-12 col-md-2">
+            <label class="form-label mb-0">Payment Method:</label>
+            <select class="form-select" [(ngModel)]="paymentMethodSelected">
+              <option value="CASH"> Cash </option>
+              <option value="CARD"> Credit </option>
+              <option value="EASYPAISA"> EasyPaisa </option>
+              <option value="JAZZCASH"> JazzCash </option>
+            </select>
+          </div>
+
+
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Items [items]="items"  -->
+    <div class="container-fluid mt-3">
+      <div class="row g-2 align-items-center">
+        <!-- *********************************************************************************** -->        
+        <!-- Original Invoice Data -->
+<div class="col-12 col-md-7">
+
+  <!-- DESKTOP TABLE -->
+  <div class="table-responsive d-none d-md-block">
+    <table class="table table-bordered align-middle">
+      <thead class="pos-table-header text-center">
+        <tr>
+          <th>S No.</th>
+          <th>Item</th>
+          <th>Qty</th>
+          <th>Price ({{ currencyName }})</th>
+          <th>Tax</th>
+          <th>Total ({{ currencyName }})</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let item of orderItemList; let i = index"
+            [class.blink-highlight]="item.products?.upc === highlightedUpc">
+
+          <td class="fw-bold">{{ i + 1 }}</td>
+
+          <td class="fw-bold">
+            {{ item.products?.upc }}<br>
+            <small class="text-muted">{{ item.products?.productName }}</small>
+          </td>
+
+          <td class="fw-bold text-center">
+            {{ item.ordersItems?.quantity }}
+          </td>
+
+          <td class="fw-bold text-end">
+            {{ item.ordersItems?.unitPrice | number:'1.2-2' }}
+          </td>
+
+          <td class="fw-bold text-end">
+            {{ item.ordersItems?.taxAmount | number:'1.2-2' }}
+          </td>
+
+          <td class="fw-bold text-end text-success">
+            {{ item.ordersItems?.totalPrice | number:'1.2-2' }}
+          </td>
+
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <!-- MOBILE CARDS -->
+  <div class="d-block d-md-none">
+
+    <div *ngFor="let item of orderItemList; let i = index"
+         class="card mb-2 shadow-sm"
+         [class.blink-highlight]="item.products?.upc === highlightedUpc">
+
+      <div class="card-body p-2">
+
+        <div class="d-flex justify-content-between align-items-center">
+          <strong>#{{ i + 1 }}</strong>
+          <span class="fw-bold text-success">
+            {{ item.ordersItems?.totalPrice | number:'1.2-2' }} {{ currencyName }}
+          </span>
+        </div>
+
+        <div class="mt-1">
+          <div class="fw-bold">
+            {{ item.products?.productName }}
+          </div>
+          <small class="text-muted">
+            UPC: {{ item.products?.upc }}
+          </small>
+        </div>
+
+        <hr class="my-2">
+
+        <div class="row text-center">
+          <div class="col-4">
+            <small class="text-muted">Qty</small>
+            <div class="fw-bold">{{ item.ordersItems?.quantity }}</div>
+          </div>
+
+          <div class="col-4">
+            <small class="text-muted">Price</small>
+            <div class="fw-bold">
+              {{ item.ordersItems?.unitPrice | number:'1.2-2' }}
+            </div>
+          </div>
+
+          <div class="col-4">
+            <small class="text-muted">Tax</small>
+            <div class="fw-bold">
+              {{ item.ordersItems?.taxAmount | number:'1.2-2' }}
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+
+        <!-- *********************************************************************************** -->
+        <!-- Return Items Data -->
+        <div class="col-12 col-md-5 sticky-top">
+          <div class="card shadow-sm ">
+            <div class="card-header return-header py-2">
+              Return Items
+            </div>
+
+            <div class="card-body p-2" *ngIf="salesAdjItems.length>0">
+
+              <div *ngFor="let item of salesAdjItems; let i = index" class="border rounded p-2 mb-2">
+
+                <div class="row g-2 align-items-center">
+
+                  <div class="col-12">
+                    <strong>{{ item.productName }}</strong>
+                  </div>
+
+                  <div class="col-3">
+                    <select class="form-select form-select-sm" [(ngModel)]="item.itemType" (change)="recalculate(item)">
+                      <option value="RETURN">Return</option>
+                      <option value="ISSUE">Issue</option>
+                    </select>
+                  </div>
+
+                  <div class="col-3">
+                    <input type="number" class="form-control form-control-sm" [(ngModel)]="item.qty"
+                      (input)="recalculate(item)" placeholder="Qty">
+                  </div>
+
+                  <div class="col-3 text-end">
+                    <strong>{{ item.totalAmount | number:'1.2-2' }}</strong>
+                  </div>
+
+                  <div class="col-3 text-end">
+                    <button class="btn btn-sm btn-outline-danger" (click)="removeItem(i)">
+                      Remove
+                    </button>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- <button class="btn btn-outline-primary w-100" (click)="addItem()">
+                + Add Item
+              </button> -->
+
+            </div>
+          </div>
+
+        </div>
+        <!-- *********************************************************************************** -->
+
+
+
+
+
+      </div>
+      <!-- Total Section -->
+      <div class="container-fluid bg-light p-3 rounded mt-3">
+        <div class="row text-center text-md-start">
+
+          <div class="col-6 col-md-2 price-css">
+            <strong>Subtotal:</strong><br>
+            <span class="text-success fw-bold price-css"> {{currencyName}}: {{this.order.orderAmount |
+              number:'1.2-2'}}</span>
+          </div>
+
+          <div class="col-6 col-md-1 price-css">
+            <strong>Qty:</strong><br>
+            <span class="text-success fw-bold price-css">{{priceSummary.totalQty}}</span>
+          </div>
+
+          <div class="col-6 col-md-2 price-css">
+            <strong>Tax:</strong><br>
+            <span class="text-success fw-bold price-css">{{currencyName}}:{{this.order.tax | number:'1.2-2'}}</span>
+          </div>
+
+          <div class="col-6 col-md-2 price-css">
+            <strong>Grand Total:</strong><br>
+            <span class="text-success fw-bold price-css">{{currencyName}}:{{this.order.grandTotal |
+              number:'1.2-2'}}</span>
+          </div>
+
+        </div>
+      </div>
+
+
+
+
+
+
+      <!-- Summary -->
+      <!-- <div class="card shadow-sm mt-2">
+        <div class="card-body">
+          <div class="row text-center">
+
+            <div class="col-4">
+              <small>Return</small>
+              <h5 class="text-danger">{{ returnAmount | number:'1.2-2' }}</h5>
+            </div>
+
+            <div class="col-4">
+              <small>Issue</small>
+              <h5 class="text-success">{{ issueAmount | number:'1.2-2' }}</h5>
+            </div>
+
+            <div class="col-4">
+              <small>Net</small>
+              <h5 [ngClass]="netAmount >= 0 ? 'text-success':'text-danger'">
+                {{ netAmount | number:'1.2-2' }}
+              </h5>
+            </div>
+
+          </div>
+        </div>
+      </div> -->
+
+
+      <div class="receipt" id="print-area" *ngIf="thermalTag">
+        <h5 class="text-center">TECHMACI POS</h5>
+        <hr>
+
+        <div *ngFor="let item of items" class="d-flex justify-content-between">
+          <div>{{ item.productName }} x{{ item.qty }}</div>
+          <div>{{ item.totalAmount | number:'1.2-2' }}</div>
+        </div>
+
+        <hr>
+
+        <div class="d-flex justify-content-between">
+          <strong>Return</strong>
+          <span>{{ returnAmount | number:'1.2-2' }}</span>
+        </div>
+
+        <div class="d-flex justify-content-between">
+          <strong>Issue</strong>
+          <span>{{ issueAmount | number:'1.2-2' }}</span>
+        </div>
+
+        <div class="d-flex justify-content-between">
+          <strong>Net</strong>
+          <span>{{ netAmount | number:'1.2-2' }}</span>
+        </div>
+
+        <hr>
+        <p class="text-center">Thank You</p>
+      </div>
+
+
+    </div>
+
+  </div>
