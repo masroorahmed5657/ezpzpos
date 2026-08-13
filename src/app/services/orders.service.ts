@@ -5,7 +5,7 @@ import { catchError, map, tap } from 'rxjs/operators';
 import { AppLoggerService } from './app-logger.service';
 import { environment } from 'src/environments/environment';
 import { Errors } from '../errors/errors'
-import { ApiResponse, OrderResponse, Orders, OrderSaveResponse, OrderSearch, Payment } from '../model/model-classes.model';
+import { ApiResponse, OrderResponse, Orders, OrderSaveResponse, OrderSearch, Payment, TokenNumber } from '../model/model-classes.model';
 import Swal from 'sweetalert2';
 import { AdjustmentSettlements, SalesAdjustmentItems, SalesAdjustments } from '../data-type';
 
@@ -359,6 +359,28 @@ cancelSale(orderId:any): Observable<any> {
       catchError(this.errors.handleError<Payment>('savePayment'))
     );
 
+  }
+    /* ************************************************************* */
+  saveTokenNumber(tokenNumbert: TokenNumber): Observable<TokenNumber> {
+
+    let myUrl = `${this.myUrl}` + `tokenNumber/saveTokenNumber`;
+
+    return this.http.post<TokenNumber>(myUrl, tokenNumbert).pipe(
+      //tap( error ==> this.log('Save saveTokenNumber') ),
+      catchError(this.errors.handleError<TokenNumber>('saveTokenNumber'))
+    );
+
+  }
+  /* ************************************************************* */
+  getTodaysToken() : Observable<TokenNumber> {
+
+    //This method is used to get current Token Number for the day for RestaurantPOS.
+    
+    let myUrl = `${environment.apiUrl}` + `tokenNumber/getTodaysToken`  ;
+
+    return this.http.get<TokenNumber>(myUrl).pipe(
+      catchError(this.errors.handleError<TokenNumber>('getTodaysToken'))
+    );
   }
 
 }

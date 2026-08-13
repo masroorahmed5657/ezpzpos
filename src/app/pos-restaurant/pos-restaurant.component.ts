@@ -29,6 +29,7 @@ import {
   ProductAttributes,
   ProductView,
   ProductWrapper,
+  TokenNumber,
 } from '../model/model-classes.model';
 import { CacheService } from '../services/cache.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -69,6 +70,8 @@ export class PosRestaurantComponent implements OnInit, OnDestroy {
   showNameSearchDropdown = false;
   orderType = false;
   billCopyNumber = environment.billCopyNumber;
+  showReturnsFlag = environment.showReturnsFlag;
+  posCustomerPrintFlag = environment.posCustomerPrintFlag;
   defaultCustomer: Customer = new Customer();
   customerSearchList: Customer[] = [];
   searchTimeout: any;
@@ -82,6 +85,10 @@ export class PosRestaurantComponent implements OnInit, OnDestroy {
   itemSearchText = '';
   private cloudAPIUrl = environment.cloudAPIUrl;
   showFBRFlag = environment.showFBRFlag;
+
+
+  useDiscountValue = environment.useDiscountValue;
+  showCancelSaleFlag = environment.showCancelSaleFlag;
 
   orderNotes = '';
 
@@ -1553,8 +1560,8 @@ export class PosRestaurantComponent implements OnInit, OnDestroy {
       this.pickupCartDataList.totalQty = 0;
       this.pickupCartDataList.subTotal = 0;
       this.pickupCartDataList.total = 0;
-      this.totalTaxValue=0;
-      this.totalTax=0;
+      this.totalTaxValue = 0;
+      this.totalTax = 0;
 
     }
 
@@ -1877,6 +1884,33 @@ export class PosRestaurantComponent implements OnInit, OnDestroy {
               localStorage.setItem('pickupCart', '');
               //this.selectedAgent = new AdminUser();
               //this.cache.set("selectedAgent", JSON.stringify(this.selectedAgent));
+
+              /*
+              Code to increment Token Number for the day, and save in cache for next order
+              Added on 2026-08-10
+              
+              */
+
+              let tokenNumberObj = sessionStorage.getItem('todaysToken');
+              let tokenNumber: TokenNumber = tokenNumberObj ? JSON.parse(tokenNumberObj) : null;
+              //increment the token number for the day
+              if (tokenNumber) {
+                tokenNumber.tokenNo += 1;
+                sessionStorage.setItem('todaysToken', JSON.stringify(tokenNumber));
+              }
+
+              this.orderService.saveTokenNumber(tokenNumber).subscribe(data => {
+                if (data != undefined) {
+                  let resp = data;
+                  if (resp) {
+                    //Token Number saved successfully
+                    //Now get the next Token Number for the day
+                  }
+                }
+              });
+
+
+              /* ******************* Code to increment Token Number ends here ********************* */
 
               this.cache.set('reload', 'F');
 
@@ -3880,23 +3914,23 @@ export class PosRestaurantComponent implements OnInit, OnDestroy {
     this.productService.pickupAddToCart(this.pickupCartDataList);
 
   }
-/* *************************************************************** */
-  taxDiscountCalculations(){
+  /* *************************************************************** */
+  taxDiscountCalculations() {
 
-    if (this.pickupCartDataList.discountPercentage===undefined || this.pickupCartDataList.discountPercentage===null){
-      this.pickupCartDataList.discountPercentage=0;
+    if (this.pickupCartDataList.discountPercentage === undefined || this.pickupCartDataList.discountPercentage === null) {
+      this.pickupCartDataList.discountPercentage = 0;
     }
-    if (this.pickupCartDataList.taxesPercentage===undefined || this.pickupCartDataList.taxesPercentage===null){
-      this.pickupCartDataList.taxesPercentage=0;
+    if (this.pickupCartDataList.taxesPercentage === undefined || this.pickupCartDataList.taxesPercentage === null) {
+      this.pickupCartDataList.taxesPercentage = 0;
     }
 
 
-    this.pickupCartDataList.discount = (this.pickupCartDataList.discountPercentage * this.pickupCartDataList.subTotal)/100;
+    this.pickupCartDataList.discount = (this.pickupCartDataList.discountPercentage * this.pickupCartDataList.subTotal) / 100;
 
     this.totalDiscount = this.pickupCartDataList.discount;
     this.totalDiscountPercentage = this.pickupCartDataList.discountPercentage;
 
-    this.pickupCartDataList.taxes = (this.pickupCartDataList.taxesPercentage * this.pickupCartDataList.subTotal)/100;
+    this.pickupCartDataList.taxes = (this.pickupCartDataList.taxesPercentage * this.pickupCartDataList.subTotal) / 100;
     this.totalTaxValue = this.pickupCartDataList.taxes;
     this.totalTax = this.pickupCartDataList.taxesPercentage;
 
@@ -3956,11 +3990,11 @@ export class PosRestaurantComponent implements OnInit, OnDestroy {
     //this.showCustomerPanel = false;  // 🔴 collapse panel (optional but recommended)
 
     //Apply Discount
-    if (this.customer.discountPercentage===undefined || this.customer.discountPercentage===null){
-      this.customer.discountPercentage=0;
+    if (this.customer.discountPercentage === undefined || this.customer.discountPercentage === null) {
+      this.customer.discountPercentage = 0;
     }
-    else if (this.customer.discountPercentage>0) {
-      this.totalDiscountPercentage=this.customer.discountPercentage;
+    else if (this.customer.discountPercentage > 0) {
+      this.totalDiscountPercentage = this.customer.discountPercentage;
       this.pickupCartDataList.discountPercentage = this.customer.discountPercentage;
       this.priceCalculationTotal();
     }
@@ -4088,8 +4122,14 @@ export class PosRestaurantComponent implements OnInit, OnDestroy {
     //This methods gets called from Guest Customer Data Entry form, when user click Checkout after entering his/her data.
     let customer = new Customer();
 
-    customer = this.defaultCustomer;
-    //customer = await this.checkUserEnterCustomer();
+    if (this.posCustomerPrintFlag) {
+      customer = await this.checkUserEnterCustomer();
+    }
+    else {
+      customer = this.defaultCustomer;
+    }
+
+
 
     this.payment.paymentStatus = 'COMPLETED';
     this.payment.instalmentAmount = 0;
@@ -4120,6 +4160,11 @@ export class PosRestaurantComponent implements OnInit, OnDestroy {
     let dineInFlag = false;
     let popupWin;
 
+    let tokenNumberObj = sessionStorage.getItem('todaysToken');
+    let tokenNumber: TokenNumber = tokenNumberObj ? JSON.parse(tokenNumberObj) : new TokenNumber();
+
+    //alert('Token Number: ' + tokenNumber?.tokenNo);
+
 
     //Check if cart is Empty
     let pickupCart = localStorage.getItem('pickupCart')
@@ -4128,8 +4173,13 @@ export class PosRestaurantComponent implements OnInit, OnDestroy {
       return;
     }
 
+    if (tokenNumber?.tokenNo === undefined || tokenNumber?.tokenNo === null || tokenNumber?.tokenNo === '') {
+      //Swal.fire('WARNING', 'Token Number is not generated', 'warning');
+      tokenNumber.tokenNo = 1;
+      //return;
+    }
 
-    let tokenHtml = this.printService.printCounterToken(this.pickupCartDataList, this.invoiceNumber,
+    let tokenHtml = this.printService.printCounterToken(this.pickupCartDataList, tokenNumber?.tokenNo,
       this.todaydatashow, popupWin, dineInFlag, this.customer.custName);
 
     // //This will print token for Kitchen
@@ -4204,6 +4254,205 @@ export class PosRestaurantComponent implements OnInit, OnDestroy {
 
 
   }
+  /* *********************************************************************************** */
+  // HARD CODED PASSWORD
+  readonly CANCEL_PASSWORD = 'EZPZ123';
+
+
+  cancelSale() {
+
+    let billNo = '';
+
+    // STEP 1 - ASK PASSWORD
+    Swal.fire({
+      title: 'Enter Special Password',
+      input: 'password',
+      inputLabel: 'Special Password',
+      inputPlaceholder: 'Enter password',
+      inputAttributes: {
+        autocapitalize: 'off',
+        autocorrect: 'off'
+      },
+      showCancelButton: true,
+      confirmButtonText: 'Continue',
+      cancelButtonText: 'Cancel',
+      inputValidator: (value) => {
+        if (!value) {
+          return 'Please enter the special password';
+        }
+        return null;
+      }
+    }).then((passwordResponse: any) => {
+
+      // User cancelled
+      if (!passwordResponse.isConfirmed) {
+        return;
+      }
+
+      const password = passwordResponse.value;
+
+      // Validate password
+      if (password !== this.CANCEL_PASSWORD) {
+        Swal.fire(
+          'ERROR',
+          'Invalid Password',
+          'error'
+        );
+        return;
+      }
+
+      // STEP 2 - ASK BILL NUMBER
+      Swal.fire({
+        title: 'Enter Bill Number',
+        input: 'number',
+        inputLabel: 'Bill Number',
+        inputPlaceholder: 'Enter bill number',
+        showCancelButton: true,
+        confirmButtonText: 'Continue',
+        cancelButtonText: 'Cancel',
+        inputValidator: (value) => {
+          if (!value) {
+            return 'Please enter the Bill Number';
+          }
+
+          if (Number(value) <= 0) {
+            return 'Please enter a valid Bill Number';
+          }
+
+          return null;
+        }
+      }).then((billResponse: any) => {
+
+        // User cancelled
+        if (!billResponse.isConfirmed) {
+          return;
+        }
+
+        billNo = billResponse.value;
+
+        // STEP 3 - Continue with your cancellation logic
+        console.log('Password:', password);
+        console.log('Bill Number:', billNo);
+
+        if (!billNo) {
+          return;
+        }
+
+        // CHECK BILL EXISTS
+        let sale: Orders = new Orders();
+        //remove first 2 characters BL from bill number
+        if (billNo.startsWith('BL')) {
+          billNo = billNo.substring(2);
+        }
+
+
+        this.orderService.findBillOfSale(billNo).subscribe((data) => {
+          if (data.orderCustomer === null || data.orderCustomer === undefined || data.orderCustomer.length === 0) {
+            Swal.fire('ERROR', 'Bill Not Found', 'error');
+            return;
+          }
+
+
+          sale = data.orderCustomer[0].orders!;
+
+
+
+          // STEP 3 - FINAL CONFIRMATION
+          const confirmDelete = confirm(
+            `Are you sure you want to cancel Sale Bill #BL${billNo}?`
+          );
+
+          if (!confirmDelete) {
+            return;
+          }
+
+          // STEP 3 - CANCEL SALE
+
+          this.orderService.cancelSale(sale.orderId).subscribe((data) => {
+            if (data.statusCode === 200) {
+              Swal.fire('SUCCESS', 'Sale Cancelled', 'success');
+            } else {
+              Swal.fire('ERROR', 'Failed to Cancel Sale', 'error');
+            }
+          });
+
+        });
+
+
+      });
+    });
+
+  }
+
+  cancelSale2() {
+    // STEP 1 - ASK PASSWORD
+    const password = prompt('Enter Special Password');
+
+    if (!password) {
+      return;
+    }
+
+    if (password !== this.CANCEL_PASSWORD) {
+      Swal.fire('ERROR', 'Invalid Password', 'error');
+      return;
+    }
+
+    // Proceed with canceling the sale
+    // STEP 2 - ASK BILL NUMBER
+    let billNo = prompt('Enter Bill Number');
+
+    if (!billNo) {
+      return;
+    }
+
+    // CHECK BILL EXISTS
+    let sale: Orders = new Orders();
+    //remove first 2 characters BL from bill number
+    if (billNo.startsWith('BL')) {
+      billNo = billNo.substring(2);
+    }
+
+
+    this.orderService.findBillOfSale(billNo).subscribe((data) => {
+      if (data.orderCustomer === null || data.orderCustomer === undefined || data.orderCustomer.length === 0) {
+        Swal.fire('ERROR', 'Bill Not Found', 'error');
+        return;
+      }
+
+
+      sale = data.orderCustomer[0].orders!;
+
+
+
+      // STEP 3 - FINAL CONFIRMATION
+      const confirmDelete = confirm(
+        `Are you sure you want to cancel Sale Bill #BL${billNo}?`
+      );
+
+      if (!confirmDelete) {
+        return;
+      }
+
+      // STEP 3 - CANCEL SALE
+
+      this.orderService.cancelSale(sale.orderId).subscribe((data) => {
+        if (data.statusCode === 200) {
+          Swal.fire('SUCCESS', 'Sale Cancelled', 'success');
+        } else {
+          Swal.fire('ERROR', 'Failed to Cancel Sale', 'error');
+        }
+      });
+    });
+
+
+
+
+  }
+
+  saleReturns() {
+    this.router.navigate([`saleReturns`]);
+  }
+
 
   /* ************************** THE END ***************************************** */
 

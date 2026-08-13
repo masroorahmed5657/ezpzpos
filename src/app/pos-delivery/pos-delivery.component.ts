@@ -29,6 +29,7 @@ import {
   ProductAttributes,
   ProductView,
   ProductWrapper,
+  TokenNumber,
 } from '../model/model-classes.model';
 import { CacheService } from '../services/cache.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -116,7 +117,7 @@ export class PosDeliveryComponent implements OnInit, OnDestroy {
   // result!:ElementRef;
   result: any = '';
 
-  totalDiscountPercentage=0;
+  totalDiscountPercentage = 0;
   totalDiscount: any = '';
   totalTaxValue: any = '';
   totalTax = 0;
@@ -439,17 +440,17 @@ export class PosDeliveryComponent implements OnInit, OnDestroy {
       this.customer.phone1 = this.deliveryCart.customer.phone1;
 
 
-      if (this.deliveryCart.discount===undefined || this.deliveryCart.discount===null || isNaN(this.deliveryCart.discount)){
-        this.deliveryCart.discount=0;
+      if (this.deliveryCart.discount === undefined || this.deliveryCart.discount === null || isNaN(this.deliveryCart.discount)) {
+        this.deliveryCart.discount = 0;
       }
-      if (this.deliveryCart.discountPercentage===undefined || this.deliveryCart.discountPercentage===null || isNaN(this.deliveryCart.discountPercentage)){
-        this.deliveryCart.discountPercentage=0;
+      if (this.deliveryCart.discountPercentage === undefined || this.deliveryCart.discountPercentage === null || isNaN(this.deliveryCart.discountPercentage)) {
+        this.deliveryCart.discountPercentage = 0;
       }
-      if (this.deliveryCart.taxes===undefined || this.deliveryCart.taxes===null || isNaN(this.deliveryCart.taxes)){
-        this.deliveryCart.taxes=0;
+      if (this.deliveryCart.taxes === undefined || this.deliveryCart.taxes === null || isNaN(this.deliveryCart.taxes)) {
+        this.deliveryCart.taxes = 0;
       }
-      if (this.deliveryCart.taxesPercentage===undefined || this.deliveryCart.taxesPercentage===null || isNaN(this.deliveryCart.taxesPercentage)){
-        this.deliveryCart.taxesPercentage=0;
+      if (this.deliveryCart.taxesPercentage === undefined || this.deliveryCart.taxesPercentage === null || isNaN(this.deliveryCart.taxesPercentage)) {
+        this.deliveryCart.taxesPercentage = 0;
       }
 
 
@@ -464,8 +465,8 @@ export class PosDeliveryComponent implements OnInit, OnDestroy {
       this.priceCalculationTotal();
 
     } //end if
-    else{
-        this.resetDiscountTax();
+    else {
+      this.resetDiscountTax();
     }
 
 
@@ -502,29 +503,29 @@ export class PosDeliveryComponent implements OnInit, OnDestroy {
 
   } //ngOnInit
 
-/* ********************************************** */
-resetDiscountTax(){
-      this.totalDiscount=0;
-      this.totalDiscountPercentage=0;
-      this.totalTax=0;
-      this.totalTaxValue=0;
+  /* ********************************************** */
+  resetDiscountTax() {
+    this.totalDiscount = 0;
+    this.totalDiscountPercentage = 0;
+    this.totalTax = 0;
+    this.totalTaxValue = 0;
 
-}
-resetCartDiscountTaxValues(){
-        if (this.deliveryCart.discount===undefined || this.deliveryCart.discount===null || isNaN(this.deliveryCart.discount)){
-        this.deliveryCart.discount=0;
-      }
-      if (this.deliveryCart.discountPercentage===undefined || this.deliveryCart.discountPercentage===null || isNaN(this.deliveryCart.discountPercentage)){
-        this.deliveryCart.discountPercentage=0;
-      }
-      if (this.deliveryCart.taxes===undefined || this.deliveryCart.taxes===null || isNaN(this.deliveryCart.taxes)){
-        this.deliveryCart.taxes=0;
-      }
-      if (this.deliveryCart.taxesPercentage===undefined || this.deliveryCart.taxesPercentage===null || isNaN(this.deliveryCart.taxesPercentage)){
-        this.deliveryCart.taxesPercentage=0;
-      }
+  }
+  resetCartDiscountTaxValues() {
+    if (this.deliveryCart.discount === undefined || this.deliveryCart.discount === null || isNaN(this.deliveryCart.discount)) {
+      this.deliveryCart.discount = 0;
+    }
+    if (this.deliveryCart.discountPercentage === undefined || this.deliveryCart.discountPercentage === null || isNaN(this.deliveryCart.discountPercentage)) {
+      this.deliveryCart.discountPercentage = 0;
+    }
+    if (this.deliveryCart.taxes === undefined || this.deliveryCart.taxes === null || isNaN(this.deliveryCart.taxes)) {
+      this.deliveryCart.taxes = 0;
+    }
+    if (this.deliveryCart.taxesPercentage === undefined || this.deliveryCart.taxesPercentage === null || isNaN(this.deliveryCart.taxesPercentage)) {
+      this.deliveryCart.taxesPercentage = 0;
+    }
 
-}
+  }
 
   /* ***************************************** */
   loadCategory() {
@@ -1013,10 +1014,10 @@ resetCartDiscountTaxValues(){
       //this.discountFocus(true, discountColName);
     }
 
-// ✅ clear search + dropdown
-  this.searchText = '';
-  this.showNameSearchDropdown = false;
-  //this.productViewList = [];
+    // ✅ clear search + dropdown
+    this.searchText = '';
+    this.showNameSearchDropdown = false;
+    //this.productViewList = [];
 
     //Play Beep
     new Audio('assets/audio/beep.mp3').play();
@@ -1510,8 +1511,8 @@ resetCartDiscountTaxValues(){
       this.deliveryCart.totalQty = 0;
       this.deliveryCart.subTotal = 0;
       this.deliveryCart.total = 0;
-      this.totalTaxValue=0;
-      this.totalTax=0;
+      this.totalTaxValue = 0;
+      this.totalTax = 0;
 
     }
 
@@ -1534,7 +1535,7 @@ resetCartDiscountTaxValues(){
   createDeliveryOrder(deliveryCart: any, customer: Customer) {
 
     if (deliveryCart) {
-      const dineInFlag=false;
+      const dineInFlag = false;
       let popupWin;
 
 
@@ -1563,11 +1564,11 @@ resetCartDiscountTaxValues(){
       // let orderDiscount = this.deliveryCart.discount ;
       // let discountValue = (order.orderAmount * orderDiscount)/100;
 
-      if (this.deliveryCart.discount===undefined || this.deliveryCart.discount===null){
-        this.deliveryCart.discount=0;
+      if (this.deliveryCart.discount === undefined || this.deliveryCart.discount === null) {
+        this.deliveryCart.discount = 0;
       }
-      else if(isNaN(this.deliveryCart.discount)){
-        this.deliveryCart.discount=0;
+      else if (isNaN(this.deliveryCart.discount)) {
+        this.deliveryCart.discount = 0;
       }
 
       order.discount = this.deliveryCart.discount;
@@ -1581,11 +1582,11 @@ resetCartDiscountTaxValues(){
 
       if (this.showTaxFlag) {
         //        order.grandTotal = this.priceSummary.total + this.priceSummary.tax - this.priceSummary.discount;
-        if (this.deliveryCart.taxes===undefined || this.deliveryCart.taxes===null){
-          this.deliveryCart.taxes=0;
+        if (this.deliveryCart.taxes === undefined || this.deliveryCart.taxes === null) {
+          this.deliveryCart.taxes = 0;
         }
-        else if(isNaN(this.deliveryCart.taxes)){
-          this.deliveryCart.taxes=0;
+        else if (isNaN(this.deliveryCart.taxes)) {
+          this.deliveryCart.taxes = 0;
         }
         order.tax = this.deliveryCart.taxes.toFixed(2);
         orderSaveResponse.showTaxFlag = this.showTaxFlag;
@@ -1681,6 +1682,36 @@ resetCartDiscountTaxValues(){
               //     }
               //   });
 
+
+              /*
+              Code to increment Token Number for the day, and save in cache for next order
+              Added on 2026-08-10
+              
+              */
+
+              let tokenNumberObj = sessionStorage.getItem('todaysToken');
+              let tokenNumber: TokenNumber = tokenNumberObj ? JSON.parse(tokenNumberObj) : null;
+              //increment the token number for the day
+              if (tokenNumber) {
+                tokenNumber.tokenNo += 1;
+                sessionStorage.setItem('todaysToken', JSON.stringify(tokenNumber));
+              }
+
+              this.orderService.saveTokenNumber(tokenNumber).subscribe(data => {
+                if (data != undefined) {
+                  let resp = data;
+                  if (resp) {
+                    //Token Number saved successfully
+                    //Now get the next Token Number for the day
+                  }
+                }
+              });
+
+
+              /* ******************* Code to increment Token Number ends here ********************* */
+
+
+
               Swal.fire({ title: 'Order', timer: 1000, text: `'Order# ${orderNum}!`, icon: 'success' })
                 .then((result) => {
                   {
@@ -1688,10 +1719,10 @@ resetCartDiscountTaxValues(){
 
                     //printThermal(customer: Customer, payment: Payment, deliveryCart: CartHold, customerBalance: number, invoiceNumber: any)
                     let dinInFlag = false;
-                    this.payment.paymentMethod='CASH';
-                    let popupWin2:any;
+                    this.payment.paymentMethod = 'CASH';
+                    let popupWin2: any;
                     let tokenHtml = this.printService.printCounterToken(deliveryCart, this.invoiceNumber,
-                    this.todaydatashow, popupWin2, dineInFlag, this.customer.custName);
+                      this.todaydatashow, popupWin2, dineInFlag, this.customer.custName);
 
 
                     this.printService.printThermalRestaurant(customer, this.payment, this.deliveryCart,
@@ -1919,12 +1950,12 @@ resetCartDiscountTaxValues(){
   show() {
     this.mobileshow = false;
   }
-/* ************************************************************** */
+  /* ************************************************************** */
   hide() {
     this.mobileshow = true;
 
   }
-/* ************************************************************** */
+  /* ************************************************************** */
   uploadSale() {
     //step-1: find out the list of orders+orderItems generated for current date
     //step-2: Pass this list of orders+orderItems to cloud API
@@ -2078,14 +2109,14 @@ resetCartDiscountTaxValues(){
 
     }
   }
-/* ************************************************************** */
+  /* ************************************************************** */
   agentChange() {
     this.selectedAgent;
     //this.cache.set("selectedAgent", JSON.stringify(this.selectedAgent));
 
 
   }
-/* ************************************************************** */
+  /* ************************************************************** */
   agentKey(event: any) {
     if (event.key === 'Enter') {
       let agentInput = <HTMLInputElement>document.getElementById('selectAgentInput');
@@ -2105,7 +2136,7 @@ resetCartDiscountTaxValues(){
         if (!found) {
           Swal.fire('WARNING', 'Agent not found', 'warning');
         }
-        
+
       }
     }
   }
@@ -2323,7 +2354,7 @@ resetCartDiscountTaxValues(){
   openProductSearchPopup() {
     this.productSearchPopup = true;
   }
-/* ************************************************************** */
+  /* ************************************************************** */
   closeProductSearchPopup() {
     this.productSearchPopup = false;
     this.productcheckList = [];
@@ -2360,7 +2391,7 @@ resetCartDiscountTaxValues(){
     //Empty the List
     this.productcheckList = [];
   }
-/* ************************************************************** */
+  /* ************************************************************** */
 
   selectSearchProduct(product: ProductView) {
 
@@ -2370,18 +2401,18 @@ resetCartDiscountTaxValues(){
     }
 
     this.addItemsToCart(product);
-   
+
     this.closeProductSearchPopup();
     //window.location.reload();
 
   }
-/* ************************************************************** */
+  /* ************************************************************** */
   dailySale() {
     this.router.navigate(['reports']);
   }
 
 
-/* ************************************************************** */
+  /* ************************************************************** */
   lastBillOfSale() {
 
     this.orderService.getLastBillOfSale().subscribe((data: OrderResponse) => {
@@ -2437,13 +2468,13 @@ resetCartDiscountTaxValues(){
 
     return price;
   }
-/* ************************************************************** */
+  /* ************************************************************** */
   zReport() {
     let url = 'zReport';
     this.router.navigate([url]);
   }
 
-/* ************************************************************** */
+  /* ************************************************************** */
   salesReportExcel(legacyReport: boolean) {
     this.legacyReport = legacyReport;
     let url = 'reports/' + legacyReport;
@@ -2605,16 +2636,16 @@ resetCartDiscountTaxValues(){
     localStorage.setItem('deliveryCart', JSON.stringify(this.deliveryCart));
 
   }
-/* *************************************************************** */
-  taxDiscountCalculations(){
+  /* *************************************************************** */
+  taxDiscountCalculations() {
 
-    this.deliveryCart.discount = (this.deliveryCart.discountPercentage * this.deliveryCart.subTotal)/100;
+    this.deliveryCart.discount = (this.deliveryCart.discountPercentage * this.deliveryCart.subTotal) / 100;
 
     this.totalDiscount = this.deliveryCart.discount;
     this.totalDiscountPercentage = this.deliveryCart.discountPercentage;
 
 
-    this.deliveryCart.taxes = (this.deliveryCart.taxesPercentage * (this.deliveryCart.subTotal - this.totalDiscount))/100;
+    this.deliveryCart.taxes = (this.deliveryCart.taxesPercentage * (this.deliveryCart.subTotal - this.totalDiscount)) / 100;
     this.totalTaxValue = this.deliveryCart.taxes;
     this.totalTax = this.deliveryCart.taxesPercentage;
 
@@ -2622,7 +2653,7 @@ resetCartDiscountTaxValues(){
 
   }
 
-/* ************************************************************** */
+  /* ************************************************************** */
   openPartialModal() {
     this.partialModal = true;
   }
@@ -2639,12 +2670,12 @@ resetCartDiscountTaxValues(){
     this.paymentMultiList.length = 0;
 
   }
-/* ************************************************************** */
+  /* ************************************************************** */
   addPartialPayment() {
     this.addPartialPaymentFlag = true;
 
   }
-/* ************************************************************** */
+  /* ************************************************************** */
   checkForPartialComplete() {
 
     //If partial payment found
@@ -2661,7 +2692,7 @@ resetCartDiscountTaxValues(){
 
 
   }
-/* ************************************************************** */
+  /* ************************************************************** */
   billOfSaleSearch(event: any) {
 
     if (event.key === 'Enter') {
@@ -2675,7 +2706,7 @@ resetCartDiscountTaxValues(){
 
 
   }
-/* ************************************************************** */
+  /* ************************************************************** */
   custPhoneSearch(event: any) {
     if (event.key === 'Enter') {
 
@@ -2686,7 +2717,7 @@ resetCartDiscountTaxValues(){
       }
     }
   }
-/* ************************************************************** */
+  /* ************************************************************** */
   initPaymentMethodList() {
     let code: CodeMaster = new CodeMaster();
     code.code = 'CARD';
@@ -2705,7 +2736,7 @@ resetCartDiscountTaxValues(){
     this.paymentMethodList.push(code);
   }
 
-/* ************************************************************** */
+  /* ************************************************************** */
 
   savePartialPayment() {
     let payment: Payment = new Payment();
@@ -2740,7 +2771,7 @@ resetCartDiscountTaxValues(){
   }
 
   selectedPayment: Payment = new Payment();
-/* ************************************************************** */
+  /* ************************************************************** */
   onPaymentSelect(payment: Payment, foundRow: number) {
     this.selectedPayment = payment;
 
@@ -3063,7 +3094,7 @@ resetCartDiscountTaxValues(){
     this.router.navigate(['/posRestaurant']);
   }
 
-   /* ************************************************************* */
+  /* ************************************************************* */
   home() {
 
     this.router.navigate(['/home']);
@@ -3089,76 +3120,76 @@ resetCartDiscountTaxValues(){
     }
 
     console.log('this.customer.custId: ' + this.customer.custId);
-      //check to see if this customer already in DB
-      if (this.customer.custId === null){
-        if (this.validateCustomer('NEW')){
-                  //this.addCustomer();
+    //check to see if this customer already in DB
+    if (this.customer.custId === null) {
+      if (this.validateCustomer('NEW')) {
+        //this.addCustomer();
 
-          const customer = await this.addCustomer();
+        const customer = await this.addCustomer();
 
-          if (customer.custId===null) {
-            Swal.fire('WARNING','Unable to Create Customer', 'warning');
-
-          }
-          else{
-          //Now this.customer has latest Delivery Customer
-          //Now Create Order, then reset the page and reload. After Order, User will manage delivery orders in Delivery Dashboard
-           this.createDeliveryOrder(this.deliveryCart, customer);
-
-          }
+        if (customer.custId === null) {
+          Swal.fire('WARNING', 'Unable to Create Customer', 'warning');
 
         }
-        else{
-          return;//Error during Saving Customer
-        }
-      }
-      else if (this.customer.custId !== undefined) {
-        if (this.validateCustomer('UPDATE')){
-          //this.addCustomer();
-
-          const customer = await this.addCustomer();
-
-          if (customer.custId===null) {
-            Swal.fire('WARNING','Unable to Update Customer', 'warning');
-
-          }
-          else{
-          //Now this.customer has latest Delivery Customer
-          //Now Create Order, then reset the page and reload. After Order, User will manage delivery orders in Delivery Dashboard
-           this.createDeliveryOrder(this.deliveryCart, customer);
-
-          }
-
-
-        }
-        else{
-          return; //Some Validation Error in Customer Form
-        }
-        
-      }
-      else if (this.customer.custId ===undefined){
-        if (this.validateCustomer('NEW')){
-          // this.addCustomer();
-          const customer = await this.addCustomer();
-
-          if (!customer) {
-            Swal.fire('WARNING', 'Customer required', 'warning');
-            return;
-          }
-          else{
+        else {
           //Now this.customer has latest Delivery Customer
           //Now Create Order, then reset the page and reload. After Order, User will manage delivery orders in Delivery Dashboard
           this.createDeliveryOrder(this.deliveryCart, customer);
 
-          }
+        }
 
+      }
+      else {
+        return;//Error during Saving Customer
+      }
+    }
+    else if (this.customer.custId !== undefined) {
+      if (this.validateCustomer('UPDATE')) {
+        //this.addCustomer();
+
+        const customer = await this.addCustomer();
+
+        if (customer.custId === null) {
+          Swal.fire('WARNING', 'Unable to Update Customer', 'warning');
 
         }
-      }
- 
+        else {
+          //Now this.customer has latest Delivery Customer
+          //Now Create Order, then reset the page and reload. After Order, User will manage delivery orders in Delivery Dashboard
+          this.createDeliveryOrder(this.deliveryCart, customer);
 
-      // let tokenHtml = this.printService.printCounterToken(this.deliveryCart, this.invoiceNumber,
-      //   this.todaydatashow, popupWin, dineInFlag, this.customer.custName);
+        }
+
+
+      }
+      else {
+        return; //Some Validation Error in Customer Form
+      }
+
+    }
+    else if (this.customer.custId === undefined) {
+      if (this.validateCustomer('NEW')) {
+        // this.addCustomer();
+        const customer = await this.addCustomer();
+
+        if (!customer) {
+          Swal.fire('WARNING', 'Customer required', 'warning');
+          return;
+        }
+        else {
+          //Now this.customer has latest Delivery Customer
+          //Now Create Order, then reset the page and reload. After Order, User will manage delivery orders in Delivery Dashboard
+          this.createDeliveryOrder(this.deliveryCart, customer);
+
+        }
+
+
+      }
+    }
+
+
+    // let tokenHtml = this.printService.printCounterToken(this.deliveryCart, this.invoiceNumber,
+    //   this.todaydatashow, popupWin, dineInFlag, this.customer.custName);
 
     // //This will print token for Kitchen
     // let orderNum='Token Order-0001';
@@ -3211,12 +3242,12 @@ resetCartDiscountTaxValues(){
 
 
 
-/* ************************************************************************************************ */
-/* ************* After Bug in Delivery Code ********************** */
-createOrder(){
-  //1-Check and validate Customer
-  //2-Add/update Customer
-  //3-Create Order
+  /* ************************************************************************************************ */
+  /* ************* After Bug in Delivery Code ********************** */
+  createOrder() {
+    //1-Check and validate Customer
+    //2-Add/update Customer
+    //3-Create Order
 
     //Check if cart is Empty
     let deliveryCart = localStorage.getItem('deliveryCart')
@@ -3226,88 +3257,88 @@ createOrder(){
     }
 
     console.log('this.customer.custId: ' + this.customer.custId);
-      //check to see if this customer already in DB
-      if (this.customer.custId === null){
-        if (this.validateCustomer('NEW')){
-                  //this.addCustomer();
+    //check to see if this customer already in DB
+    if (this.customer.custId === null) {
+      if (this.validateCustomer('NEW')) {
+        //this.addCustomer();
 
-          this.customerService.saveDeliveryCustomer(this.customer).subscribe((data: CustomerResponse)=>{
-            let customer = data.customer;
-            if (customer.custId===null) {
-              Swal.fire('WARNING','Unable to Create Customer', 'warning');
+        this.customerService.saveDeliveryCustomer(this.customer).subscribe((data: CustomerResponse) => {
+          let customer = data.customer;
+          if (customer.custId === null) {
+            Swal.fire('WARNING', 'Unable to Create Customer', 'warning');
 
-            }
-            else{
+          }
+          else {
             //Now this.customer has latest Delivery Customer
             //Now Create Order, then reset the page and reload. After Order, User will manage delivery orders in Delivery Dashboard
             this.createDeliveryOrder(this.deliveryCart, customer);
 
-            }
+          }
 
-          });
+        });
 
 
-        }
-        else{
-          return;//Error during Saving Customer
-        }
       }
-      else if (this.customer.custId !== undefined) {
-        if (this.validateCustomer('UPDATE')){
-          //this.addCustomer();
+      else {
+        return;//Error during Saving Customer
+      }
+    }
+    else if (this.customer.custId !== undefined) {
+      if (this.validateCustomer('UPDATE')) {
+        //this.addCustomer();
 
-          this.customerService.saveDeliveryCustomer(this.customer).subscribe((data: CustomerResponse)=>{
-            let customer = data.customer;
-            if (customer.custId===null) {
-              Swal.fire('WARNING','Unable to Update Customer', 'warning');
+        this.customerService.saveDeliveryCustomer(this.customer).subscribe((data: CustomerResponse) => {
+          let customer = data.customer;
+          if (customer.custId === null) {
+            Swal.fire('WARNING', 'Unable to Update Customer', 'warning');
 
-            }
-            else{
+          }
+          else {
             //Now this.customer has latest Delivery Customer
             //Now Create Order, then reset the page and reload. After Order, User will manage delivery orders in Delivery Dashboard
             this.createDeliveryOrder(this.deliveryCart, customer);
 
-            }
+          }
 
-          });
+        });
 
 
-        }
-        else{
-          return; //Some Validation Error in Customer Form
-        }
-        
       }
-      else if (this.customer.custId ===undefined){
-        if (this.validateCustomer('NEW')){
-          // this.addCustomer();
-          this.customerService.saveDeliveryCustomer(this.customer).subscribe((data: CustomerResponse)=>{
-            let customer = data.customer;
-            if (customer.custId===null) {
-              Swal.fire('WARNING','Unable to Create Customer', 'warning');
+      else {
+        return; //Some Validation Error in Customer Form
+      }
 
-            }
-            else{
+    }
+    else if (this.customer.custId === undefined) {
+      if (this.validateCustomer('NEW')) {
+        // this.addCustomer();
+        this.customerService.saveDeliveryCustomer(this.customer).subscribe((data: CustomerResponse) => {
+          let customer = data.customer;
+          if (customer.custId === null) {
+            Swal.fire('WARNING', 'Unable to Create Customer', 'warning');
+
+          }
+          else {
             //Now this.customer has latest Delivery Customer
             //Now Create Order, then reset the page and reload. After Order, User will manage delivery orders in Delivery Dashboard
             this.createDeliveryOrder(this.deliveryCart, customer);
 
-            }
+          }
 
-          });
+        });
 
 
-        }
       }
+    }
 
 
 
-}
+  }
 
 
 
 
-/* *************************************************************** */
+  /* *************************************************************** */
 
   /* ******************** CUSTOMER *********************** */
   searchCustomerByPhone(phone: string) {
@@ -3417,18 +3448,18 @@ createOrder(){
 
   }
 
-    /* ******************************************* */
+  /* ******************************************* */
 
-  saveCustomer(customer: Customer){
+  saveCustomer(customer: Customer) {
 
-    console.log('State:' + this.customer.stateProvince);  
+    console.log('State:' + this.customer.stateProvince);
 
-      this.customerService.saveDeliveryCustomer(customer).subscribe((data: any) => {
-        this.customer = data.customer;
-      });
-      
+    this.customerService.saveDeliveryCustomer(customer).subscribe((data: any) => {
+      this.customer = data.customer;
+    });
 
-      
+
+
 
 
   }
@@ -3463,7 +3494,7 @@ createOrder(){
 
   }
 
-  clearCache(){
+  clearCache() {
     localStorage.clear();
   }
 
@@ -3475,7 +3506,7 @@ createOrder(){
   }
 
 
-  notesChange(row:number, notes:any){
+  notesChange(row: number, notes: any) {
     this.deliveryCart.product[row].notes = notes;
 
     localStorage.setItem('deliveryCart', JSON.stringify(this.deliveryCart));

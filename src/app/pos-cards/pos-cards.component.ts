@@ -27,6 +27,7 @@ import {
   ProductAttributes,
   ProductView,
   ProductWrapper,
+  TokenNumber,
 } from '../model/model-classes.model';
 import { CacheService } from '../services/cache.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -36,7 +37,7 @@ import { environment } from 'src/environments/environment';
 import { faSignOut } from '@fortawesome/free-solid-svg-icons';
 import { DepartmentsService } from '../services/departments.service';
 import Swal from 'sweetalert2';
-import {faClose, faPrint, faList, faCloudUpload, faCloudDownload, faPerson, faCreditCard, faCashRegister, faPlusSquare, faDashboard, faRemove, faRupeeSign, faDollar, faHome, faSave, faUndo, faFilter, faEdit, faPlusCircle, faHistory, faFileInvoiceDollar, faShoppingCart, faSort, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faClose, faPrint, faList, faCloudUpload, faCloudDownload, faPerson, faCreditCard, faCashRegister, faPlusSquare, faDashboard, faRemove, faRupeeSign, faDollar, faHome, faSave, faUndo, faFilter, faEdit, faPlusCircle, faHistory, faFileInvoiceDollar, faShoppingCart, faSort, faSearch } from '@fortawesome/free-solid-svg-icons';
 
 // import { product } from '../data-type';
 import {
@@ -338,7 +339,7 @@ export class PosCardsComponent implements OnInit, OnDestroy {
     let customerObj = localStorage.getItem('customer');
     if (customerObj) {
       this.defaultCustomer = JSON.parse(customerObj);
-      if (this.defaultCustomer.custName !=='pos'){
+      if (this.defaultCustomer.custName !== 'pos') {
         this.customer = this.defaultCustomer;
       }
     }
@@ -873,7 +874,7 @@ export class PosCardsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    
+
 
 
     if (localCartData) {
@@ -1574,8 +1575,8 @@ export class PosCardsComponent implements OnInit, OnDestroy {
       this.pickupCartDataList.totalQty = 0;
       this.pickupCartDataList.subTotal = 0;
       this.pickupCartDataList.total = 0;
-      this.totalTaxValue=0;
-      this.totalTax=0;
+      this.totalTaxValue = 0;
+      this.totalTax = 0;
 
     }
 
@@ -1735,8 +1736,8 @@ export class PosCardsComponent implements OnInit, OnDestroy {
     //customer = this.defaultCustomer;
     customer = await this.checkUserEnterCustomer();
 
-    if (customer===null){
-          /* ************ Default Customer *************** */
+    if (customer === null) {
+      /* ************ Default Customer *************** */
       let customerObj = localStorage.getItem('customer');
       if (customerObj) {
         this.defaultCustomer = JSON.parse(customerObj);
@@ -1914,6 +1915,35 @@ export class PosCardsComponent implements OnInit, OnDestroy {
               localStorage.setItem('pickupCart', '');
               //this.selectedAgent = new AdminUser();
               //this.cache.set("selectedAgent", JSON.stringify(this.selectedAgent));
+
+              /*
+              Code to increment Token Number for the day, and save in cache for next order
+              Added on 2026-08-10
+              
+              */
+
+              let tokenNumberObj = sessionStorage.getItem('todaysToken');
+              let tokenNumber: TokenNumber = tokenNumberObj ? JSON.parse(tokenNumberObj) : null;
+              //increment the token number for the day
+              if (tokenNumber) {
+                tokenNumber.tokenNo += 1;
+                sessionStorage.setItem('todaysToken', JSON.stringify(tokenNumber));
+              }
+
+              this.orderService.saveTokenNumber(tokenNumber).subscribe(data => {
+                if (data != undefined) {
+                  let resp = data;
+                  if (resp) {
+                    //Token Number saved successfully
+                    //Now get the next Token Number for the day
+                  }
+                }
+              });
+
+
+              /* ******************* Code to increment Token Number ends here ********************* */
+
+
 
               this.cache.set('reload', 'F');
 
@@ -3876,44 +3906,44 @@ export class PosCardsComponent implements OnInit, OnDestroy {
 
     return discountVal;
   }
-/* ************************************************************* */
-blockEditingKeys(event: KeyboardEvent): void {
+  /* ************************************************************* */
+  blockEditingKeys(event: KeyboardEvent): void {
 
-  // Block Backspace/Delete
-  if (
-    event.key === 'Backspace' ||
-    event.key === 'Delete'
-  ) {
-    event.preventDefault();
+    // Block Backspace/Delete
+    if (
+      event.key === 'Backspace' ||
+      event.key === 'Delete'
+    ) {
+      event.preventDefault();
+    }
+
+    // Block Ctrl+A (Select All)
+    if (event.ctrlKey && event.key.toLowerCase() === 'a') {
+      event.preventDefault();
+    }
+
+    // Block Ctrl+X (Cut)
+    if (event.ctrlKey && event.key.toLowerCase() === 'x') {
+      event.preventDefault();
+    }
   }
 
-  // Block Ctrl+A (Select All)
-  if (event.ctrlKey && event.key.toLowerCase() === 'a') {
-    event.preventDefault();
+  preventSelection(event: MouseEvent): void {
+
+    // Prevent double click / drag selection
+    if (event.detail > 1) {
+      event.preventDefault();
+    }
   }
 
-  // Block Ctrl+X (Cut)
-  if (event.ctrlKey && event.key.toLowerCase() === 'x') {
-    event.preventDefault();
+
+
+  /* **************************************************************** */
+  preventDelete(event: KeyboardEvent): void {
+    if (event.key === 'Backspace' || event.key === 'Delete') {
+      event.preventDefault();
+    }
   }
-}
-
-preventSelection(event: MouseEvent): void {
-
-  // Prevent double click / drag selection
-  if (event.detail > 1) {
-    event.preventDefault();
-  }
-}
-
-
-
-/* **************************************************************** */
-preventDelete(event: KeyboardEvent): void {
-  if (event.key === 'Backspace' || event.key === 'Delete') {
-    event.preventDefault();
-  }
-}
 
   /* ************************************************************* */
   calculateDiscountTotal(discount: number): any {
@@ -3921,24 +3951,24 @@ preventDelete(event: KeyboardEvent): void {
     //Discount is in %age
     console.log("Discount changed: ", discount);
 
-    if (discount===undefined || discount===null){
-      discount=0;
+    if (discount === undefined || discount === null) {
+      discount = 0;
     }
-    
 
-    if (!this.useDiscountValue){
+
+    if (!this.useDiscountValue) {
       this.pickupCartDataList.discountPercentage = discount;//%age
       this.pickupCartDataList.discount = (discount * this.pickupCartDataList.subTotal) / 100;
       this.pickupCartDataList.total = (this.pickupCartDataList.subTotal - (discount * this.pickupCartDataList.subTotal) / 100) + this.pickupCartDataList.taxes;
     }
-    else{
+    else {
       this.pickupCartDataList.discount = discount; //Value
       this.pickupCartDataList.total = this.pickupCartDataList.subTotal - discount + this.pickupCartDataList.taxes;
     }
-    
+
     this.totalDiscount = this.pickupCartDataList.discount;
 
-    
+
     // this.pickupCartDataList.total = (this.pickupCartDataList.subTotal - (discount * this.pickupCartDataList.subTotal) / 100) + this.pickupCartDataList.taxes;
 
     // this.pickupCartDataList.discount = this.pickupCartDataList.discount;
@@ -3963,29 +3993,29 @@ preventDelete(event: KeyboardEvent): void {
     this.productService.pickupAddToCart(this.pickupCartDataList);
 
   }
-/* *************************************************************** */
-  taxDiscountCalculations(){
+  /* *************************************************************** */
+  taxDiscountCalculations() {
 
-    if (this.pickupCartDataList.discountPercentage===undefined || this.pickupCartDataList.discountPercentage===null){
-      this.pickupCartDataList.discountPercentage=0;
+    if (this.pickupCartDataList.discountPercentage === undefined || this.pickupCartDataList.discountPercentage === null) {
+      this.pickupCartDataList.discountPercentage = 0;
     }
-    if (this.pickupCartDataList.taxesPercentage===undefined || this.pickupCartDataList.taxesPercentage===null){
-      this.pickupCartDataList.taxesPercentage=0;
+    if (this.pickupCartDataList.taxesPercentage === undefined || this.pickupCartDataList.taxesPercentage === null) {
+      this.pickupCartDataList.taxesPercentage = 0;
     }
 
-    if (this.useDiscountValue){
+    if (this.useDiscountValue) {
       this.pickupCartDataList.discount = Number(this.customer?.discountAmount) || 0;
       // this.pickupCartDataList.discount = this.customer.discountAmount;
     }
-    else{
-      this.pickupCartDataList.discount = (this.pickupCartDataList.discountPercentage * this.pickupCartDataList.subTotal)/100;
+    else {
+      this.pickupCartDataList.discount = (this.pickupCartDataList.discountPercentage * this.pickupCartDataList.subTotal) / 100;
     }
-    
+
 
     this.totalDiscount = this.pickupCartDataList.discount;
     this.totalDiscountPercentage = this.pickupCartDataList.discountPercentage;
 
-    this.pickupCartDataList.taxes = (this.pickupCartDataList.taxesPercentage * this.pickupCartDataList.subTotal)/100;
+    this.pickupCartDataList.taxes = (this.pickupCartDataList.taxesPercentage * this.pickupCartDataList.subTotal) / 100;
     this.totalTaxValue = this.pickupCartDataList.taxes;
     this.totalTax = this.pickupCartDataList.taxesPercentage;
 
@@ -4016,7 +4046,7 @@ preventDelete(event: KeyboardEvent): void {
       // call API and fill customerSearchList
       this.searchCustomerByPhone(value);
     }
-    else if(value.length===0){
+    else if (value.length === 0) {
       //reset current customer
       this.customer = new Customer();
       this.customer.custType = 'C';
@@ -4051,11 +4081,11 @@ preventDelete(event: KeyboardEvent): void {
     //this.showCustomerPanel = false;  // 🔴 collapse panel (optional but recommended)
 
     //Apply Discount
-    if (this.customer.discountPercentage===undefined || this.customer.discountPercentage===null){
-      this.customer.discountPercentage=0;
+    if (this.customer.discountPercentage === undefined || this.customer.discountPercentage === null) {
+      this.customer.discountPercentage = 0;
     }
-    else if (this.customer.discountPercentage>0) {
-      this.totalDiscountPercentage=this.customer.discountPercentage;
+    else if (this.customer.discountPercentage > 0) {
+      this.totalDiscountPercentage = this.customer.discountPercentage;
       this.totalDiscount = this.customer.discountAmount;
       this.pickupCartDataList.discountPercentage = this.customer.discountPercentage;
       this.priceCalculationTotal();
@@ -4109,22 +4139,50 @@ preventDelete(event: KeyboardEvent): void {
   }
 
   /* ************************* This method gets called before each checkout ******************** */
-async checkUserEnterCustomer(): Promise<Customer> {
+  async checkUserEnterCustomer(): Promise<Customer> {
 
-  let bRet = false;
+    let bRet = false;
 
-  /* ************ Load Default Customer *************** */
-  if (!this.customer) {
+    /* ************ Load Default Customer *************** */
+    if (!this.customer) {
 
-    const customerObj = localStorage.getItem('customer');
+      const customerObj = localStorage.getItem('customer');
 
-    if (customerObj) {
+      if (customerObj) {
 
-      this.defaultCustomer = JSON.parse(customerObj);
-      this.customer = this.defaultCustomer;
+        this.defaultCustomer = JSON.parse(customerObj);
+        this.customer = this.defaultCustomer;
+
+      } else {
+
+        try {
+
+          const data = await firstValueFrom(
+            this.customerService.getByCustName('pos')
+          );
+
+          this.defaultCustomer = data;
+          this.customer = data;
+
+          localStorage.setItem(
+            'customer',
+            JSON.stringify(this.defaultCustomer)
+          );
+
+        } catch (err) {
+          console.error('Failed to load default customer', err);
+        }
+      }
+    }
+
+    /* ************ Check if user entered customer *************** */
+    if (this.customer?.phone1) {
+
+      bRet = true;
 
     } else {
 
+      // Walk-In Customer
       try {
 
         const data = await firstValueFrom(
@@ -4140,64 +4198,36 @@ async checkUserEnterCustomer(): Promise<Customer> {
         );
 
       } catch (err) {
-        console.error('Failed to load default customer', err);
+        console.error('Failed to load walk-in customer', err);
       }
-    }
-  }
 
-  /* ************ Check if user entered customer *************** */
-  if (this.customer?.phone1) {
-
-    bRet = true;
-
-  } else {
-
-    // Walk-In Customer
-    try {
-
-      const data = await firstValueFrom(
-        this.customerService.getByCustName('pos')
-      );
-
-      this.defaultCustomer = data;
-      this.customer = data;
-
-      localStorage.setItem(
-        'customer',
-        JSON.stringify(this.defaultCustomer)
-      );
-
-    } catch (err) {
-      console.error('Failed to load walk-in customer', err);
+      bRet = false;
     }
 
-    bRet = false;
-  }
+    /* ************ Save Customer *************** */
+    if (bRet) {
 
-  /* ************ Save Customer *************** */
-  if (bRet) {
+      const customer = await this.addCustomer();
 
-    const customer = await this.addCustomer();
+      if (!customer) {
+        alert('Customer required');
+        throw new Error('Customer required');
+      }
 
-    if (!customer) {
-      alert('Customer required');
-      throw new Error('Customer required');
+      this.customer = customer;
     }
 
-    this.customer = customer;
+    return this.customer;
   }
 
-  return this.customer;
-}
 
-  
   async checkUserEnterCustomer2(): Promise<Customer> {
     let bRet = false;//default Walk In Customer
 
-    if (this.customer===null ){
-          /* ************ Default Customer *************** */
+    if (this.customer === null) {
+      /* ************ Default Customer *************** */
       let customerObj = localStorage.getItem('customer');
-      if (customerObj!==undefined) {
+      if (customerObj !== undefined) {
         this.defaultCustomer = JSON.parse(customerObj!);
         this.customer = this.defaultCustomer;
       }
@@ -4213,10 +4243,10 @@ async checkUserEnterCustomer(): Promise<Customer> {
 
 
     }
-    if (this.customer===undefined){
-          /* ************ Default Customer *************** */
+    if (this.customer === undefined) {
+      /* ************ Default Customer *************** */
       let customerObj = localStorage.getItem('customer');
-      if (customerObj!==undefined) {
+      if (customerObj !== undefined) {
         this.defaultCustomer = JSON.parse(customerObj!);
         this.customer = this.defaultCustomer;
       }
@@ -4229,20 +4259,20 @@ async checkUserEnterCustomer(): Promise<Customer> {
         });
       }
 
-    }    
+    }
     if (this.customer.phone1) {
       bRet = true;//Yes, user has entered Customer
     }
     else {
       //User did not eneter customer info, it means Walk-In Customer
-        this.customerService.getByCustName('pos').subscribe((data: Customer) => {
-          this.defaultCustomer = data;
-          this.customer = this.defaultCustomer;
+      this.customerService.getByCustName('pos').subscribe((data: Customer) => {
+        this.defaultCustomer = data;
+        this.customer = this.defaultCustomer;
 
-          localStorage.setItem('customer', JSON.stringify(this.defaultCustomer));
-        });
+        localStorage.setItem('customer', JSON.stringify(this.defaultCustomer));
+      });
 
-//      this.customer = this.defaultCustomer;
+      //      this.customer = this.defaultCustomer;
       bRet = false;
     }
 
@@ -4272,8 +4302,8 @@ async checkUserEnterCustomer(): Promise<Customer> {
       return null;
     }
 
-    this.customer.loginId='walkin';
-    this.customer.loginPassword='123';
+    this.customer.loginId = 'walkin';
+    this.customer.loginPassword = '123';
 
     try {
 
@@ -4345,6 +4375,9 @@ async checkUserEnterCustomer(): Promise<Customer> {
     let dineInFlag = false;
     let popupWin;
 
+    let tokenNumberObj = sessionStorage.getItem('todaysToken');
+    let tokenNumber: TokenNumber = tokenNumberObj ? JSON.parse(tokenNumberObj) : null;
+
 
     //Check if cart is Empty
     let pickupCart = localStorage.getItem('pickupCart')
@@ -4354,7 +4387,7 @@ async checkUserEnterCustomer(): Promise<Customer> {
     }
 
 
-    let tokenHtml = this.printService.printCounterToken(this.pickupCartDataList, this.invoiceNumber,
+    let tokenHtml = this.printService.printCounterToken(this.pickupCartDataList, tokenNumber?.tokenNo,
       this.todaydatashow, popupWin, dineInFlag, this.customer.custName);
 
     // //This will print token for Kitchen
@@ -4430,24 +4463,24 @@ async checkUserEnterCustomer(): Promise<Customer> {
 
   }
 
-    saleReturns(){
+  saleReturns() {
     this.router.navigate([`saleReturns`]);
   }
 
 
-    switch(){
+  switch() {
     this.router.navigate([`posHome`]);
   }
 
-/* ************************************************************* */
-billNumber: any = '';
+  /* ************************************************************* */
+  billNumber: any = '';
   specialPassword: any = '';
 
   // HARD CODED PASSWORD
   readonly CANCEL_PASSWORD = 'EZPZ123';
 
-cancelSale(){
- // STEP 1 - ASK PASSWORD
+  cancelSale() {
+    // STEP 1 - ASK PASSWORD
     const password = prompt('Enter Special Password');
 
     if (!password) {
@@ -4460,7 +4493,7 @@ cancelSale(){
     }
 
     // Proceed with canceling the sale
-     // STEP 2 - ASK BILL NUMBER
+    // STEP 2 - ASK BILL NUMBER
     let billNo = prompt('Enter Bill Number');
 
     if (!billNo) {
@@ -4480,23 +4513,23 @@ cancelSale(){
         Swal.fire('ERROR', 'Bill Not Found', 'error');
         return;
       }
-      
-      
+
+
       sale = data.orderCustomer[0].orders!;
 
 
 
       // STEP 3 - FINAL CONFIRMATION
-    const confirmDelete = confirm(
-      `Are you sure you want to cancel Sale Bill #BL${billNo}?`
-    );
+      const confirmDelete = confirm(
+        `Are you sure you want to cancel Sale Bill #BL${billNo}?`
+      );
 
-    if (!confirmDelete) {
-      return;
-    }
+      if (!confirmDelete) {
+        return;
+      }
 
       // STEP 3 - CANCEL SALE
-    
+
       this.orderService.cancelSale(sale.orderId).subscribe((data) => {
         if (data.statusCode === 200) {
           Swal.fire('SUCCESS', 'Sale Cancelled', 'success');
@@ -4509,7 +4542,7 @@ cancelSale(){
 
 
 
-}
+  }
 
 
   /* ************************** THE END ***************************************** */

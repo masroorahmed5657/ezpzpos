@@ -6,7 +6,7 @@
             <img class="img-fluid pos-logo" [src]="logoName">
         </div>
 
-        <div class="col-auto pos-timer">
+        <div class="col-2 pos-timer">
             ⏱ {{ posTime }}
         </div>
 
@@ -24,6 +24,41 @@
                 </option>
             </select>
         </div>
+
+                <!-- -- SEARCH -- -->
+        <div class="col-3 d-none d-md-block" *ngIf="!disablePOSFlag">
+            <!-- <label class="fw-bold">Name</label> -->
+            Name:
+            <input type="search" class="form-control" placeholder="Search By Name" (keyup)="onNameSearch($event)"
+                [(ngModel)]="searchText" autocomplete="off" />
+
+            <ul class="list-group position-absolute w-100" *ngIf="showNameSearchDropdown && productList.length > 0"
+                style="z-index: 1000; max-height: 250px; overflow-y: auto;">
+                <li class="list-group-item list-group-item-action" *ngFor="let product of productViewList"
+                    (click)="addItemsToCart(product)">
+                    {{ product.productName }}
+                    <small class="text-muted d-block">
+                        {{(product.salePrice===null?product.unitPrice:product.salePrice) |
+                        number:'1.2-2'}}
+                    </small>
+                </li>
+            </ul>
+        </div>
+
+</div>
+<div class="row align-items-center g-2 ">        
+        <div class="col-auto" *ngIf="showCancelSaleFlag">
+            <button class="btn btn-sm btn-danger" (click)="cancelSale()">
+                <i class="bi bi-trash me-2"></i>
+                Cancel Sale
+            </button>
+        </div>
+        <div class="col-auto" *ngIf="showReturnsFlag">
+            <button class="btn btn-secondary w-100 " (click)=saleReturns()>
+                Returns
+            </button>
+        </div>
+
         <div class="col-auto">
             <button class="btn btn-sm btn-outline-primary" (click)="toggleCustomer()">
                 👤 Customer
@@ -79,25 +114,6 @@
             </button>
         </div>
 
-        <!-- -- SEARCH -- -->
-        <div class="col-3 d-none d-md-block" *ngIf="!disablePOSFlag">
-            <!-- <label class="fw-bold">Name</label> -->
-            Name:
-            <input type="search" class="form-control" placeholder="Search By Name" (keyup)="onNameSearch($event)"
-                [(ngModel)]="searchText" autocomplete="off" />
-
-            <ul class="list-group position-absolute w-100" *ngIf="showNameSearchDropdown && productList.length > 0"
-                style="z-index: 1000; max-height: 250px; overflow-y: auto;">
-                <li class="list-group-item list-group-item-action" *ngFor="let product of productViewList"
-                    (click)="addItemsToCart(product)">
-                    {{ product.productName }}
-                    <small class="text-muted d-block">
-                        {{(product.salePrice===null?product.unitPrice:product.salePrice) |
-                        number:'1.2-2'}}
-                    </small>
-                </li>
-            </ul>
-        </div>
 
 
         <!-- SIGN OUT -->

@@ -759,6 +759,22 @@ export class CategorySaleResponse {
     catSale: CategorySalePrice[]=[];
 }
 
+export class ProfitReport{
+  orderId:any
+  orderNum:any; 
+  orderItemId:any;
+  totalPrice:any;
+  discountValue:any;
+  unitPrice:any;
+  purchasePrice:any;
+  createDate:any;
+  invoiceNumber:any;
+}
+
+export class ProfitReportResponse{
+  profitReportList: ProfitReport[] = [];
+}
+
 export class OrderSaleReportResponse{
   orderSaleReport: OrderSaleReport[]=[];
   orderSaleDailyReport: OrderSaleDailyReport[]=[];
@@ -1054,4 +1070,50 @@ export interface RestaurantTable {
   userId: any;
   tableType: any;
   agentName: any;
+}
+
+export interface DashboardData {
+  todayFocus: TodayFocus[];
+  salesSnapshot: SalesSnapshot;
+  alerts: DashboardAlerts;
+}
+
+export interface TodayFocus {
+  title: string;
+  description: string;
+  icon: string;
+  severity: string;
+}
+
+export interface SalesSnapshot {
+  todaySales: number;
+  yesterdaySales: number;
+  weekSales: number;
+  lastWeekSales: number;
+}
+
+export interface DashboardAlerts {
+  slowMovingItems: number;
+  highReturnItems: number;
+  lowPerformingCategories: number;
+}
+
+export interface ProfitSummary {
+  orderId: number;
+  orderItemId: number;
+  unitPrice: number;
+  totalPrice: number;
+  invoiceNumber: string;
+}
+export interface InvoiceSummary {
+  invoiceNumber: string;
+  totalUnitPrice: number;
+  totalPurchasePrice: number;
+  totalTotalPrice: number;
+}
+
+export class TokenNumber{
+  tokenId:any;
+  tokenNo:any;
+  tokenDate:any;
 }

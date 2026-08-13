@@ -65,6 +65,7 @@ export class LoginComponent implements OnInit {
   cashierShift: CashierShift = new CashierShift();
   openBalanceFlag:boolean=false;
   showOpenBalanceFlag = environment.showOpenBalanceFlag;
+  showDashboardFlag = environment.showDashboardFlag;
 
 
 
@@ -192,6 +193,7 @@ export class LoginComponent implements OnInit {
 
     let adminUser = new AdminUser();
     adminUser = this.convertFormToVar(adminUser);
+    let restaurantFlag = environment.restaurantFlag;
 
     //this.showSubscriptionWarning();
 
@@ -295,11 +297,33 @@ export class LoginComponent implements OnInit {
                 this.posUrl = 'rider';
                 this.projectName = 'TECHMACI'
               }
+              else if (adminUser.loginId === 'admin' && this.showDashboardFlag) {
+                this.posUrl = 'dashboard';
+                this.projectName = 'TECHMACI'
+              }
+
               else if (this.showHomePageFlag){
                 this.posUrl = 'home';
                 this.projectName = 'TECHMACI'
               }
+              else{
+                //Take from environemnt
+                
+              }
+              
 
+              if (restaurantFlag){
+                console.log("Restaurant Flag is true- Get Todays Token Number for POS");
+                this.loginService.getTodaysToken().subscribe((data) => {
+                  if (data !== null && data !== undefined) {
+                    sessionStorage.setItem('todaysToken', JSON.stringify(data));
+                  }
+                  else{
+                    sessionStorage.setItem('todaysToken', JSON.stringify({tokenNo: 0, tokenDate: new Date()}));
+                  }
+                });
+              }
+              /* *********************************************************************** */
 
               if (this.showOpenBalanceFlag) {
                 //Now save Cashier Open Balance

@@ -6,6 +6,7 @@ import {
    CategorySaleResponse,
    DailyCategorySale, DailyProductSale, DailySale, DailysubCategorySale, MonthlTotalyearning, MonthlyCategorySale, MonthlyProductSale,
    MonthlySale, MonthlysubCategorySale, OrderSaleReportResponse, ProductSaleResponse, ProductWrapper,
+   ProfitReportResponse,
    ReportRequest,
    TodayTotalearning, TotalCountOrders, TotalCountProducts, TotalCountSale, TotalCountSignup, WeeklyCategorySale, WeeklyProductSale,
    WeeklySale, WeeklyTotalearning, WeeklysubCategorySale, YearlyCategorySale, YearlyProductSale, YearlySale, YearlysubCategorySale
@@ -398,6 +399,17 @@ export class ReportsService {
       printerIp: printerIp
    }).subscribe();
 
+   }
+
+
+      /* ************************************************************* */
+   getProfitWithDates(reportRequest:ReportRequest): Observable<ProfitReportResponse> {
+      let myUrl = `${this.myUrl}` + `reports/profitWithDate` ;
+
+
+      return this.http.post<ProfitReportResponse>(myUrl, reportRequest).pipe(
+         catchError(this.errors.handleError<ProfitReportResponse>('getProfitWithDates'))
+      );
    }
 
 

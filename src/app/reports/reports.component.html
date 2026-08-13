@@ -77,6 +77,7 @@
                 totalCashCardReturnTax) | number:'1.2-2'}}</td>
               <td colspan="2">Total Sale (MINUS RETURN): {{(totalCashCardSaleAmount +
                 totalCashCardReturnAmount) | number:'1.2-2'}}</td>
+                <td colspan="2">Total Profit (COMBINED): {{(totalProfit ) | number:'1.2-2'}}</td>
             </tr>
           </tfoot>
         </table>
@@ -92,7 +93,7 @@
               <th class="d-none d-md-table-cell" *ngIf="showTaxFlag">Tax</th>
               <th>Amount</th>
               <th>Discount</th>
-              <th>PaymentStatus</th>
+              <th>Profit</th>
             </tr>
           </thead>
           <tbody>
@@ -104,7 +105,7 @@
               <td class="d-none d-md-table-cell" *ngIf="showTaxFlag">{{(item.tax) | number:'1.2-2'}}</td>
               <td>{{(item.grandTotal) | number:'1.2-2'}}</td>
               <td>{{item.discount | number:'1.2-2'}}</td>
-              <td>{{item.paymentStatus}}</td>
+              <td>{{getProfit(item.invoiceNumber) | number:'1.2-2'}}</td>
             </tr>
           </tbody>
           <tfoot class="price-card-cash">
@@ -112,6 +113,7 @@
               <td colspan="2">Total #(CASH): {{totalCashSaleCount | number:'1.2-2'}}</td>
               <td colspan="2" *ngIf="showTaxFlag">Total Tax(CASH): {{(totalCashTax) | number:'1.2-2'}}</td>
               <td colspan="2">Total Sale(CASH): {{(totalCashSaleAmount) | number:'1.2-2'}}</td>
+              <td colspan="2">Total Profit(CASH): {{totalCashProfit | number:'1.2-2'}}</td>
             </tr>
           </tfoot>
         </table>
@@ -127,7 +129,7 @@
               <th class="d-none d-md-table-cell" *ngIf="showTaxFlag">Tax</th>
               <th>Amount</th>
               <th>Discount</th>
-              <th>PaymentStatus</th>
+              <th>Profit</th>
             </tr>
           </thead>
           <tbody>
@@ -139,7 +141,7 @@
               <td class="d-none d-md-table-cell" *ngIf="showTaxFlag">{{(item.tax) | number:'1.2-2'}}</td>
               <td>{{(item.grandTotal) | number:'1.2-2'}}</td>
               <td>{{item.discount | number:'1.2-2'}}</td>
-              <td>{{item.paymentStatus}}</td>
+              <td>{{getProfit(item.invoiceNumber) | number:'1.2-2'}}</td>
             </tr>
           </tbody>
           <tfoot class="price-card-cash">
@@ -147,6 +149,7 @@
               <td colspan="2">Total#(CARD): {{totalCardSaleCount | number:'1.2-2'}}</td>
               <td colspan="2" *ngIf="showTaxFlag">Total Tax(CARD): {{(totalCardTax) | number:'1.2-2'}}</td>
               <td colspan="2">Total(CARD): {{(totalCardSaleAmount) | number:'1.2-2'}}</td>
+              <td colspan="2">Total Profit(CARD): {{totalCardProfit | number:'1.2-2'}}</td>
             </tr>
           </tfoot>
         </table>
@@ -159,6 +162,7 @@
               <td colspan="2" *ngIf="showTaxFlag">Total Tax(COMBINED): {{(totalCashCardTax) | number:'1.2-2'}}
               </td>
               <td colspan="2">Total Sale (COMBINED): {{(totalCashCardSaleAmount) | number:'1.2-2'}}</td>
+              <td colspan="2">Total Profit (COMBINED): {{(totalProfit ) | number:'1.2-2'}}</td>
             </tr>
           </tfoot>
         </table>

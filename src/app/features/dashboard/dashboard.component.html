@@ -1,0 +1,133 @@
+<div class="container-fluid dashboard-container" *ngIf="dashboard">
+
+  <!-- TODAY FOCUS -->
+
+  <div class="row mb-4">
+
+    <div class="col-12">
+      <h4 class="section-title">
+        🔥 Today Focus
+      </h4>
+    </div>
+
+    <div
+      class="col-xl-4 col-lg-4 col-md-6 mb-3"
+      *ngFor="let focus of dashboard.todayFocus">
+
+      <div class="focus-card">
+
+        <div class="focus-icon">
+          {{focus.icon}}
+        </div>
+
+        <div class="focus-content">
+          <h5>{{focus.title}}</h5>
+          <p>{{focus.description}}</p>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- SALES SNAPSHOT -->
+
+  <div class="row mb-4">
+
+    <div class="col-12">
+      <h4 class="section-title">
+        📊 Sales Snapshot
+      </h4>
+    </div>
+
+    <div class="col-lg-6 mb-3">
+
+      <div class="metric-card">
+
+        <h5>Today vs Yesterday</h5>
+
+        <div class="sales-number">
+         {{currency}} {{dashboard.salesSnapshot.todaySales  }}
+        </div>
+
+        <div
+          [class.text-success]="getTodayGrowth() > 0"
+          [class.text-danger]="getTodayGrowth() < 0">
+
+          {{getTodayGrowth() | number:'1.1-1'}}%
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="col-lg-6 mb-3">
+
+      <div class="metric-card">
+
+        <h5>This Week vs Last Week</h5>
+
+        <div class="sales-number">
+          {{currency}} {{dashboard.salesSnapshot.weekSales}}
+        </div>
+
+        <div
+          [class.text-success]="getWeekGrowth() > 0"
+          [class.text-danger]="getWeekGrowth() < 0">
+
+          {{getWeekGrowth() | number:'1.1-1'}}%
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ALERTS -->
+
+  <div class="row">
+
+    <div class="col-12">
+      <h4 class="section-title">
+        ⚠️ Alerts
+      </h4>
+    </div>
+
+    <div class="col-lg-4 mb-3">
+
+      <div class="alert-card">
+        <h5>Slow Moving Stock</h5>
+        <div class="alert-value">
+          {{dashboard.alerts.slowMovingItems}}
+        </div>
+      </div>
+
+    </div>
+
+    <div class="col-lg-4 mb-3">
+
+      <div class="alert-card">
+        <h5>High Return Items</h5>
+        <div class="alert-value">
+          {{dashboard.alerts.highReturnItems}}
+        </div>
+      </div>
+
+    </div>
+
+    <div class="col-lg-4 mb-3">
+
+      <div class="alert-card">
+        <h5>Low Performing Categories</h5>
+        <div class="alert-value">
+          {{dashboard.alerts.lowPerformingCategories}}
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

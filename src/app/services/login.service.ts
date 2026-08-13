@@ -8,7 +8,7 @@ import { environment } from '../../environments/environment';
 
 import { Errors } from '../errors/errors'
 
-import { AdminUser, ApiResponse, CashierShift, DeviceRegister, UserLoginResponse } from '../model/model-classes.model';
+import { AdminUser, ApiResponse, CashierShift, DeviceRegister, TokenNumber, UserLoginResponse } from '../model/model-classes.model';
 
 @Injectable({
   providedIn: 'root'
@@ -153,6 +153,20 @@ export class LoginService {
     );
   
   
+  }
+
+  /* ************************************************************* */
+  getTodaysToken() : Observable<TokenNumber> {
+
+    //This method is used to get current Token Number for the day for RestaurantPOS.
+    
+    let myUrl = `${environment.apiUrl}` + `tokenNumber/getTodaysToken`  ;
+
+    return this.http.get<TokenNumber>(myUrl).pipe(
+      catchError(this.errors.handleError<TokenNumber>('getTodaysToken'))
+    );
+  
+
   }
   
 }

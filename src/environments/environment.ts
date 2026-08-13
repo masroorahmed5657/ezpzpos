@@ -3,7 +3,7 @@ export const environment = {
   sessionTimeout: 60,
   enableLog: true,
   scannerFlag: true,
-  versionNumber: '25.05.2026 00077',
+  versionNumber: '08.10.2026 00083',
   appType:'POS',
   pageSize:25,
   posName: 'POS-01',
@@ -12,8 +12,10 @@ export const environment = {
 
   showAgentFlag:true,
   showTaxFlag: true,
-  posCustomerNameFlag:false,
+  posCustomerNameFlag:true,
   posCustomerEmailFlag:false,
+  posCustomerPhoneFlag:true,
+  posCustomerPrintFlag:true,
   cancelSaleFlag:false,
   retrieveSaleFlag:false,
   showReturnsFlag:true,
@@ -28,61 +30,63 @@ export const environment = {
    billCopyNumber:1,
    showHomePageFlag: false,
    useDiscountValue: true,
-   useItemDiscountValue: false,
+   useItemDiscountValue: true,
    showCancelSaleFlag:true,
-   restaurantFlag:false,
+   restaurantFlag:true,
    fashioFlag:true,
    martFlag:false,
+   showDashboardFlag:false,
+   printTokenSinglePageFlag:true,
   
   //whatsappPhone:'+923302387770',   //Client01    
   // whatsappPhone:'+923219532952', //Masroor
 
 
-// /* ********************** Chachu Biryani ****************************************************** */
-  // appName: 'Chachu Biryani',
-  // logoName: 'assets/images/logos/logo-orgrey.png',
-  // whatsappPhone:'+92310-103-3571', 
-  // // apiUrl: 'http://localhost:8080/DEMO_API/',
-  // // apiUrl: 'https://cp.techmaci.com:8443/EZPZBAZAR_API/',
+ /* ********************** Chachu Biryani ******************************************************
+  appName: 'Chachu Biryani',
+  logoName: 'assets/images/logos/logo-orgrey.png',
+  whatsappPhone:'+92310-103-3571', 
+  // apiUrl: 'http://localhost:8080/DEMO_API/',
+  apiUrl: 'https://cp.techmaci.com:8443/DEMO_API/',
   // apiUrl: 'http://localhost:8080/FOODY_API/',
-  // localHostApi: 'http://localhost:8080/FOODY_API/',
-  // cloudAPIUrl: 'https://cp.techmaci.com:8443/FOODY_API/',
-  // subscriptionApiUrl: 'https://cp.techmaci.com:8443/SUBSCRIPTION_API/subscription/checkSubscription/FOODY/POS',
+  localHostApi: 'http://localhost:8080/FOODY_API/',
+  cloudAPIUrl: 'https://cp.techmaci.com:8443/FOODY_API/',
+  subscriptionApiUrl: 'https://cp.techmaci.com:8443/SUBSCRIPTION_API/subscription/checkSubscription/FOODY/POS',
 
-  // branchName: 'CLIENT01-KHI',
-  // posUrl: 'posRestaurant',
+  branchName: 'CLIENT01-KHI',
+  posUrl: 'posRestaurant',
 
-  // companyName: `<p>
-  //             Chachu Biryani<br>
-  //             📍 Johar, Karachi<br>
-  //             📞 0310-103-3571 | 🌐 www.techmaci.com<br>
-  //             ✉ info@techmaci.com<br>
-  //         </p>`,
+  companyName: `<p>
+              Chachu Biryani<br>
+              📍 Johar, Karachi<br>
+              📞 0310-103-3571 | 🌐 www.techmaci.com<br>
+              ✉ info@techmaci.com<br>
+          </p>`,
 
-  // contactHtmlTag : `
-  //       <div class="contact">
-  //         <p>If you have any queries related, feel free to reach us at: <br>
-  //             <i class="fa fa-fw fa-phone"></i>Chachu Biryani ><br>
-  //             <i class="fa fa-fw fa-phone"></i>Ather: 0310-103-3571 ><br>
-  //             <i class="fa fa-fw fa-envelope"></i>info@techmaci.com<br>
-  //             <i class="fa fa-fw fa-map-pin"></i> www.techmaci.com
-  //         </p>
-  //       </div>
-  //     `,
+  contactHtmlTag : `
+        <div class="contact">
+          <p>If you have any queries related, feel free to reach us at: <br>
+              <i class="fa fa-fw fa-phone"></i>Chachu Biryani ><br>
+              <i class="fa fa-fw fa-phone"></i>Ather: 0310-103-3571 ><br>
+              <i class="fa fa-fw fa-envelope"></i>info@techmaci.com<br>
+              <i class="fa fa-fw fa-map-pin"></i> www.techmaci.com
+          </p>
+        </div>
+      `,
 
-  // fbrHtmlTag : `  `,
-  // termHtmlTag: `
-  //             <p class="centered" style="margin-left:10px !important;"><b> ** Terms And Conditions ** </b><p>
-  //             <p class="termCondition">  Card payment service charges are paid by the customer.
-  //               Items are exchangeable within 3 days (unused, original packing).
-  //               Sale items are not exchangeable or refundable.
-  //               Card payment service charges are borne by the customer.
-  //               Cash payments are not subject to card service charges.
-  //               GST not applicable on retail POS sales.
-  //               Thank you for shopping with Scientech Mart!
-  //               Quality • Trust • Ready Stock  </p>`,
+  fbrHtmlTag : `  `,
+  termHtmlTag: `
+              <p class="centered" style="margin-left:10px !important;"><b> ** Terms And Conditions ** </b><p>
+              <p class="termCondition">  Card payment service charges are paid by the customer.
+                Items are exchangeable within 3 days (unused, original packing).
+                Sale items are not exchangeable or refundable.
+                Card payment service charges are borne by the customer.
+                Cash payments are not subject to card service charges.
+                GST not applicable on retail POS sales.
+                Thank you for shopping with Scientech Mart!
+                Quality • Trust • Ready Stock  </p>`,
 
-
+*/
 
 
 /* ********************* Nimra Client Johar, KHI  ********************************************* */
@@ -668,18 +672,18 @@ apiUrl: 'https://cp.techmaci.com:8443/WDS_API/',
   //             </p>`,
 
 
-/* ********************** Break One Fashion01 Punjab ****************************************************** */
+/* ********************** Break One Fashion01 Punjab ****************************************************** 
   appName: 'Break One',
   logoName: 'assets/images/logos/B1-logo-3.png',
   whatsappPhone:'+92307-107-2834', 
-  // apiUrl: 'https://cp.techmaci.com:8443/FASHION01_API/',
-apiUrl:'http://localhost:8080/FASHION01_API/',
-  localHostApi: 'http://localhost:8080/FASHION01_API/',
-  cloudAPIUrl: 'https://cp.techmaci.com:8443/FASHION01_API/',
+  apiUrl: 'https://cp.techmaci.com:8443/RESTAURANT_API/',
+  // apiUrl:'http://localhost:8080/FASHION01_API/',
+  localHostApi: 'http://localhost:8080/RESTAURANT_API/',
+  cloudAPIUrl: 'https://cp.techmaci.com:8443/RESTAURANT_API/',
   subscriptionApiUrl: 'https://cp.techmaci.com:8443/SUBSCRIPTION_API/subscription/checkSubscription/BREAKONE/POS',
 
   branchName: 'ChichaWatni',
-  posUrl: 'posCards',
+  posUrl: 'posRestaurant',
 
   companyName: `<p>
               <h1 style='text-transform: uppercase;'> Break One </h1>
@@ -718,6 +722,63 @@ apiUrl:'http://localhost:8080/FASHION01_API/',
                 Thank you for shopping with <b>BREAK ONE</b>!
               </p>`,
 
+
+*/
+
+/* ********************** Jollie Bee ******************************************************/ 
+  appName: 'Jollie Bee',
+  logoName: 'assets/images/logos/jollie-bee-logo.jpeg',
+  whatsappPhone:'+92307-107-2834', 
+  // apiUrl: 'https://cp.techmaci.com:8443/JOLLIEBEE_API/',
+  apiUrl:'http://localhost:8080/JOLLIEBEE_API/',
+  localHostApi: 'http://localhost:8080/JOLLIEBEE_API/',
+  cloudAPIUrl: 'https://cp.techmaci.com:8443/JOLLIEBEE_API/',
+  subscriptionApiUrl: 'https://cp.techmaci.com:8443/SUBSCRIPTION_API/subscription/checkSubscription/JOLLIEBEE/POS',
+
+  branchName: 'ChichaWatni',
+  posUrl: 'posRestaurant',
+
+  // companyName: `<p>
+  //             <h1 style='text-transform: uppercase;'> Jollie Bee </h1>
+  //             <br>
+  //             📍 Block 10, Siddique Akbar Chouk, Chicha Watni<br>
+  //             📞 0309-400-0555 | 🌐 www.techmaci.com<br>
+  //             ✉ info@techmaci.com<br>
+  //         </p>`,
+
+  companyName: `<div style="text-align: center;">
+        <h4>From Oven to Heart</h4>
+        <h1 style="text-transform: uppercase; font-size: 48px; font-weight: bold; margin: 0;">
+            Jollie Bee
+        </h1>
+
+        <p style="margin-top: 10px; line-height: 1.6;">
+            📍 Block 10, Siddique Akbar Chouk, Chicha Watni<br>
+            📞 0309-400-0555 | 🌐 www.techmaci.com<br>
+            ✉ info@techmaci.com
+        </p>
+        </div>`        ,
+
+  contactHtmlTag : `
+        <div class="contact">
+          <p>If you have any queries related, feel free to reach us at: 
+              <i class="fa fa-fw fa-phone"></i> <b>Jollie Bee</b> <br>
+              <i class="fa fa-fw fa-phone"></i>0309-400-0555/0317-812-0888 <br>
+              <i class="fa fa-fw fa-envelope"></i>info@techmaci.com
+              <i class="fa fa-fw fa-map-pin"></i> www.techmaci.com
+          </p>
+          
+
+
+        </div>
+
+      `,
+
+  fbrHtmlTag : `  `,
+  termHtmlTag: `
+              <p class="termCondition">  
+                Thank you for shopping with <b>Jollie Bee</b>!
+              </p>`,
 
 
 

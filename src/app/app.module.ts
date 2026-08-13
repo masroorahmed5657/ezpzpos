@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome'
 import { FaIconLibrary } from '@fortawesome/angular-fontawesome';
 import { faStar as farStar } from '@fortawesome/free-regular-svg-icons';
@@ -36,6 +36,7 @@ import { PosDeliveryComponent } from './pos-delivery/pos-delivery.component';
 import { DeliveryDashboardComponent } from './delivery-dashboard/delivery-dashboard.component';
 import { HomeComponent } from './home/home.component';
 import { RiderComponent } from './rider/rider.component';
+import { DashboardComponent } from './features/dashboard/dashboard.component';
 
 
 
@@ -64,7 +65,8 @@ import { RiderComponent } from './rider/rider.component';
     PosDeliveryComponent,
     DeliveryDashboardComponent,
     HomeComponent,
-    RiderComponent
+    RiderComponent,
+    DashboardComponent
 
   ],
   imports: [
@@ -75,7 +77,8 @@ import { RiderComponent } from './rider/rider.component';
     FontAwesomeModule,
     HttpClientModule,
     NgxPaginationModule,
-    NgApexchartsModule
+    NgApexchartsModule,
+    DecimalPipe
 
     // NgxPrintModule,
 
