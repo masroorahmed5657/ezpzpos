@@ -87,14 +87,14 @@ export class LoginComponent implements OnInit {
     //   this.router.navigate(['pos']);
     // }    
 
-    if (this.showOpenBalanceFlag){
+    // if (this.showOpenBalanceFlag){
       //Now Register Cash Register used for POS
       this.loginService.getDeviceRegisterList().subscribe((data: DeviceRegister[]) => {
         this.deviceRegisterList = data;
 
       });
 
-    }
+    // }
 
 
     this.cache.resetAllData();
@@ -334,25 +334,47 @@ export class LoginComponent implements OnInit {
                   this.spinnerDataLoad = false;
                   return;
                 }
-                else if (this.cashierShift.openingBalance===undefined){
-                  Swal.fire('WARNING', 'Please select Cash Register Information', 'warning');
-                  this.spinnerDataLoad = false;
-                  return;
-                }
+                //commented out below code
+                //on August 15, 2026
+                // else if (this.cashierShift.openingBalance===undefined){
+                //   Swal.fire('WARNING', 'Please select Cash Register Information', 'warning');
+                //   this.spinnerDataLoad = false;
+                //   return;
+                // }
 
                 
                 this.cashierShift.userId = userData.adminUser.userId;
-                this.loginService.saveOpenBalance(this.cashierShift).subscribe((data) => {
+                //Code added on August 15, 2026 to check if Cashier Shift is already opened for this user and device
+                //First check if Cashier Shift is already opened for this user and device
+                this.cashierShift.shiftStatus='OPEN';
+                this.loginService.getCashierBalance(this.cashierShift).subscribe((data) => {
                   if (data !== null) {
                     sessionStorage.setItem('cashierShift', JSON.stringify(data));
-
-                  }
-                  this.alertWithSignin(userData.adminUser?.loginId);
+                    this.alertWithSignin(userData.adminUser?.loginId);
                   this.playAudio();
                   this.spinnerDataLoad = false;
                   this.router.navigate([this.posUrl]);
+                  }
+                  else{
+                    //If Cashier Shift is not opened, then ask for Opening Balance and save it
+                    this.openBalanceFlag=true;
 
+                  }
                 });
+
+
+
+                // this.loginService.saveOpenBalance(this.cashierShift).subscribe((data) => {
+                //   if (data !== null) {
+                //     sessionStorage.setItem('cashierShift', JSON.stringify(data));
+
+                //   }
+                //   this.alertWithSignin(userData.adminUser?.loginId);
+                //   this.playAudio();
+                //   this.spinnerDataLoad = false;
+                //   this.router.navigate([this.posUrl]);
+
+                // });
 
               }
               else {
@@ -382,6 +404,22 @@ export class LoginComponent implements OnInit {
     ////////////////////////////////////////////////////////////////////
 
   }
+//saveOpenBalance(cashierShift: CashierShift): Observable<CashierShift> {
+saveOpenBalance() {
+    this.cashierShift.shiftStatus='OPEN';
+    this.loginService.saveOpenBalance(this.cashierShift).subscribe((data) => {
+                  if (data !== null) {
+                    sessionStorage.setItem('cashierShift', JSON.stringify(data));
+
+                  }
+                  //this.alertWithSignin(userData.adminUser?.loginId);
+                  //this.playAudio();
+                  this.spinnerDataLoad = false;
+                  this.router.navigate([this.posUrl]);
+
+                });
+  }
+
   /* ****************************************** */
   convertFormToVar(adminUser: AdminUser) {
     //let adminUser = new AdminUser();

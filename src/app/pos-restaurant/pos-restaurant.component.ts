@@ -1604,8 +1604,17 @@ export class PosRestaurantComponent implements OnInit, OnDestroy {
     }
 
     if (this.payment.paymentMethod === 'CASH') {
+      let resultStr = this.result;
+      //Code added to convert this.result to number
+      this.result = Number(this.result);
+      //round to 0 decimal places
+      this.pickupCartDataList.total = Math.round(this.pickupCartDataList.total ) ;
+      this.pickupCartDataList.subTotal = Math.round(this.pickupCartDataList.subTotal ) ;
+      this.pickupCartDataList.taxes = Math.round(this.pickupCartDataList.taxes ) ;
+      this.pickupCartDataList.discount = Math.round(this.pickupCartDataList.discount ) ;
+
       /* *********************************************************** */
-      if (this.result === "") {//0 Payment
+      if (resultStr === "") {//0 Payment
 
         //check for RETURNS
         if (this.pickupCartDataList.total < 0) {

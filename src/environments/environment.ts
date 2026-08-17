@@ -3,7 +3,7 @@ export const environment = {
   sessionTimeout: 60,
   enableLog: true,
   scannerFlag: true,
-  versionNumber: '08.10.2026 00083',
+  versionNumber: '08.15.2026 00088',
   appType:'POS',
   pageSize:25,
   posName: 'POS-01',
@@ -24,10 +24,10 @@ export const environment = {
   showOpenBalanceFlag:true,
   showFBRFlag:false,
   printTokenFlag:true,
-  showDineInFlag:false,
-  showDeliveryFlag:false,
+  showDineInFlag:true,
+  showDeliveryFlag:true,
    appEnv: 'LCL',
-   billCopyNumber:1,
+   billCopyNumber:2,
    showHomePageFlag: false,
    useDiscountValue: true,
    useItemDiscountValue: true,
@@ -42,12 +42,12 @@ export const environment = {
   // whatsappPhone:'+923219532952', //Masroor
 
 
- /* ********************** Chachu Biryani ******************************************************
+ /* ********************** Chachu Biryani ******************************************************/
   appName: 'Chachu Biryani',
   logoName: 'assets/images/logos/logo-orgrey.png',
   whatsappPhone:'+92310-103-3571', 
-  // apiUrl: 'http://localhost:8080/DEMO_API/',
-  apiUrl: 'https://cp.techmaci.com:8443/DEMO_API/',
+  apiUrl: 'http://localhost:8080/DEMO_API/',
+  // apiUrl: 'https://cp.techmaci.com:8443/DEMO_API/',
   // apiUrl: 'http://localhost:8080/FOODY_API/',
   localHostApi: 'http://localhost:8080/FOODY_API/',
   cloudAPIUrl: 'https://cp.techmaci.com:8443/FOODY_API/',
@@ -86,7 +86,7 @@ export const environment = {
                 Thank you for shopping with Scientech Mart!
                 Quality • Trust • Ready Stock  </p>`,
 
-*/
+
 
 
 /* ********************* Nimra Client Johar, KHI  ********************************************* */
@@ -725,7 +725,7 @@ apiUrl: 'https://cp.techmaci.com:8443/WDS_API/',
 
 */
 
-/* ********************** Jollie Bee ******************************************************/ 
+/* ********************** Jollie Bee ****************************************************** 
   appName: 'Jollie Bee',
   logoName: 'assets/images/logos/jollie-bee-logo.jpeg',
   whatsappPhone:'+92307-107-2834', 
@@ -781,6 +781,6 @@ apiUrl: 'https://cp.techmaci.com:8443/WDS_API/',
               </p>`,
 
 
-
+*/
 
 };

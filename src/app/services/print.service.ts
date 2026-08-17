@@ -144,11 +144,8 @@ export class PrintService {
     
     <div class="receipt_container">  
       <div class="header">
-      <img
-    src="` + mainImage + `"
-    class="img-fluid"
-    style="height:120px; width:auto;"
-    alt="Logo">`;
+      <img  src="` + mainImage + `"  class="img-fluid"  style="height:120px; width:auto;"  alt="Logo">`;
+      titleHtmlTag = titleHtmlTag + `<p style="text-align:center; font-size: 14pt; color:red;"><b>--- ORIGINAL ---</b></p>`;
 
       //  <img class="img-fluid img-thumbnail" src="` + mainImage + `" >`;
 
@@ -660,11 +657,22 @@ export class PrintService {
 
       popupWin.document.write(finalHTMLTag);
       //console.log(finalHTMLTag)
+      let copyNumberText = '';
 
       ///////////////////////////////////////////////////////////////////////////
       for (let billRow = 1; billRow < billCopyNumber; billRow++) {
-        // if (billCopyNumber === 2) {
+        //if (billRow === 1) {
         //2nd copy
+            // titleHtmlTag = titleHtmlTag + `<p style="text-align:center; font-size: 10pt; color:red;"><b>--- ORIGINAL ---</b></p>`;
+        //}
+
+
+        if (billCopyNumber >= 2) {
+        //2nd copy
+        //replace ORIGINAL with COPY
+        titleHtmlTag = titleHtmlTag.replace('--- ORIGINAL ---', '--- COPY ---');
+            //titleHtmlTag = titleHtmlTag + `<p style="text-align:center; font-size: 10pt; color:red;"><b>--- COPY ---</b></p>`;
+        }
 
         if (this.showTaxFlag) {
           finalHTMLTag = myHtml01Tag + styleTag + titleHtmlTag + companyInfoHtmlTag + myHtml02Tag + myHtmlItemHeadingTag + itemListHtmlTag + tableFooterHtmlTag + fbrHtmlTag + lastHtmlTag;

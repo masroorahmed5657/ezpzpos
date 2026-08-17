@@ -3,7 +3,7 @@ export const environment = {
   sessionTimeout: 60,
   enableLog: true,
   scannerFlag: true,
-  versionNumber: '08.10.2026 00084',
+  versionNumber: '08.15.2026 00088',
   appType: 'POS',
   dbEnv: 'LOCALAPI',
   posName: 'POS-01',
@@ -28,12 +28,12 @@ export const environment = {
   printTokenFlag:true,
   showDineInFlag:false,
   showDeliveryFlag:false,
-  billCopyNumber:1,
+  billCopyNumber:2,
   showHomePageFlag: false,
   useDiscountValue: true,
   useItemDiscountValue: false,
   showCancelSaleFlag:true,
-  restaurantFlag:false,
+  restaurantFlag:true,
   fashionFlag:true,
   martFlag:false,
   showDashboardFlag:false,
@@ -162,7 +162,7 @@ export const environment = {
 
 //////////////////////////////////////////////////////////////
 
-/* ********************************** TECHMACI ************************************ 
+/* ********************************** TECHMACI ************************************/ 
   appName: 'TechMaci',
   logoName: 'assets/images/logos/techmaci-logo.png',
   whatsappPhone:'+92349-202-2411', 
@@ -202,7 +202,7 @@ export const environment = {
               <p class="termCondition">  
                 Thank you for shopping with TechMaci!
               </p>`,
-*/
+
 
 /* ********************** Break One Fashion01 Punjab ****************************************************** 
   appName: 'Break One',
@@ -255,7 +255,7 @@ export const environment = {
 
 
 */
-/* ********************** Jollie Bee ******************************************************/
+/* ********************** Jollie Bee ******************************************************
   appName: 'Jollie Bee',
   logoName: 'assets/images/logos/jollie-bee-logo.jpeg',
   whatsappPhone:'+92307-107-2834', 
@@ -303,6 +303,6 @@ export const environment = {
                 Thank you for shopping with <b>Jollie Bee</b>!
               </p>`,
 
-
+*/
 
 };

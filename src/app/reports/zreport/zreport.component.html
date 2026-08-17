@@ -11,10 +11,11 @@
 
 
         <!-- <a [routerLink]="posUrl" class="btn btn-outline-dark">POS</a> -->
-        <button class="btn btn-success " style="font-size: small;" (click)="home()" *ngIf="restaurantFlag">
+        <!-- <button class="btn btn-success " style="font-size: small;" (click)="home()" *ngIf="restaurantFlag">
           Home
-        </button>
-        <button class="btn btn-outline-dark " style="font-size: small;" (click)="posHome()" *ngIf="!restaurantFlag">
+        </button> -->
+        <button class="btn btn-outline-dark " style="font-size: small;" (click)="posHome()"    >
+        <!-- *ngIf="!restaurantFlag"> -->
           POS
         </button>
 
@@ -124,8 +125,8 @@
             <tr>
               <th class="text-start">Order Type</th>
               <th>Orders</th>
-              <th>Sales ({{currency}})</th>
-              <th>Discount ({{currency}})</th>
+              <th>Total Sales ({{currency}})</th>
+              <th>Discount(-) ({{currency}})</th>
               <th>Tax ({{currency}})</th>
               <th>Net Sales ({{currency}})</th>
             </tr>
@@ -135,10 +136,10 @@
             <tr *ngFor="let dailySale of dailySaleExcelReport">
               <td class="text-start fw-semibold"> {{dailySale.orderType}} </td>
               <td> {{dailySale.orderCount}} </td>
-              <td> {{dailySale.orderAmount| number:'1.2-2'}} </td>
-              <td> {{dailySale.discount | number:'1.2-2'}} </td>
-              <td> {{dailySale.tax | number:'1.2-2'}} </td>
-              <td class="fw-bold text-success"> {{(dailySale.grandTotal ) | number:'1.2-2'}} </td>
+              <td> {{roundNumber(dailySale.grandTotal+dailySale.discount)| number:'1.2-2'}} </td>
+              <td [style.color]="dailySale.discount > 0 ? 'red' : null"> {{roundNumber(dailySale.discount) | number:'1.2-2'}} </td>
+              <td> {{roundNumber(dailySale.tax) | number:'1.2-2'}} </td>
+              <td class="fw-bold text-success"> {{(roundNumber(dailySale.grandTotal)) | number:'1.2-2'}} </td>
             </tr>
 
           </tbody>
@@ -147,10 +148,10 @@
             <tr>
               <td class="text-start totalSale">Total</td>
               <td class="totalSale"> {{totalSaleCount}}</td>
-              <td class="totalSale"> {{currency}} {{totalSaleAmount | number:'1.2-2'}} </td>
-              <td class="totalSale"> {{currency}} {{totalDiscount | number:'1.2-2'}} </td>
-              <td class="totalSale"> {{currency}} {{totalTax | number:'1.2-2'}} </td>
-              <td class="totalSale"> {{currency}} {{totalNetSale | number:'1.2-2'}} </td>
+              <td class="totalSale"> {{currency}} {{roundNumber(totalNetSale+totalDiscount) | number:'1.2-2'}} </td>
+              <td class="totalSale" [style.color]="totalDiscount > 0 ? 'red' : null"> {{currency}} {{roundNumber(totalDiscount) | number:'1.2-2'}} </td>
+              <td class="totalSale"> {{currency}} {{roundNumber(totalTax) | number:'1.2-2'}} </td>
+              <td class="totalSale"> {{currency}} {{roundNumber(totalNetSale) | number:'1.2-2'}} </td>
             </tr>
           </tfoot>
 
@@ -179,10 +180,13 @@
           <tfoot class="price">
             <tr>
               <td colspan="2">Total Sale Count: {{totalCashCardSaleCount | number:'1.2-2'}}</td>
-              <td colspan="2" *ngIf="showTaxFlag">Total Tax(MINUS RETURN): {{(totalCashCardTax +
+              <td colspan="2" *ngIf="showTaxFlag">Total Tax: {{(totalCashCardTax +
                 totalCashCardReturnTax) | number:'1.2-2'}}</td>
-              <td colspan="2">Total Sale (MINUS RETURN): {{(totalCashCardSaleAmount +
+              <td colspan="2">Total Sale: 
+                {{(totalCashCardSaleAmount + totalCashCardReturnAmount + totalDiscount) | number:'1.2-2'}}</td>                
+              <td colspan="2">Total Net Sale : {{(totalCashCardSaleAmount +
                 totalCashCardReturnAmount) | number:'1.2-2'}}</td>
+              <td>Total Discount: {{roundNumber(totalDiscount) | number:'1.2-2'}}</td>  
             </tr>
           </tfoot>
         </table>
@@ -197,8 +201,10 @@
               <th class="d-none d-md-table-cell">Customer</th>
               <th>Created Time</th>
               <th class="d-none d-md-table-cell" *ngIf="showTaxFlag">Tax</th>
-              <th>Amount</th>
-              <th>PaymentStatus</th>
+              <th>Total Sale</th>
+              <!-- <th>PaymentStatus</th> -->
+               <th>Discount (-)</th>
+               <th>Net Sale</th>
             </tr>
           </thead>
           <tbody>
@@ -208,16 +214,24 @@
               <td>{{item.invoiceNumber ? 'BL' + item.invoiceNumber : 'BL' + item.orderId}}</td>
               <td class="d-none d-md-table-cell">{{item.phone1}}</td>
               <td>{{item.dateStr}}</td>
-              <td class="d-none d-md-table-cell" *ngIf="showTaxFlag">{{(item.tax) | number:'1.2-2'}}</td>
-              <td>{{(item.grandTotal) | number:'1.2-2'}}</td>
-              <td>{{item.paymentStatus}}</td>
+              <td class="d-none d-md-table-cell" *ngIf="showTaxFlag">{{roundNumber(item.tax) | number:'1.2-2'}}</td>
+              <td>{{roundNumber(item.grandTotal+item.discount) | number:'1.2-2'}}</td>
+              <!-- <td>{{item.paymentStatus}}</td> -->
+               <!--show with Red -->
+               <td [style.color]="item.discount > 0 ? 'red' : null">
+                  {{ roundNumber(item.discount) | number:'1.2-2' }}
+                </td>
+              <!-- <td style="color: red">{{(item.discount) | number:'1.2-2'}}</td> -->
+              <td>{{roundNumber(item.grandTotal) | number:'1.2-2'}}</td>
             </tr>
           </tbody>
           <tfoot class="price-card-cash">
             <tr>
               <td colspan="2">Total #(CASH): {{totalCashSaleCount | number:'1.2-2'}}</td>
               <td colspan="2" *ngIf="showTaxFlag">Total Tax(CASH): {{(totalCashTax) | number:'1.2-2'}}</td>
-              <td colspan="2">Total Sale(CASH): {{(totalCashSaleAmount) | number:'1.2-2'}}</td>
+              <td colspan="2">Total(CASH): {{(totalCashSaleAmount+totalDiscount) | number:'1.2-2'}}</td>
+              <td colspan="2">Total Discount(CASH): {{(totalDiscount) | number:'1.2-2'}}</td>
+              <td colspan="2">Net Sale(CASH): {{(totalCashSaleAmount) | number:'1.2-2'}}</td>
             </tr>
           </tfoot>
         </table>
@@ -252,7 +266,15 @@
             <tr>
               <td colspan="2">Total#(CARD): {{totalCardSaleCount | number:'1.2-2'}}</td>
               <td colspan="2" *ngIf="showTaxFlag">Total Tax(CARD): {{(totalCardTax) | number:'1.2-2'}}</td>
+
               <td colspan="2">Total(CARD): {{(totalCardSaleAmount) | number:'1.2-2'}}</td>
+              <!-- <td colspan="2">Total Discount(CARD): {{(totalDiscount) | number:'1.2-2'}}</td> -->
+              <td colspan="2">Net Sale(CARD): {{(totalCardSaleAmount - 0) | number:'1.2-2'}}</td>
+
+
+
+              
+              <!-- <td colspan="2">Total(CARD): {{(totalCardSaleAmount) | number:'1.2-2'}}</td> -->
             </tr>
           </tfoot>
         </table>
@@ -264,7 +286,8 @@
               <td colspan="2">Total Sale Count: {{totalCashCardSaleCount | number:'1.2-2'}}</td>
               <td colspan="2" *ngIf="showTaxFlag">Total Tax(COMBINED): {{(totalCashCardTax) | number:'1.2-2'}}
               </td>
-              <td colspan="2">Total Sale (COMBINED): {{(totalCashCardSaleAmount) | number:'1.2-2'}}</td>
+              <td colspan="2">Total Gross Sale (COMBINED): {{(totalCashCardSaleAmount+totalDiscount) | number:'1.2-2'}}</td>
+              <td colspan="2">Total Net Sale (COMBINED): {{(totalCashCardSaleAmount) | number:'1.2-2'}}</td>
             </tr>
           </tfoot>
         </table>

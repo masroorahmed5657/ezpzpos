@@ -128,6 +128,18 @@ export class LoginService {
         );
 
   }
+    /* ************************************************************* */
+  getCashierBalance(cashierShift: CashierShift): Observable<CashierShift>{
+
+    cashierShift.shiftStatus='OPEN';
+
+    let myUrl = `${environment.apiUrl}` + `pos/cashierRegister/findTodaysShift`  ;
+  
+    return this.http.post<CashierShift>(myUrl, cashierShift).pipe(
+      catchError(this.errors.handleError<CashierShift>('getCashierBalance'))
+    );
+  
+  }
 
     /* ************************************************************* */
   saveOpenBalance(cashierShift: CashierShift): Observable<CashierShift>{
