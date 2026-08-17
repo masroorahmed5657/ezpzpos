@@ -152,7 +152,7 @@ export class ZreportComponent implements OnInit {
 
   print() {
     let printWindow: any;
-    // if (this.summaryReportFlag)
+    if (this.summaryReportFlag)
     {
       const printContentObj = document.getElementById('saleReport');
       const printContent = printContentObj?.innerHTML;
@@ -202,14 +202,73 @@ export class ZreportComponent implements OnInit {
       //printWindow.print();  
 
     }
+    else{
+          
+      const printContentObj = document.getElementById('detailSaleReport');
+      const printContent = printContentObj?.innerHTML;
+      const originalContent = document.body.innerHTML;
+
+
+      printWindow = window.open('', '_blank');
+
+      let headHtmlTag = `
+      <html> 
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"> `;
+
+      let styleTag = `
+     <style>
+     @media print {
+            .no-print { display: none; }
+            .page-break {page-break-after: always;
+			}
+
+      table { width: 100%; border-collapse: collapse; }
+          th, td { border: 1px solid black; padding: 8px; text-align: left; }
+          thead {border: 2px solid black;background-color:none;}
+     </style>
+     `;
+
+      let bodyHtmlTag =
+        `<title>Daily Sale Report</title>
+     </head>    
+     <body  onload="window.print()" onafterprint="window.close()">`;
+
+
+
+      let footerHtml =
+        `</body>
+     </html>
+       `;
+
+      let finalHTMLTag = headHtmlTag + styleTag + bodyHtmlTag + printContent + footerHtml;
+      printWindow.document.open();
+      printWindow.document.write(finalHTMLTag);
+
+      printWindow.document.close();
+      //printWindow.focus();
+      //printWindow.print();  
+
+          
+    }
   }
 
   /* *********************************************** */
   openPDF(): void {
 
+    let reportName='';
+    if (this.summaryReportFlag) {
+      reportName='saleReport';
+    }
+    else{
+      reportName='detailSaleReport';
+    }
+
     //if (this.summaryReportFlag) 
     {
-      let DATA: any = document.getElementById('saleReport');
+      let DATA: any = document.getElementById(reportName);
       html2canvas(DATA).then((canvas) => {
         let fileWidth = 208;
         let fileHeight = (canvas.height * fileWidth) / canvas.width;
@@ -225,10 +284,18 @@ export class ZreportComponent implements OnInit {
   }
   /* *********************************************** */
   exportexcel(): void {
+let reportName='';
+    if (this.summaryReportFlag) {
+      reportName='saleReport';
+    }
+    else{
+      reportName='detailSaleReport';
+    }
+
     //    if (this.summaryReportFlag) 
     {
       /* pass here the table id */
-      let element = document.getElementById('saleReport');
+      let element = document.getElementById(reportName);
       const ws: XLSX.WorkSheet = XLSX.utils.table_to_sheet(element);
 
       /* generate workbook and add the worksheet */
@@ -1286,7 +1353,11 @@ printDailyCloseSale(){
   }
   
 
-
+  roundNumber(value: number | string | null | undefined): number{
+    if (value === null || value === undefined) return 0;
+    const num = typeof value === 'string' ? parseFloat(value) : value;
+    return isNaN(num) ? 0 : Math.round(num);
+  }
 
 
   /* ************************ END ********************* */

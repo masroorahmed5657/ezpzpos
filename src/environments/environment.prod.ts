@@ -3,7 +3,7 @@ export const environment = {
   sessionTimeout: 60,
   enableLog: true,
   scannerFlag: true,
-  versionNumber: '25.05.2026 00077',
+  versionNumber: '08.15.2026 00088',
   appType: 'POS',
   dbEnv: 'LOCALAPI',
   posName: 'POS-01',
@@ -16,6 +16,8 @@ export const environment = {
   showTaxFlag: true,
   posCustomerNameFlag:false,
   posCustomerEmailFlag:false,
+  posCustomerPhoneFlag:true,
+  posCustomerPrintFlag:true,
   cancelSaleFlag:false,
   retrieveSaleFlag:false,
   showReturnsFlag:true,
@@ -26,14 +28,16 @@ export const environment = {
   printTokenFlag:true,
   showDineInFlag:false,
   showDeliveryFlag:false,
-  billCopyNumber:1,
+  billCopyNumber:2,
   showHomePageFlag: false,
   useDiscountValue: true,
   useItemDiscountValue: false,
   showCancelSaleFlag:true,
-  restaurantFlag:false,
+  restaurantFlag:true,
   fashionFlag:true,
   martFlag:false,
+  showDashboardFlag:false,
+  printTokenSinglePageFlag:true,
 
   // whatsappPhone:'+923219532952',
   // whatsappPhone:'+923219532952', //Masroor
@@ -158,60 +162,59 @@ export const environment = {
 
 //////////////////////////////////////////////////////////////
 
-// /* ********************************** TECHMACI ************************************ */
-//   appName: 'TechMaci',
-//   logoName: 'assets/images/logos/techmaci-logo.png',
-//   whatsappPhone:'+92349-202-2411', 
+/* ********************************** TECHMACI ************************************/ 
+  appName: 'TechMaci',
+  logoName: 'assets/images/logos/techmaci-logo.png',
+  whatsappPhone:'+92349-202-2411', 
 
-//   apiUrl: 'https://cp.techmaci.com:8443/FASHION_API/',
-//   // apiUrl: 'http://localhost:8080/FASHION_API/',
+  apiUrl: 'https://cp.techmaci.com:8443/DEMO_API/',
+  // apiUrl: 'http://localhost:8080/FASHION_API/',
   
-//   // localHostApi: 'http://localhost:8080/FASHION_API/',
-//   localHostApi: 'https://cp.techmaci.com:8443/FASHION_API/',
+  // localHostApi: 'http://localhost:8080/FASHION_API/',
+  localHostApi: 'https://cp.techmaci.com:8443/DEMO_API/',
 
-//   cloudAPIUrl: 'https://cp.techmaci.com:8443/FASHION_API/',
-//   subscriptionApiUrl: 'https://cp.techmaci.com:8443/SUBSCRIPTION_API/subscription/checkSubscription/TECHMACI/POS',
+  cloudAPIUrl: 'https://cp.techmaci.com:8443/DEMO_API/',
+  subscriptionApiUrl: 'https://cp.techmaci.com:8443/SUBSCRIPTION_API/subscription/checkSubscription/TECHMACI/POS',
 
-//   branchName: 'MainUniversityRd-KHI',
-//   posUrl: 'posDemo',
+  branchName: 'MainUniversityRd-KHI',
+  posUrl: 'posRestaurant',
 
-//   companyName: `<p>
-//               Fashion<br>
-//               📍 Shop#7, Main University Road, ChichaWatni<br>
-//               📞 0335-397-6518 | 🌐 www.techmaci.com<br>
-//               ✉ info@techmaci.com<br>
-//           </p>`,
+  companyName: `<p>
+              Fashion<br>
+              📍 Shop#7, Main University Road, ChichaWatni<br>
+              📞 0335-397-6518 | 🌐 www.techmaci.com<br>
+              ✉ info@techmaci.com<br>
+          </p>`,
 
-//   contactHtmlTag : `
-//         <div class="contact">
-//           <p>If you have any queries related, feel free to reach us at: <br>
-//               <i class="fa fa-fw fa-phone"></i> Techmaci <br>
-//               <i class="fa fa-fw fa-phone"></i>0349-202-2411/0335-397-6518 <br>
-//               <i class="fa fa-fw fa-envelope"></i>info@techmaci.com<br>
-//               <i class="fa fa-fw fa-map-pin"></i> www.techmaci.com
-//           </p>
-//         </div>
-//       `,
+  contactHtmlTag : `
+        <div class="contact">
+          <p>If you have any queries related, feel free to reach us at: <br>
+              <i class="fa fa-fw fa-phone"></i> Techmaci <br>
+              <i class="fa fa-fw fa-phone"></i>0349-202-2411/0335-397-6518 <br>
+              <i class="fa fa-fw fa-envelope"></i>info@techmaci.com<br>
+              <i class="fa fa-fw fa-map-pin"></i> www.techmaci.com
+          </p>
+        </div>
+      `,
 
-//   fbrHtmlTag : `  `,
-//   termHtmlTag: `
-//               <p class="termCondition">  
-//                 Thank you for shopping with TechMaci!
-//               </p>`,
+  fbrHtmlTag : `  `,
+  termHtmlTag: `
+              <p class="termCondition">  
+                Thank you for shopping with TechMaci!
+              </p>`,
 
 
-/* ********************** Break One Fashion01 Punjab ****************************************************** */
+/* ********************** Break One Fashion01 Punjab ****************************************************** 
   appName: 'Break One',
   logoName: 'assets/images/logos/B1-logo-3.png',
   whatsappPhone:'+92307-107-2834', 
-  apiUrl: 'https://cp.techmaci.com:8443/FASHION01_API/',
-
-  localHostApi: 'http://localhost:8080/FASHION01_API/',
-  cloudAPIUrl: 'https://cp.techmaci.com:8443/FASHION01_API/',
+  apiUrl: 'https://cp.techmaci.com:8443/RESTAURANT_API/',
+  localHostApi: 'http://localhost:8080/RESTAURANT_API/',
+  cloudAPIUrl: 'https://cp.techmaci.com:8443/RESTAURANT_API/',
   subscriptionApiUrl: 'https://cp.techmaci.com:8443/SUBSCRIPTION_API/subscription/checkSubscription/BREAKONE/POS',
 
   branchName: 'ChichaWatni',
-  posUrl: 'posCards',
+  posUrl: 'posRestaurant',
 
   companyName: `<p>
               <h1 style='text-transform: uppercase;'> Break One </h1>
@@ -251,7 +254,55 @@ export const environment = {
               </p>`,
 
 
+*/
+/* ********************** Jollie Bee ******************************************************
+  appName: 'Jollie Bee',
+  logoName: 'assets/images/logos/jollie-bee-logo.jpeg',
+  whatsappPhone:'+92307-107-2834', 
+  // apiUrl: 'https://cp.techmaci.com:8443/JOLLIEBEE_API/',
+  apiUrl:'http://localhost:8080/JOLLIEBEE_API/',
+  localHostApi: 'http://localhost:8080/JOLLIEBEE_API/',
+  cloudAPIUrl: 'https://cp.techmaci.com:8443/JOLLIEBEE_API/',
+  subscriptionApiUrl: 'https://cp.techmaci.com:8443/SUBSCRIPTION_API/subscription/checkSubscription/JOLLIEBEE/POS',
+
+  branchName: 'ChichaWatni',
+  posUrl: 'posRestaurant',
 
 
+  companyName: `<div style="text-align: center;">
+        <h4>From Oven to Heart</h4>
+        <h1 style="text-transform: uppercase; font-size: 48px; font-weight: bold; margin: 0;">
+            Jollie Bee
+        </h1>
+
+        <p style="margin-top: 10px; line-height: 1.6;">
+            📍 Block 10, Siddique Akbar Chouk, Chicha Watni<br>
+            📞 0309-400-0555 | 🌐 www.techmaci.com<br>
+            ✉ info@techmaci.com
+        </p>
+        </div>`        ,
+
+  contactHtmlTag : `
+        <div class="contact">
+          <p>If you have any queries related, feel free to reach us at: 
+              <i class="fa fa-fw fa-phone"></i> <b>Jollie Bee</b> <br>
+              <i class="fa fa-fw fa-phone"></i>0309-400-0555/0317-812-0888 <br>
+              <i class="fa fa-fw fa-envelope"></i>info@techmaci.com
+              <i class="fa fa-fw fa-map-pin"></i> www.techmaci.com
+          </p>
+          
+
+
+        </div>
+
+      `,
+
+  fbrHtmlTag : `  `,
+  termHtmlTag: `
+              <p class="termCondition">  
+                Thank you for shopping with <b>Jollie Bee</b>!
+              </p>`,
+
+*/
 
 };

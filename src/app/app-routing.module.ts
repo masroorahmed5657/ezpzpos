@@ -21,6 +21,7 @@ import { PosDeliveryComponent } from './pos-delivery/pos-delivery.component';
 import { DeliveryDashboardComponent } from './delivery-dashboard/delivery-dashboard.component';
 import { HomeComponent } from './home/home.component';
 import { RiderComponent } from './rider/rider.component';
+import { DashboardComponent } from './features/dashboard/dashboard.component';
 
 
 const routes: Routes = [
@@ -90,10 +91,13 @@ const routes: Routes = [
     path: 'rider',
     component: RiderComponent, canActivate:[AuthGaurdService, ]
   },
-
   {
     path: 'home',
      component:HomeComponent, canActivate:[AuthGaurdService, ]
+  },
+  {
+    path: 'dashboard',
+     component:DashboardComponent, canActivate:[AuthGaurdService, ]
   },
  
   {

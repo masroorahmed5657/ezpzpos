@@ -157,6 +157,11 @@ export class SalesAdjustmentComponent implements OnInit {
 
     this.salesAdj.adjustmentDate = new Date();
     this.salesAdj.createdDate = new Date();
+
+    if (this.order.orderId === undefined || this.order.orderId === null) {
+      Swal.fire('Error', 'Order ID is missing. Please check invoice number', 'error');
+      return;
+    }
     this.salesAdj.orderId = this.order.orderId;
 
     this.adjustmentSettlement.adjustmentId = this.salesAdj.adjustmentId;
@@ -679,33 +684,43 @@ export class SalesAdjustmentComponent implements OnInit {
 
 
   }
+  // /* ********************************************** */
+  // gotoPos() {
+
+  //   if (this.orderItemList.length > 0) {
+
+  //     Swal.fire({
+  //       title: 'Cancel Return',
+  //       text: 'Are you sure to Cancel Return?',
+  //       icon: 'warning',
+  //       showCancelButton: true,
+  //       confirmButtonText: 'Yes, Cancel it!',
+  //       cancelButtonText: 'No, keep it'
+  //     }).then((response: any) => {
+
+  //       if (response.value) {
+
+  //         this.clearCart();
+  //         this.router.navigate([this.posUrl]);
+  //       }
+
+  //     });
+  //   }
+  //   else {
+  //     this.clearCart();
+  //     this.router.navigate([this.posUrl]);
+
+  //   }
+
+
+  // }
   /* ********************************************** */
   gotoPos() {
 
-    if (this.orderItemList.length > 0) {
-
-      Swal.fire({
-        title: 'Cancel Return',
-        text: 'Are you sure to Cancel Return?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Yes, Cancel it!',
-        cancelButtonText: 'No, keep it'
-      }).then((response: any) => {
-
-        if (response.value) {
-
-          this.clearCart();
-          this.router.navigate([this.posUrl]);
-        }
-
-      });
-    }
-    else {
-      this.clearCart();
+    
       this.router.navigate([this.posUrl]);
 
-    }
+    
 
 
   }

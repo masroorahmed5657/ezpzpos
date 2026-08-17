@@ -5,8 +5,7 @@
 <link rel="stylesheet" href="../../assets/css/custom.css">
 <link rel="stylesheet" href="../../assets/css/responsive.css">
 
-<section class="inner_banner py-4"
-  style="background:url(assets/images/inner_banner/web.webp) center/cover no-repeat;">
+<section class="inner_banner py-4" style="background:url(assets/images/inner_banner/web.webp) center/cover no-repeat;">
 
   <div class="container">
     <div class="row align-items-center">
@@ -33,40 +32,30 @@
 
             <!-- USER ID -->
             <div class="mb-3">
-              <input type="text"
-                     class="form-control form-control-lg"
-                     formControlName="loginId"
-                     placeholder="Enter User Id"
-                     style="background:#e6f3fd;">
+              <input type="text" class="form-control form-control-lg" formControlName="loginId"
+                placeholder="Enter User Id" style="background:#e6f3fd;">
             </div>
 
             <!-- PASSWORD -->
             <div class="mb-3 position-relative">
-              <input
-                class="form-control form-control-lg"
-                [type]="showPassword ? 'text' : 'password'"
-                formControlName="loginPassword"
-                placeholder="Enter Password"
+              <input class="form-control form-control-lg" [type]="showPassword ? 'text' : 'password'"
+                formControlName="loginPassword" placeholder="Enter Password"
                 style="background:#e6f3fd; padding-right:3rem;">
 
-              <i class="bi bi-eye position-absolute top-50 end-0 translate-middle-y me-3"
-                 style="cursor:pointer;"
-                 (click)="togglePasswordVisibility()"></i>
+              <i class="bi bi-eye position-absolute top-50 end-0 translate-middle-y me-3" style="cursor:pointer;"
+                (click)="togglePasswordVisibility()"></i>
             </div>
-            <div class="mb-3 position-relative" *ngIf="showOpenBalanceFlag">
+            <div class="mb-3 position-relative" >
               <label>Cash Register:</label>
-     <select id="agentSelect" [(ngModel)]="cashierShift.deviceId" class="form-select " placeholder="Select Cash Register" [ngModelOptions]="{standalone: true}">
-        <option *ngFor="let device of deviceRegisterList" [value]="device.deviceId" >
-            {{ device.deviceName }}
-        </option>
-     </select>
-     <label>Opening Balance:</label>
-              <input type="text"
-                     class="form-control form-control-lg"
-                     [(ngModel)]="cashierShift.openingBalance"
-                     placeholder="Enter Opening Balance"
-                     [ngModelOptions]="{standalone: true}"
-                     >
+              <select id="agentSelect" [(ngModel)]="cashierShift.deviceId" class="form-select "
+                placeholder="Select Cash Register" [ngModelOptions]="{standalone: true}">
+                <option *ngFor="let device of deviceRegisterList" [value]="device.deviceId">
+                  {{ device.deviceName }}
+                </option>
+              </select>
+              <!-- <label *ngIf="showOpenBalanceFlag">Opening Balance:</label>
+              <input *ngIf="showOpenBalanceFlag" type="text" class="form-control form-control-lg" [(ngModel)]="cashierShift.openingBalance"
+                placeholder="Enter Opening Balance" [ngModelOptions]="{standalone: true}"> -->
 
             </div>
 
@@ -74,34 +63,25 @@
             <div *ngIf="registerFlag">
 
               <div class="mb-3">
-                <input class="form-control form-control-lg"
-                       formControlName="firstName"
-                       placeholder="First Name"
-                       style="background:#e6f3fd;">
+                <input class="form-control form-control-lg" formControlName="firstName" placeholder="First Name"
+                  style="background:#e6f3fd;">
               </div>
 
               <div class="mb-3">
-                <input class="form-control form-control-lg"
-                       formControlName="lastName"
-                       placeholder="Last Name"
-                       style="background:#e6f3fd;">
+                <input class="form-control form-control-lg" formControlName="lastName" placeholder="Last Name"
+                  style="background:#e6f3fd;">
               </div>
 
               <div class="mb-3">
-                <input type="email"
-                       class="form-control form-control-lg"
-                       formControlName="email"
-                       placeholder="Email"
-                       style="background:#e6f3fd;">
+                <input type="email" class="form-control form-control-lg" formControlName="email" placeholder="Email"
+                  style="background:#e6f3fd;">
               </div>
 
             </div>
 
             <!-- SIGN IN BUTTON -->
             <div class="d-grid mt-4">
-              <button type="submit"
-                      class="btn btn-primary btn-lg"
-                      (click)="signInClick()">
+              <button type="submit" class="btn btn-primary btn-lg" (click)="signInClick()">
                 Sign In
               </button>
             </div>
@@ -112,10 +92,8 @@
 
       <!-- RIGHT: IMAGE (HIDE ON MOBILE) -->
       <div class="col-lg-6 d-none d-lg-block text-center">
-        <img src="assets/images/logos/techmaci-logo2.jpeg"
-             class="img-fluid">
-        <img src="assets/images/logos/ezpz-logo.png"
-             class="img-fluid">
+        <img src="assets/images/logos/techmaci-logo2.jpeg" class="img-fluid">
+        <img src="assets/images/logos/ezpz-logo.png" class="img-fluid">
 
 
         <!-- <img src="assets/images/inner_banner/banner_right/pos_right.png"
@@ -143,13 +121,35 @@
 
   </div>
 
-<!-- Loading Spinner -->
-<div class="text-center my-5" *ngIf="spinnerDataLoad">
+  <!-- Loading Spinner -->
+  <div class="text-center my-5" *ngIf="spinnerDataLoad">
     <div class="spinner-border" role="status">
-        <span class="visually-hidden">Loading...</span>
+      <span class="visually-hidden">Loading...</span>
     </div>
     <p class="mt-2 text-muted">Logging to EZPZ POS...</p>
-</div>
+  </div>
 
+
+
+  <!-- Open dialog to ask for opening balance -->
+  <div class="modal fade" id="openBalanceModal" tabindex="-1" aria-labelledby="openBalanceModalLabel" aria-hidden="true"
+    [ngClass]="{'show d-block': openBalanceFlag}">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="openBalanceModalLabel">Enter Opening Balance</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <label for="openingBalance">Opening Balance:</label>
+          <input type="number" class="form-control" id="openingBalance" [(ngModel)]="cashierShift.openingBalance">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" (click)="saveOpenBalance()">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
 </section>

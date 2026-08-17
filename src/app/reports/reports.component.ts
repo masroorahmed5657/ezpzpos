@@ -1,7 +1,7 @@
 import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import * as XLSX from 'xlsx';
 import { ReportsService } from '../services/reports.service';
-import { OrderSaleDailyReport, OrderSaleReport, OrderSaleReportResponse, PaymentMethodReport, PaymentMethodResponse, ReportRequest } from '../model/model-classes.model';
+import { InvoiceSummary, OrderSaleDailyReport, OrderSaleReport, OrderSaleReportResponse, PaymentMethodReport, PaymentMethodResponse, ProfitReport, ProfitReportResponse, ReportRequest } from '../model/model-classes.model';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { faSignOut } from '@fortawesome/free-solid-svg-icons';
@@ -105,6 +105,10 @@ export class ReportsComponent implements OnInit {
   dailyReturnCashReport: OrderSaleDailyReport[] = [];
   dailyReturnCardReport: OrderSaleDailyReport[] = [];
 
+  profitReportResponse: ProfitReportResponse = new ProfitReportResponse();
+  profitReportList: ProfitReport[] = [];
+  invoiceMap = new Map<string, InvoiceSummary>();
+
 
   totalCashReturnCount = 0;
   totalCashReturnTax = 0;
@@ -132,7 +136,9 @@ export class ReportsComponent implements OnInit {
 
   title = 'angular-app';
   fileName = 'DailySale.xlsx';
-
+  totalCashProfit: number=0;
+  totalCardProfit: number=0;
+  totalProfit: number=0;
 
 
   print() {
@@ -312,6 +318,10 @@ export class ReportsComponent implements OnInit {
 
   ngOnInit(): void {
 
+    this.totalCashProfit = 0;
+    this.totalCardProfit = 0;
+    this.totalProfit = 0;
+
 
     let reportType = this.route.snapshot.paramMap.get('reportType');
 
@@ -422,6 +432,18 @@ export class ReportsComponent implements OnInit {
         this.totalCashCardSaleAmount = this.totalCashSaleAmount + this.totalCardSaleAmount;
 
 
+        //Code added on July 21, 2024 to summarize profit report by invoice number
+      let reportRequest: ReportRequest = new ReportRequest();
+      reportRequest.startDate = null;
+
+
+        this.reportsService.getProfitWithDates(reportRequest).subscribe((data: ProfitReportResponse) => {
+          let profitList: Map<string, number> = new Map<string, number>();
+
+          this.profitReportResponse = data;
+          this.profitReportList = data.profitReportList;
+          this.getProfitSummary();
+
 
         //Now segregate Cash and Card records
         for (let i = 0; i < this.dailySaleExcelReport.length; i++) {
@@ -430,13 +452,16 @@ export class ReportsComponent implements OnInit {
             //this.totalCashSaleAmount += this.dailySaleExcelReport[i].grandTotal;
 
             this.dailySaleCashReport.push(this.dailySaleExcelReport[i]);
+            this.totalCashProfit+=this.getProfit(this.dailySaleExcelReport[i].invoiceNumber);
           }
           else if (this.dailySaleExcelReport[i].paymentMethod === 'CARD') {
             //this.totalCardTax += this.dailySaleExcelReport[i].tax;
             //this.totalCardSaleAmount += this.dailySaleExcelReport[i].grandTotal;
 
             this.dailySaleCardReport.push(this.dailySaleExcelReport[i]);
+            this.totalCardProfit+=this.getProfit(this.dailySaleExcelReport[i].invoiceNumber);
           }
+          this.totalProfit=this.totalCashProfit+this.totalCardProfit;
 
         }//for loop
 
@@ -460,7 +485,7 @@ export class ReportsComponent implements OnInit {
         this.totalCashCardReturnTax = this.totalCashReturnTax;//+ this.totalCardReturnTax;
         this.totalCashCardReturnAmount = this.totalCashReturnAmount;// + this.totalCardReturnAmount;
 
-
+        });
       });
 
     }
@@ -948,7 +973,7 @@ export class ReportsComponent implements OnInit {
 
   startDateChange() {
     let st1 = (this.startDate).toString();
-    let st2= (this.endDate).toString();
+    let st2 = (this.endDate).toString();
     this.startDate;
     if ((this.startDate).toString() > (this.endDate).toString()) {
       Swal.fire('WARNING', 'End Date must be greater or equal to Start Date', 'warning');
@@ -1035,6 +1060,18 @@ export class ReportsComponent implements OnInit {
         this.totalCashCardTax = this.totalCashTax + this.totalCardTax;
         this.totalCashCardSaleAmount = this.totalCashSaleAmount + this.totalCardSaleAmount;
 
+        //Code added on July 21, 2024 to summarize profit report by invoice number
+        this.reportsService.getProfitWithDates(reportRequest).subscribe((data: ProfitReportResponse) => {
+          let profitList: Map<string, number> = new Map<string, number>();
+
+          this.profitReportResponse = data;
+          this.profitReportList = data.profitReportList;
+          this.getProfitSummary();
+
+
+       // });
+
+
 
 
         //Now segregate Cash and Card records
@@ -1044,27 +1081,24 @@ export class ReportsComponent implements OnInit {
             //this.totalCashSaleAmount += this.dailySaleExcelReport[i].grandTotal;
 
             this.dailySaleCashReport.push(this.dailySaleExcelReport[i]);
+            //Get Cash Profit
+            this.totalCashProfit+=this.getProfit(this.dailySaleExcelReport[i].invoiceNumber);
+
+
           }
           else if (this.dailySaleExcelReport[i].paymentMethod === 'CARD') {
             //this.totalCardTax += this.dailySaleExcelReport[i].tax;
             //this.totalCardSaleAmount += this.dailySaleExcelReport[i].grandTotal;
 
             this.dailySaleCardReport.push(this.dailySaleExcelReport[i]);
+            this.totalCardProfit+=this.getProfit(this.dailySaleExcelReport[i].invoiceNumber);
           }
+
+          this.totalProfit = this.totalCashProfit + this.totalCardProfit;
 
         }//for loop
 
-        /*
-        this.totalCashSaleCount = this.dailySaleCashReport.length;
-        this.totalCardSaleCount = this.dailySaleCardReport.length;
-
-        this.totalCashCardSaleCount = this.dailySaleCashReport.length + this.dailySaleCardReport.length;
-        this.totalCashCardTax = this.totalCashTax + this.totalCardTax;
-        this.totalCashCardSaleAmount = this.totalCashSaleAmount + this.totalCardSaleAmount;
-
-        */
-
-
+      
         ////////////////////////////////////////////////////////////////////////////////////
         ////// RETURN REPORT //////////////////
         ///////////////////////////////////////////////////////////////////////////////////
@@ -1075,12 +1109,7 @@ export class ReportsComponent implements OnInit {
 
             this.dailyReturnCashReport.push(this.dailySaleExcelReturnReport[i]);
           }
-          // else if (this.dailySaleExcelReturnReport[i].paymentMethod === 'CARD'){
-          //   this.totalCardReturnTax += this.dailySaleExcelReturnReport[i].tax;
-          //   this.totalCardReturnAmount += this.dailySaleExcelReturnReport[i].grandTotal;
-
-          //   this.dailyReturnCardReport.push(this.dailySaleExcelReturnReport[i]);
-          // }
+         
 
         }//for loop
         this.totalCashReturnCount = this.dailyReturnCashReport.length;
@@ -1090,13 +1119,69 @@ export class ReportsComponent implements OnInit {
         this.totalCashCardReturnTax = this.totalCashReturnTax;//+ this.totalCardReturnTax;
         this.totalCashCardReturnAmount = this.totalCashReturnAmount;// + this.totalCardReturnAmount;
 
+        });//Daily Sale Profit Report
 
       });
 
-    }
+
+    }//end if
 
   }
 
+  /* ******************************************************* */
+  /**
+   * Code added on July 21, 2024 to summarize profit report by invoice number
+   * This method groups the profit report items by invoice number and calculates the total unit price, total purchase price, and total total price for each invoice.
+   * The summarized data is stored in a new list called invoiceSummaryList.
+   */
+  getProfitSummary() {
+    //const invoiceMap = new Map<string, InvoiceSummary>();
+
+    this.profitReportList.forEach(item => {
+
+      const key = item.invoiceNumber.toUpperCase().trim();
+
+      if (!this.invoiceMap.has(key)) {
+        this.invoiceMap.set(key, {
+          invoiceNumber: key,
+          totalUnitPrice: 0,
+          totalPurchasePrice: 0,
+          totalTotalPrice: 0
+        });
+      }
+
+      const invoice = this.invoiceMap.get(key)!;
+      invoice.totalUnitPrice += item.unitPrice;
+      invoice.totalPurchasePrice += item.purchasePrice;
+      invoice.totalTotalPrice += item.totalPrice;
+      //this.totalCashProfit += item.totalPrice - item.purchasePrice;
+    });
+
+    //console.log(this.invoiceMap);
+
+    const invoiceSummaryList: InvoiceSummary[] = Array.from(this.invoiceMap.values());
+
+    console.log(invoiceSummaryList);
+  }
+
+  getInvoiceMapValue(key:any): InvoiceSummary | undefined {
+    return this.invoiceMap.get(key);
+
+  }
+
+  getProfit(key:any): number{
+    const invoice = this.invoiceMap.get(key);
+    let profit: number = 0;
+
+    profit= invoice ? invoice.totalTotalPrice - invoice.totalPurchasePrice : 0;
+    
+    return profit;
+  
+
+  }
+
+
+  /* ******************************************************* */
   toNumber(amount: any) {
 
     if (amount === undefined) {
