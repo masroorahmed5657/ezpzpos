@@ -397,11 +397,11 @@ export class PrintService {
             saleBeforeTaxTotal += price;
             saleDiscountTotal += Number(cartDataList.product[i].discountVal);
 
-            saleTotal += Number(cartDataList.product[i].totalPrice);
+            saleTotal += Number(price) * Number(cartDataList.product[i].quantity);
 
             itemListHtmlTag += taxTdBlock +
               `<td><b>` +
-              (Number(cartDataList.product[i].totalPrice)).toFixed(2) +
+              (Number(price) * Number(cartDataList.product[i].quantity)).toFixed(2) +
               `</b></td>
           </tr>
           `;
@@ -981,11 +981,11 @@ export class PrintService {
           //   taxTdBlock = ``;
           // }
 
-          saleTotal += Number(cartDataList.product[i].totalPrice);
+          saleTotal += Number(price) * Number(cartDataList.product[i].quantity);
 
           itemListHtmlTag += taxTdBlock +
             `<td><b>` +
-            (Number(cartDataList.product[i].totalPrice)).toFixed(2) +
+            (Number(price) * Number(cartDataList.product[i].quantity)).toFixed(2) +
             `</b></td>
           </tr>
           <tr>

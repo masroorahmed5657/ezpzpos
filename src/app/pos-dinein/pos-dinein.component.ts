@@ -4786,7 +4786,7 @@ img {
       //   }
 
       //   orderItem.discount = items.discount; //items.discount;
-      //   orderItem.unitPrice = (items.unitPrice);
+      //   orderItem.unitPrice = this.getPrice(items); //items.unitPrice;
       //   orderItem.updatedBy = this.signInUser;
       //   orderItem.itemStatus = 'SENT_TO_KITCHEN';
       //   orderItem.agentId = items.agentId; //Both are integer
@@ -4990,7 +4990,7 @@ img {
             }
 
             orderItem.discount = items.discount; //items.discount;
-            orderItem.unitPrice = (items.unitPrice);
+            orderItem.unitPrice = this.getPrice(items); //items.unitPrice;
             orderItem.updatedBy = this.signInUser;
             orderItem.itemStatus = 'SENT_TO_KITCHEN';
             orderItem.agentId = items.agentId; //Both are integer
@@ -5155,7 +5155,7 @@ img {
 
         orderItem.discount = items.discount; //items.discount;
 
-        orderItem.unitPrice = items.price; //this.getPrice(items);//items.unitPrice;
+        orderItem.unitPrice = this.getPrice(items); //items.unitPrice;
         orderItem.updatedBy = this.signInUser;
         orderItem.itemStatus = 'SENT_TO_KITCHEN';
         orderItem.agentId = items.agentId; //Both are integer
@@ -5339,7 +5339,7 @@ img {
 
       orderItem.discount = items.discount; //items.discount;
 
-      orderItem.unitPrice = items.price; //this.getPrice(items);//items.unitPrice;
+      orderItem.unitPrice = this.getPrice(items); //items.unitPrice;
       orderItem.updatedBy = this.signInUser;
       orderItem.itemStatus = 'SENT_TO_KITCHEN';
       orderItem.agentId = items.agentId; //Both are integer

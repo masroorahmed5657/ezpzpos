@@ -1,276 +1,294 @@
-.item-card {
-  cursor: pointer;
-  border-radius: 12px;
-  transition: transform 0.1s;
-  background: #f8f9fa;
+/* =========================================
+   Global & Header Styles
+   ========================================= */
+body {
+  background-color: #f4f6f9;
+  /* Softer background contrast against white panels */
 }
 
-.item-card:hover {
-  transform: scale(1.05);
-  background: #e9ecef;
-}
-
-.item-name {
-  font-size: 14px;
-  min-height: 36px;
-}
-
-.cart-scroll {
-  max-height: 60vh;
-  overflow-y: auto;
-}
-
-.cart-item {
-  background: #f8f9fa;
+/* Header Layout Improvements */
+.pos-top-header {
+  background: #ffffff;
+  padding: 8px 12px;
   border-radius: 8px;
-  padding: 8px;
+  border: 1px solid #dee2e6;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
-.qty-controls button {
-  width: 30px;
-  height: 30px;
-  padding: 0;
+.pos-action-bar {
+  background: #ffffff;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
 }
+
 .pos-logo {
-  max-height: 5rem;   /* adjust as needed: 40–60px */
-  //width: auto;
-  max-width: 5rem;
+  max-height: 50px;
+  max-width: 130px;
   object-fit: contain;
 }
-.prod-image {
-  max-height: 5rem;   /* adjust as needed: 40–60px */
-  max-width: 7rem;
-  //width: auto;
-  object-fit: contain;
+
+.pos-timer {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0d6efd;
+  background: #e9ecef;
+  padding: 5px 15px;
+  border-radius: 20px;
 }
-.price-css {
+
+.pos-closed-banner {
   text-align: center;
-  align-items: center;
-  font-size: larger;
-  max-width: 5rem;
-  max-height: 3rem;
-
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: white;
+  background-color: #dc3545;
+  padding: 6px 15px;
+  border-radius: 8px;
+  animation: blinkPOS 1.5s infinite;
 }
 
-.total-css {
-  text-align: center;
-  align-items: center;
-  font-size: larger;
+@keyframes blinkPOS {
 
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
 }
 
-.cart-title{
-    background-color: beige;
-    color: black;
-}
-.calculator .buttons button {
-  width: calc(20% - 2px);
-  margin: 1px;
-  font-size: 20px;
-  border: none;
-  border-radius: 5px;
+.waiter-input {
+  width: 160px !important;
+  font-size: 0.95rem;
   cursor: pointer;
 }
 
-.calculator input[type="text"] {
-  width: 100%;
-  margin-bottom: 10px;
-  padding: 5px;
+/* =========================================
+   Product Grid Area
+   ========================================= */
+.product-scroll {
+  height: calc(100vh - 170px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 8px;
+  scroll-behavior: smooth;
 }
 
-.calculator .buttons button:nth-child(4n) {
-  margin-right: 0;
+/* Custom, thin scrollbar */
+.product-scroll::-webkit-scrollbar,
+.cart-scroll::-webkit-scrollbar {
+  width: 6px;
 }
 
-.calculator .buttons button:hover {
-  background-color: #bbbaba;
-}
-.calculator-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-
-.calculator-grid button {
-  padding: 18px;
-  font-size: 1.4rem;
-  font-weight: bold;
+.product-scroll::-webkit-scrollbar-thumb,
+.cart-scroll::-webkit-scrollbar-thumb {
+  background: #adb5bd;
   border-radius: 10px;
 }
 
-.calculator-grid .btn-clear {
-  grid-column: span 3;
-  background: blue;
-  color: white;
+.item-card {
+  cursor: pointer;
+  border-radius: 10px;
+  border: 1px solid #e9ecef;
+  transition: all 0.2s ease-in-out;
+  background: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 
-.btn-checkout{
-    grid-column: span 3;
-    font-size: larger;
+.item-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  border-color: #0d6efd;
 }
 
+.prod-image {
+  height: 70px;
+  width: 100%;
+  object-fit: contain;
+  /* Keeps images perfectly scaled */
+  padding: 5px;
+  margin-bottom: 5px;
+}
+
+.item-name {
+  font-size: 0.85rem;
+  line-height: 1.2;
+  min-height: 34px;
+  /* Standardize height for exactly 2 lines */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 5px;
+}
+
+/* =========================================
+   Cart Area
+   ========================================= */
+.cart-scroll {
+  height: calc(100vh - 430px);
+  /* Leaves room for footer totals and notes */
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.cart-item {
+  background: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  transition: background 0.1s;
+}
+
+.cart-item:hover {
+  background: #f8f9fa;
+}
+
+.qty-controls {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: #e9ecef;
+  border-radius: 6px;
+  padding: 2px;
+}
+
+.qty-controls button {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  font-weight: bold;
+  background: white;
+}
+
+.qty-input {
+  width: 45px !important;
+  height: 32px;
+  text-align: center;
+  padding: 0;
+  font-weight: bold;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+}
+
+.price-css {
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
+/* =========================================
+   Checkout Modal & Calculator
+   ========================================= */
 .modal-backdrop {
   position: fixed;
   top: 0;
   left: 0;
-  width: 80%;
-  height: 80%;
-  background-color: rgba(0, 0, 0, 0.5);
-  /* Semi-transparent black */
-  backdrop-filter: blur(5px);
-  /* Apply blur effect */
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
   z-index: 1040;
-  /* Adjust z-index to ensure it's behind the modal */
 }
+
+.calculator-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #dee2e6;
+}
+
+.calculator-grid button {
+  padding: 15px;
+  font-size: 1.4rem;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+  background: #ffffff;
+  color: #212529;
+  transition: all 0.1s;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.calculator-grid button:hover {
+  background-color: #e9ecef;
+  border-color: #adb5bd;
+}
+
+.calculator-grid button:active {
+  transform: scale(0.98);
+}
+
+.calculator-grid .btn-checkout {
+  grid-column: span 3;
+  background: #198754;
+  color: white;
+  border: none;
+  font-size: 1.5rem;
+  padding: 20px;
+  margin-top: 10px;
+}
+
+.calculator-grid .btn-checkout:hover {
+  background: #157347;
+}
+
+.summary-box {
+  background: #ffffff;
+  border: 1px solid #dee2e6;
+  padding: 15px 20px;
+  margin-top: 10px;
+  border-radius: 8px;
+  font-size: 1.25rem;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.summary-box.balance {
+  background: #d1e7dd;
+  color: #0f5132;
+  border-color: #badbcc;
+}
+
+/* =========================================
+   Mobile Overrides
+   ========================================= */
 @media (max-width: 768px) {
-  table {
-    font-size: 0.85rem;
+  .waiter-input {
+    width: 120px !important;
   }
 
-  .modal-dialog {
-    margin: 0.5rem;
-  }
-}
-/* Mobile tweaks */
-@media (max-width: 768px) {
   .modal-dialog {
     margin: 0.5rem;
   }
 
   .modal-body {
-    padding: 0.75rem;
-  }
-}
-.summary-box {
-  background: #f8f9fa;
-  padding: 12px;
-  margin-top: 8px;
-  border-radius: 10px;
-  font-size: 1.5rem;
-  font-weight: 600;
-  display: flex;
-  justify-content: space-between;
-}
-
-.summary-box.balance {
-  background: #e6ffe6;
-  color: #0a7d00;
-}
-
-
-// .pos-header {
-//   flex-wrap: wrap;
-// }
-
-// .pos-logo {
-//   max-height: 40px;
-// }
-
-.pos-search {
-  font-size: 14px;
-  padding: 1px 1px;
-}
-
-.waiter-input {
-  width: 10rem;
-}
-
-@media (max-width: 768px) {
-  .pos-header {
-    flex-wrap: wrap;
+    padding: 1rem;
   }
 
-  .waiter-input {
-    width: 70px;
+  .product-scroll {
+    height: calc(100vh - 250px);
   }
-}
 
-.order-timer {
-  font-size: 1.3rem;
-  font-weight: bold;
-  padding: 6px 12px;
-  border-radius: 12px;
-  min-width: 80px;
-  text-align: center;
-}
-
-.timer-normal {
-  background: #e9f7ef;
-  color: #0f5132;
-}
-
-.timer-warning {
-  background: #dc3545;
-  color: #fff;
-}
-
-/* BLINKING EFFECT */
-.blink {
-  animation: blink 1s infinite;
-}
-
-@keyframes blink {
-  0%   { opacity: 1; }
-  50%  { opacity: 0.3; }
-  100% { opacity: 1; }
-}
-@media (min-width: 1200px) {
-  .order-timer {
-    font-size: 1.8rem;
+  .cart-scroll {
+    height: auto;
+    max-height: 40vh;
   }
-}
-.pos-closed-banner {
-  width: 100%;
-  text-align: center;
-  font-size: 32px;
-  font-weight: bold;
-  color: white;
-  background-color: red;
-  padding: 15px;
-  animation: blinkPOS 1s infinite;
-}
 
-@keyframes blinkPOS {
-  0% {
-    opacity: 1;
+  .calculator-grid button {
+    padding: 12px;
+    font-size: 1.2rem;
   }
-  50% {
-    opacity: 0.3;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-.pos-timer{
-  font-size:18px;
-  font-weight:600;
-  color:#0d6efd;
-}
-
-.product-scroll {
-    height: calc(100vh - 180px); /* adjust based on your header */
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding-right: 5px;
-    scroll-behavior: smooth;
-}
-.product-scroll::-webkit-scrollbar {
-    width: 6px;
-}
-
-.product-scroll::-webkit-scrollbar-thumb {
-    background: #ccc;
-    border-radius: 10px;
-}
-.cart-item {
-  border-radius: 10px;
-}
-
-.cart-item textarea {
-  font-size: 13px;
-}
-
-.cart-item button {
-  min-height: 32px;
 }

@@ -29,8 +29,8 @@
         <div class="col-auto d-none d-md-block gap-3" *ngIf="!disablePOSFlag">
             <!-- <label class="fw-bold">Name</label> -->
             <label>Name:</label>
-            <input type="search" placeholder="Search By Name" (keyup)="onNameSearch($event)"
-                [(ngModel)]="searchText" autocomplete="off" />
+            <input type="search" placeholder="Search By Name" (keyup)="onNameSearch($event)" [(ngModel)]="searchText"
+                autocomplete="off" />
 
             <ul class="list-group position-absolute w-100" *ngIf="showNameSearchDropdown && productList.length > 0"
                 style="z-index: 1000; max-height: 250px; overflow-y: auto;">

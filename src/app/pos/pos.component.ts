@@ -824,130 +824,90 @@ export class PosComponent {
   }
 
   /* ****************************************************************** */
-    addItemsToCart(productView: ProductView) {
-  
-      //There are 3 possibilities when product/upc found:
-      //1-There was no Cart available, brand new case
-      //2-Cart available but no products
-      //3-Cart available some products, and this upc is new to cart
-      //4-Cart available and this upc scanned again, increase QTY
-      let found = false;
-      let foundRow = 0;
-      //this.resetProductViewPrices(productView);
-      //Check Cart in cache
-      let posHomeCartData = localStorage.getItem('posHomeCart');
-      let cartData: CartHold = new CartHold();
-  
-      if (this.selectedAgent === undefined) {
-        Swal.fire('REQUIRED', 'Please select Agent', 'warning');
-        return;
-      }
-  
-      
-  
-  
-      if (posHomeCartData) {
-        //CASE-2,3,4
-        //Now get the existing cart with products/customer and other data
-        cartData = JSON.parse(posHomeCartData);
-        //check if there is any product in this cart
-        if (cartData.product.length > 0) {
-          //CASE 3 or 4, Check this product in Cart
-  
-          for (let i = 0; i < cartData.product.length; i++) {
-            if (cartData.product[i].productId === productView.productId) {
-              found = true;
-              foundRow = i;//saved row found in
-              break;
-  
-            }
-          }//for loop
-          if (!found) {
-            //CASE-3-Cart available some products, and this upc is new to cart
-            productView.quantity = 1;
-            productView.agentId = this.selectedAgent;//?.userId;
-            productView.loginId = this.selectedAgent;//;?.loginId;
-            //productView.firstName = this.selectedAgent?.firstName;
-            productView.price = this.getPrice(productView);
-            productView.totalPrice = 0;
-            productView.totalTax = 0;
-  
-            //@TODO Commented out 2024-09-06
-            //productView.discount = 0;
-            productView.discountVal = this.totalDiscount;
-            cartData.product.push(productView);
-            localStorage.setItem('posHomeCart', JSON.stringify(cartData));
-            //this.productService.pickupAddToCart(cartData);
-  
+  addItemsToCart(productView: ProductView) {
+
+    //There are 3 possibilities when product/upc found:
+    //1-There was no Cart available, brand new case
+    //2-Cart available but no products
+    //3-Cart available some products, and this upc is new to cart
+    //4-Cart available and this upc scanned again, increase QTY
+    let found = false;
+    let foundRow = 0;
+    //this.resetProductViewPrices(productView);
+    //Check Cart in cache
+    let posHomeCartData = localStorage.getItem('posHomeCart');
+    let cartData: CartHold = new CartHold();
+
+    if (this.selectedAgent === undefined) {
+      Swal.fire('REQUIRED', 'Please select Agent', 'warning');
+      return;
+    }
+
+
+
+
+    if (posHomeCartData) {
+      //CASE-2,3,4
+      //Now get the existing cart with products/customer and other data
+      cartData = JSON.parse(posHomeCartData);
+      //check if there is any product in this cart
+      if (cartData.product.length > 0) {
+        //CASE 3 or 4, Check this product in Cart
+
+        for (let i = 0; i < cartData.product.length; i++) {
+          if (cartData.product[i].productId === productView.productId) {
+            found = true;
+            foundRow = i;//saved row found in
+            break;
+
           }
-          else {
-            //CASE-4-Cart available and this upc scanned again, increase QTY
-            //Get current Qty from Cart.product found and add one to it
-            cartData.product[foundRow].quantity = Number(Number(cartData.product[foundRow].quantity) + 1);
-            let price = this.getPrice(productView);
-            //cartData.product[foundRow].price = Number(price) * Number(cartData.product[foundRow].quantity);
-            this.posHomeCart = cartData;
-            this.calculateDiscount(this.posHomeCart.product[foundRow].discount, foundRow);
-            this.priceCalculationPerRow(foundRow);
-            this.priceCalculationTotal();
-            //this.productService.pickupAddToCart(cartData);
-            localStorage.setItem('posHomeCart', JSON.stringify(cartData));
-  
-  
-            const row = document.getElementById(`product-row_${foundRow}`);
-            if (row) {
-              row.classList.add('blink');
-              setTimeout(() => {
-                row.classList.remove('blink');
-              }, 25000);
-            }
-  
-  
-          }
-  
-        }
-        else {
-          //CASE-2: Cart available but no products
-          //Add new item to product List for this cart
+        }//for loop
+        if (!found) {
+          //CASE-3-Cart available some products, and this upc is new to cart
           productView.quantity = 1;
           productView.agentId = this.selectedAgent;//?.userId;
-          productView.loginId = this.selectedAgent;//?.loginId;
+          productView.loginId = this.selectedAgent;//;?.loginId;
           //productView.firstName = this.selectedAgent?.firstName;
           productView.price = this.getPrice(productView);
           productView.totalPrice = 0;
           productView.totalTax = 0;
-  
+
           //@TODO Commented out 2024-09-06
-          // productView.discount = 0;
-          // productView.discountVal = 0;
+          //productView.discount = 0;
           productView.discountVal = this.totalDiscount;
-  
           cartData.product.push(productView);
-  
           localStorage.setItem('posHomeCart', JSON.stringify(cartData));
-  
+          //this.productService.pickupAddToCart(cartData);
+
         }
-  
+        else {
+          //CASE-4-Cart available and this upc scanned again, increase QTY
+          //Get current Qty from Cart.product found and add one to it
+          cartData.product[foundRow].quantity = Number(Number(cartData.product[foundRow].quantity) + 1);
+          let price = this.getPrice(productView);
+          //cartData.product[foundRow].price = Number(price) * Number(cartData.product[foundRow].quantity);
+          this.posHomeCart = cartData;
+          this.calculateDiscount(this.posHomeCart.product[foundRow].discount, foundRow);
+          this.priceCalculationPerRow(foundRow);
+          this.priceCalculationTotal();
+          //this.productService.pickupAddToCart(cartData);
+          localStorage.setItem('posHomeCart', JSON.stringify(cartData));
+
+
+          const row = document.getElementById(`product-row_${foundRow}`);
+          if (row) {
+            row.classList.add('blink');
+            setTimeout(() => {
+              row.classList.remove('blink');
+            }, 25000);
+          }
+
+
+        }
+
       }
       else {
-        //CASE-1: No Cart available, No Item available, Brand new Empty Case
-        //create brand new cart of type cartHold, already declared
-        //@@COMMENTED on Mar19
-        // cartData.customer = new Customer();
-        // if (!environment.posCustomerNameFlag) {
-        //   cartData.customer.firstName = 'POSCustomer';//set default
-        // }
-        // if (!environment.posCustomerEmailFlag) {
-        //   cartData.customer.email = 'info@techmaci.com';//set default
-        // }
-        // cartData.customer.phone1 = this.customer.phone1;
-  
-        cartData.shipping = 0;
-        cartData.subTotal = 0;
-        cartData.discount = 0;
-        cartData.taxes = 0;
-        cartData.transactionId = 0;
-  
+        //CASE-2: Cart available but no products
         //Add new item to product List for this cart
         productView.quantity = 1;
         productView.agentId = this.selectedAgent;//?.userId;
@@ -956,51 +916,91 @@ export class PosComponent {
         productView.price = this.getPrice(productView);
         productView.totalPrice = 0;
         productView.totalTax = 0;
-  
+
         //@TODO Commented out 2024-09-06
         // productView.discount = 0;
         // productView.discountVal = 0;
         productView.discountVal = this.totalDiscount;
-  
+
         cartData.product.push(productView);
-  
+
         localStorage.setItem('posHomeCart', JSON.stringify(cartData));
-  
+
       }
-  
-      this.posHomeCart = cartData; //Assign current local cartData
-      //Finally, set all variables and focus on Discount
-      let count = this.posHomeCart.product.length - 1;
-  
-      this.posHomeCart.discount = this.customer.discountAmount;
-      this.posHomeCart.discountPercentage = this.customer.discountPercentage;
-  
-      this.priceCalculationPerRow(count);
-      this.priceCalculationTotal();
-      //Save again
-      localStorage.setItem('posHomeCart', JSON.stringify(this.posHomeCart));
-  
-      let discountColName = '';
-      if (found) {
-        discountColName = `discount_${foundRow}`;
-        //this.discountFocus(true, discountColName);
-      }
-      else {
-        discountColName = `discount_${count}`;
-        //this.discountFocus(true, discountColName);
-      }
-  
-      // ✅ clear search + dropdown
-      this.searchText = '';
-      //this.showNameSearchDropdown = false;
-  
-  
-      //Play Beep
-      new Audio('assets/audio/beep.mp3').play();
-  
-  
+
     }
-  
+    else {
+      //CASE-1: No Cart available, No Item available, Brand new Empty Case
+      //create brand new cart of type cartHold, already declared
+      //@@COMMENTED on Mar19
+      // cartData.customer = new Customer();
+      // if (!environment.posCustomerNameFlag) {
+      //   cartData.customer.firstName = 'POSCustomer';//set default
+      // }
+      // if (!environment.posCustomerEmailFlag) {
+      //   cartData.customer.email = 'info@techmaci.com';//set default
+      // }
+      // cartData.customer.phone1 = this.customer.phone1;
+
+      cartData.shipping = 0;
+      cartData.subTotal = 0;
+      cartData.discount = 0;
+      cartData.taxes = 0;
+      cartData.transactionId = 0;
+
+      //Add new item to product List for this cart
+      productView.quantity = 1;
+      productView.agentId = this.selectedAgent;//?.userId;
+      productView.loginId = this.selectedAgent;//?.loginId;
+      //productView.firstName = this.selectedAgent?.firstName;
+      productView.price = this.getPrice(productView);
+      productView.totalPrice = 0;
+      productView.totalTax = 0;
+
+      //@TODO Commented out 2024-09-06
+      // productView.discount = 0;
+      // productView.discountVal = 0;
+      productView.discountVal = this.totalDiscount;
+
+      cartData.product.push(productView);
+
+      localStorage.setItem('posHomeCart', JSON.stringify(cartData));
+
+    }
+
+    this.posHomeCart = cartData; //Assign current local cartData
+    //Finally, set all variables and focus on Discount
+    let count = this.posHomeCart.product.length - 1;
+
+    this.posHomeCart.discount = this.customer.discountAmount;
+    this.posHomeCart.discountPercentage = this.customer.discountPercentage;
+
+    this.priceCalculationPerRow(count);
+    this.priceCalculationTotal();
+    //Save again
+    localStorage.setItem('posHomeCart', JSON.stringify(this.posHomeCart));
+
+    let discountColName = '';
+    if (found) {
+      discountColName = `discount_${foundRow}`;
+      //this.discountFocus(true, discountColName);
+    }
+    else {
+      discountColName = `discount_${count}`;
+      //this.discountFocus(true, discountColName);
+    }
+
+    // ✅ clear search + dropdown
+    this.searchText = '';
+    //this.showNameSearchDropdown = false;
+
+
+    //Play Beep
+    new Audio('assets/audio/beep.mp3').play();
+
+
+  }
+
 
 
   /* ************************************************************** */
@@ -1757,194 +1757,194 @@ export class PosComponent {
     this.commonCheckOut(posHomeCart, customer);
   } //guestCheckout()
   /* ******************************************************* */
-    /* ******************************************************* */
-    commonCheckOut(pickupCart: any, customer: Customer) {
-  
-      if (pickupCart) {
-  
-        let orderSaveResponse: OrderSaveResponse = new OrderSaveResponse();
-  
-        let myRefferral = this.cache.get('representative');
-  
-        /* ******************** CHECKOUT Disable ************************** */
-        //this.router.navigate(['/checkout']);
-  
-        /* ******************** ORDER Header Data ************************** */
-        let order: Orders = new Orders();
-        order.custId = customer.custId;
-  
-        //Check if it is Delivery
-        if (this.orderType) {
-          order.orderType = 'DELIVERY';
-        }
-        else {
-          order.orderType = 'PICKUP';
-        }
-  
-  
-        order.pickupType = 'ONSITE'; //this.cartForm.get('pickupType')?.value;
-        order.pickupTime = 'DAYTIME'; //this.cartForm.get('pickupTime')?.value;
-        order.orderStatus = 'NEW';
-        order.updatedBy = this.signInUser;
-        order.price = 0; //this.priceSummary.price
-  
-        //This will get item orders amount and item discount
-        this.getOrderAmount(order);
-        //order.orderAmount = this.getOrderAmount(order); //this.priceSummary.total;//order.price; //price/cut price of each item
-  
-        //order.discount = this.priceSummary.discount;
-        //Change made on April 04, 2026
-        //Write discount value not %
-        //let orderDiscount = this.posHomeCart.discount ;
-        //let discountValue = (order.orderAmount * orderDiscount)/100;
-        //Add Item discount and Total Sale Discount in order.discount
-        order.discount = this.posHomeCart.discount;
-  
-        order.posName = environment.posName;
-        order.branchName = environment.branchName;
-        order.custPhone = customer.phone1;
-        order.custEmail = customer.email;
-        order.grandTotal = this.posHomeCart.total;;
-        order.notes = this.orderNotes;
-  
-        if (this.showTaxFlag) {
-          //        order.grandTotal = this.priceSummary.total + this.priceSummary.tax - this.priceSummary.discount;
-          order.tax = this.posHomeCart.taxes.toFixed(2);
-          orderSaveResponse.showTaxFlag = this.showTaxFlag;
-        }
-        else {
-          //      order.grandTotal = this.priceSummary.total;
-          order.tax = 0;
-          this.taxCouponFlag = true;//Don't print FBR QR
-        }
-  
-        orderSaveResponse.taxCouponFlag = true; //this.taxCouponFlag; No need of FBR for demo
-  
-  
-        //order.shippingHandling = this.posHomeCart.delivery.toFixed(2);
-  
-  
-        orderSaveResponse.orders = order;
-  
-        let orderItem: OrdersItems;
-        let productData: Product;
-  
-        /* ******************* ITEMS LOOP ********************* */
-        this.posHomeCart.product.forEach((items) => {
-          orderItem = new OrdersItems();
-          orderItem.productId = items.productId;
+  /* ******************************************************* */
+  commonCheckOut(pickupCart: any, customer: Customer) {
+
+    if (pickupCart) {
+
+      let orderSaveResponse: OrderSaveResponse = new OrderSaveResponse();
+
+      let myRefferral = this.cache.get('representative');
+
+      /* ******************** CHECKOUT Disable ************************** */
+      //this.router.navigate(['/checkout']);
+
+      /* ******************** ORDER Header Data ************************** */
+      let order: Orders = new Orders();
+      order.custId = customer.custId;
+
+      //Check if it is Delivery
+      if (this.orderType) {
+        order.orderType = 'DELIVERY';
+      }
+      else {
+        order.orderType = 'PICKUP';
+      }
+
+
+      order.pickupType = 'ONSITE'; //this.cartForm.get('pickupType')?.value;
+      order.pickupTime = 'DAYTIME'; //this.cartForm.get('pickupTime')?.value;
+      order.orderStatus = 'NEW';
+      order.updatedBy = this.signInUser;
+      order.price = 0; //this.priceSummary.price
+
+      //This will get item orders amount and item discount
+      this.getOrderAmount(order);
+      //order.orderAmount = this.getOrderAmount(order); //this.priceSummary.total;//order.price; //price/cut price of each item
+
+      //order.discount = this.priceSummary.discount;
+      //Change made on April 04, 2026
+      //Write discount value not %
+      //let orderDiscount = this.posHomeCart.discount ;
+      //let discountValue = (order.orderAmount * orderDiscount)/100;
+      //Add Item discount and Total Sale Discount in order.discount
+      order.discount = this.posHomeCart.discount;
+
+      order.posName = environment.posName;
+      order.branchName = environment.branchName;
+      order.custPhone = customer.phone1;
+      order.custEmail = customer.email;
+      order.grandTotal = this.posHomeCart.total;;
+      order.notes = this.orderNotes;
+
+      if (this.showTaxFlag) {
+        //        order.grandTotal = this.priceSummary.total + this.priceSummary.tax - this.priceSummary.discount;
+        order.tax = this.posHomeCart.taxes.toFixed(2);
+        orderSaveResponse.showTaxFlag = this.showTaxFlag;
+      }
+      else {
+        //      order.grandTotal = this.priceSummary.total;
+        order.tax = 0;
+        this.taxCouponFlag = true;//Don't print FBR QR
+      }
+
+      orderSaveResponse.taxCouponFlag = true; //this.taxCouponFlag; No need of FBR for demo
+
+
+      //order.shippingHandling = this.posHomeCart.delivery.toFixed(2);
+
+
+      orderSaveResponse.orders = order;
+
+      let orderItem: OrdersItems;
+      let productData: Product;
+
+      /* ******************* ITEMS LOOP ********************* */
+      this.posHomeCart.product.forEach((items) => {
+        orderItem = new OrdersItems();
+        orderItem.productId = items.productId;
+        orderItem.quantity = items.quantity;
+        if (items.sellinPcs) {
           orderItem.quantity = items.quantity;
-          if (items.sellinPcs) {
-            orderItem.quantity = items.quantity;
-          }
-          else {
-            orderItem.measuringUnit = items.unitName;
-            orderItem.weight = items.weight;
-          }
-  
-          orderItem.discount = items.discount; //items.discount;
-          orderItem.unitPrice = this.getPrice(items);//items.unitPrice;
-          orderItem.updatedBy = this.signInUser;
-          orderItem.itemStatus = 'CLOSED';
-          orderItem.agentId = items.agentId; //Both are integer
-          orderItem.discountValue = items.discountVal;
-          orderItem.taxAmount = items.totalTax;
-          orderItem.totalPrice = items.totalPrice;
-          orderItem.notes = items.notes;
-          orderItem.orderId = order.orderId
-  
-          orderSaveResponse.orderItems?.push(orderItem);
-  
-        });//this.posHomeCart?.forEach((items)=>
-  
-        let len = orderSaveResponse.orderItems.length;
-        orderSaveResponse.orders = order;
-        //this.payment.orderId = orderId;
-        this.payment.discount = this.posHomeCart.discount;
-        this.payment.taxesAmount = this.posHomeCart.taxes;
-        this.payment.totalAmount = this.posHomeCart.total;
-        orderSaveResponse.payment = this.payment;
-  
-        this.orderService.saveOrder(orderSaveResponse).subscribe(data => {
-          if (data != undefined) {
-            let orderId = data.orders?.orderId;
-            let orderNum = data.orders?.orderNum;
-            if (orderId) {
-              if (data.orders != null || data.orders != undefined) {
-                let myOrder: Orders = data.orders;
-                let items = data.orderItems;
-  
-                /*
-                //Payment save
-                this.payment.orderId = orderId;
-                this.payment.discount = this.priceSummary.discount;
-                this.payment.taxesAmount = this.priceSummary.tax;
-                this.payment.totalAmount = this.priceSummary.grandTotal;
-                this.paymentService.savePayment(this.payment).subscribe(data => {
-                  if (data != undefined) {
-                    let resp = data.statusCode;
+        }
+        else {
+          orderItem.measuringUnit = items.unitName;
+          orderItem.weight = items.weight;
+        }
+
+        orderItem.discount = items.discount; //items.discount;
+        orderItem.unitPrice = this.getPrice(items);//items.unitPrice;
+        orderItem.updatedBy = this.signInUser;
+        orderItem.itemStatus = 'CLOSED';
+        orderItem.agentId = items.agentId; //Both are integer
+        orderItem.discountValue = items.discountVal;
+        orderItem.taxAmount = items.totalTax;
+        orderItem.totalPrice = items.totalPrice;
+        orderItem.notes = items.notes;
+        orderItem.orderId = order.orderId
+
+        orderSaveResponse.orderItems?.push(orderItem);
+
+      });//this.posHomeCart?.forEach((items)=>
+
+      let len = orderSaveResponse.orderItems.length;
+      orderSaveResponse.orders = order;
+      //this.payment.orderId = orderId;
+      this.payment.discount = this.posHomeCart.discount;
+      this.payment.taxesAmount = this.posHomeCart.taxes;
+      this.payment.totalAmount = this.posHomeCart.total;
+      orderSaveResponse.payment = this.payment;
+
+      this.orderService.saveOrder(orderSaveResponse).subscribe(data => {
+        if (data != undefined) {
+          let orderId = data.orders?.orderId;
+          let orderNum = data.orders?.orderNum;
+          if (orderId) {
+            if (data.orders != null || data.orders != undefined) {
+              let myOrder: Orders = data.orders;
+              let items = data.orderItems;
+
+              /*
+              //Payment save
+              this.payment.orderId = orderId;
+              this.payment.discount = this.priceSummary.discount;
+              this.payment.taxesAmount = this.priceSummary.tax;
+              this.payment.totalAmount = this.priceSummary.grandTotal;
+              this.paymentService.savePayment(this.payment).subscribe(data => {
+                if (data != undefined) {
+                  let resp = data.statusCode;
+                }
+              });
+              */
+
+              this.fbrInvoiceNumber = data.fbrInvoiceNumber;
+              this.fbrQRCode = data.barcodeResp;
+
+              let currentUser: any = sessionStorage.getItem('currentUser');
+              let myCustomer: Customer = JSON.parse(currentUser);
+              this.invoiceNumber = 'BL' + data.orders.invoiceNumber;
+
+              this.todaydatashow = data.orders.createDate;
+              localStorage.setItem('posHomeCart', '');
+              //this.selectedAgent = new AdminUser();
+              //this.cache.set("selectedAgent", JSON.stringify(this.selectedAgent));
+
+              this.cache.set('reload', 'F');
+
+              //Swal.fire('Submit', 'Order#' + orderNum + ' has been created.', 'success')
+
+              Swal.fire({ title: 'Order', timer: 1000, text: `'Order# ${orderNum}!`, icon: 'success' })
+                .then((result) => {
+                  {
+                    this.cache.set('reload', 'F');
+
+                    //printThermal(customer: Customer, payment: Payment, posHomeCart: CartHold, customerBalance: number, invoiceNumber: any)
+                    let dinInFlag = false;
+                    this.printService.printThermalRestaurant(customer, this.payment, this.posHomeCart,
+                      this.customerBalance, this.invoiceNumber, this.printTokenFlag, this.todaydatashow, this.orderNotes, dinInFlag, this.billCopyNumber);
+
+                    //Reset to Default Customer
+                    this.customer = new Customer();
+                    localStorage.setItem('customer', JSON.stringify(this.defaultCustomer));
+
+                    // Reload the page
+                    window.location.reload();
                   }
                 });
-                */
-  
-                this.fbrInvoiceNumber = data.fbrInvoiceNumber;
-                this.fbrQRCode = data.barcodeResp;
-  
-                let currentUser: any = sessionStorage.getItem('currentUser');
-                let myCustomer: Customer = JSON.parse(currentUser);
-                this.invoiceNumber = 'BL' + data.orders.invoiceNumber;
-  
-                this.todaydatashow = data.orders.createDate;
-                localStorage.setItem('posHomeCart', '');
-                //this.selectedAgent = new AdminUser();
-                //this.cache.set("selectedAgent", JSON.stringify(this.selectedAgent));
-  
-                this.cache.set('reload', 'F');
-  
-                //Swal.fire('Submit', 'Order#' + orderNum + ' has been created.', 'success')
-  
-                Swal.fire({ title: 'Order', timer: 1000, text: `'Order# ${orderNum}!`, icon: 'success' })
-                  .then((result) => {
-                    {
-                      this.cache.set('reload', 'F');
-  
-                      //printThermal(customer: Customer, payment: Payment, posHomeCart: CartHold, customerBalance: number, invoiceNumber: any)
-                      let dinInFlag = false;
-                      this.printService.printThermalRestaurant(customer, this.payment, this.posHomeCart,
-                        this.customerBalance, this.invoiceNumber, this.printTokenFlag, this.todaydatashow, this.orderNotes, dinInFlag, this.billCopyNumber);
-  
-                      //Reset to Default Customer
-                      this.customer = new Customer();
-                      localStorage.setItem('customer', JSON.stringify(this.defaultCustomer));
-  
-                      // Reload the page
-                      window.location.reload();
-                    }
-                  });
-  
-                // const button = document.getElementById('{card-button}') as HTMLButtonElement;
-                // button.disabled = false;  
-  
-                //              window.location.reload();
-  
-              }
-              else {
-                window.location.reload();
-  
-              }
-  
+
+              // const button = document.getElementById('{card-button}') as HTMLButtonElement;
+              // button.disabled = false;  
+
+              //              window.location.reload();
+
             }
+            else {
+              window.location.reload();
+
+            }
+
           }
-  
-        });
-  
-  
-      }//end if pickupCart
-    }//commonCheckOut()
-  
-  
-    /* *********** CHECKOUT ENDS *************** */
-  
+        }
+
+      });
+
+
+    }//end if pickupCart
+  }//commonCheckOut()
+
+
+  /* *********** CHECKOUT ENDS *************** */
+
 
   /* ******************************************************* */
   weightChange(index: number) {
@@ -1995,7 +1995,7 @@ export class PosComponent {
   //   return this.customerForm.controls;
   // }
 
-/* ************************************************************** */
+  /* ************************************************************** */
 
 
   /* ************************************************************** */
@@ -3374,14 +3374,14 @@ export class PosComponent {
       if (this.posHomeCart.product[row].discountVal === undefined) {
         this.posHomeCart.product[row].discountVal = 0;
       }
-      let priceMinusDiscount=0;
-      if (this.useItemDiscountValue){
+      let priceMinusDiscount = 0;
+      if (this.useItemDiscountValue) {
         priceMinusDiscount = (priceWithQty) - Number(this.posHomeCart.product[row].discountVal);
       }
-      else{
+      else {
         priceMinusDiscount = (priceWithQty);
       }
-      
+
       this.posHomeCart.product[row].totalTax = ((priceMinusDiscount) * this.posHomeCart.product[row].tax) / 100;
       this.posHomeCart.product[row].totalPrice = ((Number(priceMinusDiscount) + this.posHomeCart.product[row].totalTax).toFixed(2));
 
@@ -3394,15 +3394,15 @@ export class PosComponent {
       if (this.posHomeCart.product[row].discountVal === undefined) {
         this.posHomeCart.product[row].discountVal = 0;
       }
-      if (this.useItemDiscountValue){
-          this.posHomeCart.product[row].totalPrice = ((Number((priceWithQty) - Number(this.posHomeCart.product[row].discountVal))).toFixed(2));
+      if (this.useItemDiscountValue) {
+        this.posHomeCart.product[row].totalPrice = ((Number((priceWithQty) - Number(this.posHomeCart.product[row].discountVal))).toFixed(2));
       }
-      else{
-          this.posHomeCart.product[row].totalPrice = Number(priceWithQty) ;
+      else {
+        this.posHomeCart.product[row].totalPrice = Number(priceWithQty);
       }
 
 
-  
+
     }
 
 
@@ -3411,7 +3411,7 @@ export class PosComponent {
   }
 
   /* ************************************************************** */
-    priceCalculationTotal(): void {
+  priceCalculationTotal(): void {
 
     if (this.posHomeCart.product.length === 0) return;
 
@@ -3492,28 +3492,28 @@ export class PosComponent {
   }
 
 
-/* *************************************************************** */
-  taxDiscountCalculations(){
+  /* *************************************************************** */
+  taxDiscountCalculations() {
 
-    if (this.posHomeCart.discountPercentage===undefined || this.posHomeCart.discountPercentage===null){
-      this.posHomeCart.discountPercentage=0;
+    if (this.posHomeCart.discountPercentage === undefined || this.posHomeCart.discountPercentage === null) {
+      this.posHomeCart.discountPercentage = 0;
     }
-    if (this.posHomeCart.taxesPercentage===undefined || this.posHomeCart.taxesPercentage===null){
-      this.posHomeCart.taxesPercentage=0;
+    if (this.posHomeCart.taxesPercentage === undefined || this.posHomeCart.taxesPercentage === null) {
+      this.posHomeCart.taxesPercentage = 0;
     }
 
-    if (this.useDiscountValue){
+    if (this.useDiscountValue) {
       this.posHomeCart.discount = this.customer.discountAmount;
     }
-    else{
-      this.posHomeCart.discount = (this.posHomeCart.discountPercentage * this.posHomeCart.subTotal)/100;
+    else {
+      this.posHomeCart.discount = (this.posHomeCart.discountPercentage * this.posHomeCart.subTotal) / 100;
     }
-    
+
 
     this.totalDiscount = this.posHomeCart.discount;
     this.totalDiscountPercentage = this.posHomeCart.discountPercentage;
 
-    this.posHomeCart.taxes = (this.posHomeCart.taxesPercentage * this.posHomeCart.subTotal)/100;
+    this.posHomeCart.taxes = (this.posHomeCart.taxesPercentage * this.posHomeCart.subTotal) / 100;
     this.totalTaxValue = this.posHomeCart.taxes;
     this.totalTax = this.posHomeCart.taxesPercentage;
 
@@ -4218,24 +4218,24 @@ export class PosComponent {
     //Discount is in %age
     console.log("Discount changed: ", discount);
 
-    if (discount===undefined || discount===null){
-      discount=0;
+    if (discount === undefined || discount === null) {
+      discount = 0;
     }
-    
 
-    if (!this.useDiscountValue){
+
+    if (!this.useDiscountValue) {
       this.posHomeCart.discountPercentage = discount;//%age
       this.posHomeCart.discount = (discount * this.posHomeCart.subTotal) / 100;
       this.posHomeCart.total = (this.posHomeCart.subTotal - (discount * this.posHomeCart.subTotal) / 100) + this.posHomeCart.taxes;
     }
-    else{
+    else {
       this.posHomeCart.discount = discount; //Value
       this.posHomeCart.total = this.posHomeCart.subTotal - discount + this.posHomeCart.taxes;
     }
-    
+
     this.totalDiscount = this.posHomeCart.discount;
 
-    
+
     // this.posHomeCart.total = (this.posHomeCart.subTotal - (discount * this.posHomeCart.subTotal) / 100) + this.posHomeCart.taxes;
 
     // this.posHomeCart.discount = this.posHomeCart.discount;
@@ -4360,7 +4360,7 @@ export class PosComponent {
     this.cashModal = false;
   }
 
-    /* ****************************************** */
+  /* ****************************************** */
   async createSaleOrder() {
     //this.payment.paymentMethod = source;
     this.payment.discount = this.posHomeCart.discount;
@@ -4382,8 +4382,8 @@ export class PosComponent {
     //customer = this.defaultCustomer;
     customer = await this.checkUserEnterCustomer();
 
-    if (customer===null){
-          /* ************ Default Customer *************** */
+    if (customer === null) {
+      /* ************ Default Customer *************** */
       let customerObj = localStorage.getItem('customer');
       if (customerObj) {
         this.defaultCustomer = JSON.parse(customerObj);
@@ -4404,7 +4404,7 @@ export class PosComponent {
 
   }
 
-    /* ***************** NEW Method to get Order Amount ********************* */
+  /* ***************** NEW Method to get Order Amount ********************* */
   getOrderAmount(order: Orders) {
     /* ******************* ITEMS LOOP ********************* */
     let orderAmount = 0;
@@ -4422,42 +4422,42 @@ export class PosComponent {
 
 
   /* ***************** NEW Method to get Order Amount with Tax and Discount ********************* */
-    async printBill() {
-  
-      if (this.posHomeCart.product.length === 0) {
-        Swal.fire('WARNING', 'Cart is Empty', 'warning');
-        return;
-      }
-      let dinInFlag = false;
-      //This methods gets called from Guest Customer Data Entry form, when user click Checkout after entering his/her data.
-      let customer = new Customer();
-  
-      customer = this.defaultCustomer;
-      //customer = await this.checkUserEnterCustomer();
-  
-      this.payment.paymentStatus = 'COMPLETED';
-      this.payment.instalmentAmount = 0;
-      this.payment.remainingBalance = (this.posHomeCart.total);
-      this.payment.discount = this.posHomeCart.discount;
-      this.payment.taxesAmount = this.posHomeCart.taxes;
-      this.payment.totalAmount = (this.posHomeCart.total);
-      this.payment.customerPaid = 0;
-  
-      let billCopy = 1;//Print Bill force it 1 copy
-  
-      this.printService.printThermalRestaurant(customer,
-        this.payment,
-        this.posHomeCart,
-        this.customerBalance,
-        this.invoiceNumber,
-        this.printTokenFlag,
-        this.todaydatashow,
-        this.orderNotes,
-        dinInFlag,
-        billCopy);
-  
+  async printBill() {
+
+    if (this.posHomeCart.product.length === 0) {
+      Swal.fire('WARNING', 'Cart is Empty', 'warning');
+      return;
     }
-  
+    let dinInFlag = false;
+    //This methods gets called from Guest Customer Data Entry form, when user click Checkout after entering his/her data.
+    let customer = new Customer();
+
+    customer = this.defaultCustomer;
+    //customer = await this.checkUserEnterCustomer();
+
+    this.payment.paymentStatus = 'COMPLETED';
+    this.payment.instalmentAmount = 0;
+    this.payment.remainingBalance = (this.posHomeCart.total);
+    this.payment.discount = this.posHomeCart.discount;
+    this.payment.taxesAmount = this.posHomeCart.taxes;
+    this.payment.totalAmount = (this.posHomeCart.total);
+    this.payment.customerPaid = 0;
+
+    let billCopy = 1;//Print Bill force it 1 copy
+
+    this.printService.printThermalRestaurant(customer,
+      this.payment,
+      this.posHomeCart,
+      this.customerBalance,
+      this.invoiceNumber,
+      this.printTokenFlag,
+      this.todaydatashow,
+      this.orderNotes,
+      dinInFlag,
+      billCopy);
+
+  }
+
 
   /* ************************** THE END ***************************************** */
 

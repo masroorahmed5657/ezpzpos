@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome'
 import { FaIconLibrary } from '@fortawesome/angular-fontawesome';
 import { faStar as farStar } from '@fortawesome/free-regular-svg-icons';
@@ -69,21 +69,17 @@ import { DashboardComponent } from './features/dashboard/dashboard.component';
     DashboardComponent
 
   ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    ReactiveFormsModule,
-    FormsModule,
-    FontAwesomeModule,
-    HttpClientModule,
-    NgxPaginationModule,
-    NgApexchartsModule,
-    DecimalPipe
-
-    // NgxPrintModule,
-
-
-  ],
+imports: [
+  BrowserModule,
+  AppRoutingModule,
+  ReactiveFormsModule,
+  FormsModule,
+  FontAwesomeModule,
+  HttpClientModule,
+  NgxPaginationModule,
+  NgApexchartsModule,
+  CommonModule
+],
   providers: [
     DatePipe,
 
